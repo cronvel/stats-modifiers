@@ -53,13 +53,19 @@ describe( "Basic usage" , () => {
 			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
 		} ) ;
 		
-		expect( mods.statsModifiers.strength ).to.be.partially.like( [ { id: 'staff' , operator: '+' , operand: 5 } ] ) ;
-		expect( mods.getProxy().strength ).to.be.partially.like( [ { id: 'staff' , operator: '+' , operand: 5 } ] ) ;
+		expect( mods.statsModifiers.strength ).to.be.partially.like( { '': { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } } ) ;
+		expect( mods.getProxy().strength ).to.be.partially.like( { '': { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } } ) ;
 
-		expect( mods.statsModifiers.dexterity ).to.be.partially.like( [ { id: 'staff' , operator: '-' , operand: 2 } , { id: 'staff' , operator: '*' , operand: 0.8 } ] ) ;
-		expect( mods.getProxy().dexterity ).to.be.partially.like( [ { id: 'staff' , operator: '-' , operand: 2 } , { id: 'staff' , operator: '*' , operand: 0.8 } ] ) ;
+		expect( mods.statsModifiers.dexterity ).to.be.partially.like( { '': {
+			minus: { id: 'staff' , operator: 'minus' , operand: 2 } ,
+			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
+		} } ) ;
+		expect( mods.getProxy().dexterity ).to.be.partially.like( { '': {
+			minus: { id: 'staff' , operator: 'minus' , operand: 2 } ,
+			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
+		} } ) ;
 	} ) ;
-
+	
 	it( "Adding a ModifiersTable to a StatsTable" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
@@ -69,13 +75,18 @@ describe( "Basic usage" , () => {
 		
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: [ [ '+' , 5 ] ] ,
-			dexterity: [ [ '-' , 2 ] ]
+			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
 		} ) ;
 		
 		stats.stack( mods ) ;
 		
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
 		expect( stats.getProxy().strength.base ).to.be( 12 ) ;
+
+		expect( stats.stats.strength.actual ).to.be( 17 ) ;
+		expect( stats.getProxy().strength.actual ).to.be( 17 ) ;
+
+		expect( stats.stats.dexterity.actual ).to.be( 10 ) ;
 	} ) ;
 } ) ;
 
