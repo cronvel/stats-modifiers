@@ -1,6 +1,6 @@
 {
   "name": "stats-modifiers",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Stats and modifiers lib for gamedev.",
   "main": "lib/stats-modifiers.js",
   "engines": {
@@ -10,6 +10,7 @@
     "test": "test"
   },
   "dependencies": {
+    "array-kit": "^0.2.4"
   },
   "scripts": {
     "test": "tea-time -R dot -O"
