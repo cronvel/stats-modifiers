@@ -1,0 +1,46 @@
+{
+  "name": "stats-modifiers",
+  "version": "0.0.0",
+  "description": "Stats and modifiers lib for gamedev.",
+  "main": "lib/stats-modifiers.js",
+  "engines": {
+    "node": ">=14.15.0"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+  },
+  "scripts": {
+    "test": "tea-time -R dot -O"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cronvel/stats-modifiers.git"
+  },
+  "keywords": [
+    "stats",
+    "modifiers",
+    "game",
+    "rpg"
+  ],
+  "author": "Cédric Ronvel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cronvel/stats-modifiers/issues"
+  },
+  "config": {
+    "tea-time": {
+      "coverDir": [
+        "lib"
+      ]
+    }
+  },
+  "copyright": {
+    "title": "Stats Modifiers",
+    "years": [
+      2021
+    ],
+    "owner": "Cédric Ronvel"
+  }
+}
