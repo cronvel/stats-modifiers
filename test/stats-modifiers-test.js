@@ -178,10 +178,10 @@ describe( "Basic usage" , () => {
 		
 		expect( stats.stats.dexterity.actual ).to.be( 13 ) ;
 		
-		mods2.setActive( true ) ;
+		stats.activate( mods2 ) ;
 		expect( stats.stats.dexterity.actual ).to.be( 18 ) ;
 
-		mods.setActive( false ) ;
+		stats.deactivate( mods ) ;
 		expect( stats.stats.dexterity.actual ).to.be( 20 ) ;
 	} ) ;
 } ) ;
