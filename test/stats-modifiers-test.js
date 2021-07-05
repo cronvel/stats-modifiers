@@ -161,6 +161,29 @@ describe( "Basic usage" , () => {
 		expect( stats.stats.strength.actual ).to.be( 13 ) ;
 		expect( statsP.strength.actual ).to.be( 13 ) ;
 	} ) ;
+	
+	it( "Active and inactive modifiers" , () => {
+		var stats = new lib.StatsTable( {
+			strength: 12 ,
+			dexterity: 15 ,
+			hp: 20
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		var mods = new lib.ModifiersTable( 'staff' , { dexterity: [ '-' , 2 ] } , true ) ,
+			mods2 = new lib.ModifiersTable( 'agile-spell' , { dexterity: [ '+' , 5 ] } , false ) ;
+		
+		stats.stack( mods ) ;
+		
+		expect( stats.stats.dexterity.actual ).to.be( 13 ) ;
+		
+		mods2.setActive( true ) ;
+		expect( stats.stats.dexterity.actual ).to.be( 18 ) ;
+
+		mods.setActive( false ) ;
+		expect( stats.stats.dexterity.actual ).to.be( 20 ) ;
+	} ) ;
 } ) ;
 
 
