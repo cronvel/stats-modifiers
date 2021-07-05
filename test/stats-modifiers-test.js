@@ -30,9 +30,52 @@
 
 
 
-describe( "..." , () => {
+const lib = require( '..' ) ;
 
-	it( "..." , () => {
+
+
+describe( "Basic usage" , () => {
+
+	it( "StatsTable creation" , () => {
+		var stats = new lib.StatsTable( {
+			strength: 12 ,
+			dexterity: 15 ,
+			hp: 20
+		} ) ;
+		
+		expect( stats.stats.strength.base ).to.be( 12 ) ;
+		expect( stats.getProxy().strength.base ).to.be( 12 ) ;
+	} ) ;
+
+	it( "ModifiersTable creation" , () => {
+		var mods = new lib.ModifiersTable( 'staff' , {
+			strength: [ [ '+' , 5 ] ] ,
+			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+		} ) ;
+		
+		expect( mods.statsModifiers.strength ).to.be.partially.like( [ { id: 'staff' , operator: '+' , operand: 5 } ] ) ;
+		expect( mods.getProxy().strength ).to.be.partially.like( [ { id: 'staff' , operator: '+' , operand: 5 } ] ) ;
+
+		expect( mods.statsModifiers.dexterity ).to.be.partially.like( [ { id: 'staff' , operator: '-' , operand: 2 } , { id: 'staff' , operator: '*' , operand: 0.8 } ] ) ;
+		expect( mods.getProxy().dexterity ).to.be.partially.like( [ { id: 'staff' , operator: '-' , operand: 2 } , { id: 'staff' , operator: '*' , operand: 0.8 } ] ) ;
+	} ) ;
+
+	it( "Adding a ModifiersTable to a StatsTable" , () => {
+		var stats = new lib.StatsTable( {
+			strength: 12 ,
+			dexterity: 15 ,
+			hp: 20
+		} ) ;
+		
+		var mods = new lib.ModifiersTable( 'staff' , {
+			strength: [ [ '+' , 5 ] ] ,
+			dexterity: [ [ '-' , 2 ] ]
+		} ) ;
+		
+		stats.stack( mods ) ;
+		
+		expect( stats.stats.strength.base ).to.be( 12 ) ;
+		expect( stats.getProxy().strength.base ).to.be( 12 ) ;
 	} ) ;
 } ) ;
 
