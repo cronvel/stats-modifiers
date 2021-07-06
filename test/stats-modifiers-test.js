@@ -61,11 +61,11 @@ describe( "Basic usage" , () => {
 		expect( modsP.strength ).to.be.partially.like( { '': { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } } ) ;
 
 		expect( mods.statsModifiers.dexterity ).to.be.partially.like( { '': {
-			minus: { id: 'staff' , operator: 'minus' , operand: 2 } ,
+			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
 			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
 		} } ) ;
 		expect( modsP.dexterity ).to.be.partially.like( { '': {
-			minus: { id: 'staff' , operator: 'minus' , operand: 2 } ,
+			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
 			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
 		} } ) ;
 	} ) ;
@@ -81,9 +81,9 @@ describe( "Basic usage" , () => {
 		
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.base ).to.be( 12 ) ;
-		expect( stats.stats.strength.actual ).to.be( 12 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 12 ) ;
 		expect( statsP.strength.actual ).to.be( 12 ) ;
-		expect( stats.stats.dexterity.actual ).to.be( 15 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 15 ) ;
 
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: [ '+' , 5 ] ,
@@ -95,18 +95,18 @@ describe( "Basic usage" , () => {
 		
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.base ).to.be( 12 ) ;
-		expect( stats.stats.strength.actual ).to.be( 17 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
 		expect( statsP.strength.actual ).to.be( 17 ) ;
-		expect( stats.stats.dexterity.actual ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
 
 
 		stats.unstack( mods ) ;
 
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.base ).to.be( 12 ) ;
-		expect( stats.stats.strength.actual ).to.be( 12 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 12 ) ;
 		expect( statsP.strength.actual ).to.be( 12 ) ;
-		expect( stats.stats.dexterity.actual ).to.be( 15 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 15 ) ;
 
 
 		var mods2 = new lib.ModifiersTable( 'ring-of-strength' , {
@@ -118,11 +118,11 @@ describe( "Basic usage" , () => {
 		
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.base ).to.be( 12 ) ;
-		expect( stats.stats.strength.actual ).to.be( 19 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 19 ) ;
 		expect( statsP.strength.actual ).to.be( 19 ) ;
-		expect( stats.stats.dexterity.actual ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
 	} ) ;
-	
+		
 	it( "Updating base value of a StatsTable having a ModifiersTable" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
@@ -141,16 +141,16 @@ describe( "Basic usage" , () => {
 		
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.base ).to.be( 12 ) ;
-		expect( stats.stats.strength.actual ).to.be( 17 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
 		expect( statsP.strength.actual ).to.be( 17 ) ;
-		expect( stats.stats.dexterity.actual ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
 		
 		// Modify a stat using direct stat access
 		stats.stats.strength.set( 10 ) ;
 
 		expect( stats.stats.strength.base ).to.be( 10 ) ;
 		expect( statsP.strength.base ).to.be( 10 ) ;
-		expect( stats.stats.strength.actual ).to.be( 15 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 15 ) ;
 		expect( statsP.strength.actual ).to.be( 15 ) ;
 		
 		// Modify a stat through proxy
@@ -158,8 +158,73 @@ describe( "Basic usage" , () => {
 
 		expect( stats.stats.strength.base ).to.be( 8 ) ;
 		expect( statsP.strength.base ).to.be( 8 ) ;
-		expect( stats.stats.strength.actual ).to.be( 13 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 13 ) ;
 		expect( statsP.strength.actual ).to.be( 13 ) ;
+
+		statsP.strength.base = 6 ;
+
+		expect( stats.stats.strength.base ).to.be( 6 ) ;
+		expect( statsP.strength.base ).to.be( 6 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 11 ) ;
+		expect( statsP.strength.actual ).to.be( 11 ) ;
+	} ) ;
+		
+	it( "Updating a ModifiersTable already stacked on a StatsTable" , () => {
+		var stats = new lib.StatsTable( {
+			strength: 12 ,
+			dexterity: 15 ,
+			hp: 20
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		var mods = new lib.ModifiersTable( 'staff' , {
+			strength: [ '+' , 5 ] ,
+			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+		} ) ;
+		
+		var modsP = mods.getProxy() ;
+
+		stats.stack( mods ) ;
+		
+		expect( stats.stats.strength.base ).to.be( 12 ) ;
+		expect( statsP.strength.base ).to.be( 12 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
+		expect( statsP.strength.actual ).to.be( 17 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		
+		// Modify a stat using direct stat access
+		mods.statsModifiers.strength[''].plus.set( 10 ) ;
+
+		expect( stats.stats.strength.base ).to.be( 10 ) ;
+		expect( statsP.strength.base ).to.be( 10 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 15 ) ;
+		expect( statsP.strength.actual ).to.be( 15 ) ;
+	} ) ;
+	
+	it( "zzz Accessing a ModifiersTable from a StatsTable" , () => {
+		var stats = new lib.StatsTable( {
+			strength: 12 ,
+			dexterity: 15 ,
+			hp: 20
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		var mods = new lib.ModifiersTable( 'staff' , {
+			strength: [ '+' , 5 ] ,
+			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+		} ) ;
+
+		var mods2 = new lib.ModifiersTable( 'ring-of-strength' , {
+			strength: [ '+' , 2 ]
+		} ) ;
+		
+		stats.stack( mods ) ;
+		stats.stack( mods2 ) ;
+
+		console.log( "statsP.modifiersTables:" , statsP.modifiersTables ) ;
+		expect( statsP.modifiersTables['staff'] ).to.be( mods ) ;
 	} ) ;
 	
 	it( "Active and inactive modifiers" , () => {
@@ -175,14 +240,18 @@ describe( "Basic usage" , () => {
 			mods2 = new lib.ModifiersTable( 'agile-spell' , { dexterity: [ '+' , 5 ] } , false ) ;
 		
 		stats.stack( mods ) ;
+		stats.stack( mods2 ) ;
 		
-		expect( stats.stats.dexterity.actual ).to.be( 13 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 13 ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
 		
-		stats.activate( mods2 ) ;
-		expect( stats.stats.dexterity.actual ).to.be( 18 ) ;
+		mods2.activate() ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 18 ) ;
+		expect( statsP.dexterity.actual ).to.be( 18 ) ;
 
-		stats.deactivate( mods ) ;
-		expect( stats.stats.dexterity.actual ).to.be( 20 ) ;
+		mods.deactivate() ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 20 ) ;
+		expect( statsP.dexterity.actual ).to.be( 20 ) ;
 	} ) ;
 } ) ;
 
@@ -211,6 +280,9 @@ describe( "Sub-stats" , () => {
 
 		statsP.hp.injury.base = 12 ;
 		expect( statsP.hp.injury.base ).to.be( 12 ) ;
+
+		statsP.hp.injury = 14 ;
+		expect( statsP.hp.injury.base ).to.be( 14 ) ;
 	} ) ;
 } ) ;
 
