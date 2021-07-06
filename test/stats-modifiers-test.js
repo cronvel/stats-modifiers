@@ -193,7 +193,6 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.actual ).to.be( 17 ) ;
 		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
 		
-		// Modify a stat using direct stat access
 		mods.statsModifiers.strength.plus.set( 7 ) ;
 
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
@@ -201,6 +200,7 @@ describe( "Basic usage" , () => {
 		expect( stats.stats.strength.getActual() ).to.be( 19 ) ;
 		expect( statsP.strength.actual ).to.be( 19 ) ;
 
+		// Modify a stat modifier using direct modifier access
 		modsP.strength.plus = 4 ;
 
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
@@ -208,14 +208,12 @@ describe( "Basic usage" , () => {
 		expect( stats.stats.strength.getActual() ).to.be( 16 ) ;
 		expect( statsP.strength.actual ).to.be( 16 ) ;
 		
-		return ;
-// ------------------------------------ HERE -------------------------------------
 		modsP.strength.multiply = 2 ;
 
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.base ).to.be( 12 ) ;
-		expect( stats.stats.strength.getActual() ).to.be( 16 ) ;
-		expect( statsP.strength.actual ).to.be( 16 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 28 ) ;
+		expect( statsP.strength.actual ).to.be( 28 ) ;
 	} ) ;
 	
 	it( "Accessing a ModifiersTable from a StatsTable" , () => {
