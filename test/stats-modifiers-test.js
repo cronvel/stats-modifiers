@@ -207,6 +207,15 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( stats.stats.strength.getActual() ).to.be( 16 ) ;
 		expect( statsP.strength.actual ).to.be( 16 ) ;
+		
+		return ;
+// ------------------------------------ HERE -------------------------------------
+		modsP.strength.multiply = 2 ;
+
+		expect( stats.stats.strength.base ).to.be( 12 ) ;
+		expect( statsP.strength.base ).to.be( 12 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 16 ) ;
+		expect( statsP.strength.actual ).to.be( 16 ) ;
 	} ) ;
 	
 	it( "Accessing a ModifiersTable from a StatsTable" , () => {
@@ -237,12 +246,13 @@ describe( "Basic usage" , () => {
 			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
 			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
 		} ) ;
-		expect( statsP.modifiersTables['ring-of-strength'].strength ).to.be.like( {
+		// 'mods' alias
+		expect( statsP.mods['ring-of-strength'].strength ).to.be.like( {
 			plus: { id: 'ring-of-strength' , operator: 'plus' , operand: 2 }
 		} ) ;
 	} ) ;
 	
-	it( "Active and inactive modifiers" , () => {
+	it( "Activate and deactivate modifiers" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
 			dexterity: 15 ,
@@ -267,6 +277,22 @@ describe( "Basic usage" , () => {
 		mods.deactivate() ;
 		expect( stats.stats.dexterity.getActual() ).to.be( 20 ) ;
 		expect( statsP.dexterity.actual ).to.be( 20 ) ;
+	} ) ;
+} ) ;
+
+
+
+describe( "ModifiersTable templates" , () => {
+
+	it( "ModifiersTable template creation" , () => {
+		var modsTemplate = new lib.ModifiersTable( 'staff' , {
+			strength: [ '+' , 5 ] ,
+			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+		} , undefined , true ) ;
+		
+		var mods = modsTemplate.instanciate() ;
+		console.log( "mods:" , mods , mods.statsModifiers ) ;
+		expect( mods.id ).to.be( 'staff:0' ) ;
 	} ) ;
 } ) ;
 
