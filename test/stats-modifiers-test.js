@@ -289,8 +289,31 @@ describe( "ModifiersTable templates" , () => {
 		} , undefined , true ) ;
 		
 		var mods = modsTemplate.instanciate() ;
-		console.log( "mods:" , mods , mods.statsModifiers ) ;
+		//console.log( "mods:" , mods , mods.statsModifiers ) ;
 		expect( mods.id ).to.be( 'staff:0' ) ;
+
+		var stats = new lib.StatsTable( {
+			strength: 12 ,
+			dexterity: 15 ,
+			hp: 20
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		statsP.stack( modsTemplate ) ;
+
+		expect( stats.modifiersTables[ 0 ] ).to.be.partially.like( {
+			id: 'staff:1' ,
+			statsModifiers: {
+				strength: {
+					plus: { id: 'staff:1' , operator: 'plus' , operand: 5 }
+				} ,
+				dexterity: {
+					plus: { id: 'staff:1' , operator: 'plus' , operand: -2 } ,
+					multiply: { id: 'staff:1' , operator: 'multiply' , operand: 0.8 }
+				}
+			}
+		} ) ;
 	} ) ;
 } ) ;
 
