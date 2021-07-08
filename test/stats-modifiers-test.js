@@ -317,3 +317,72 @@ describe( "ModifiersTable templates" , () => {
 	} ) ;
 } ) ;
 
+
+
+describe( "Compound stats" , () => {
+
+	it( "Compound stats creation" , () => {
+		var stats = new lib.StatsTable( {
+			reflex: 16 ,
+			dexterity: 10 ,
+			defense: [ 'average' , 'reflex' , 'dexterity' ]
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+		expect( statsP.defense.base ).to.be( null ) ;
+		expect( statsP.defense.actual ).to.be( 13 ) ;
+	} ) ;
+
+	it( "Compound stats should use modifiers of primary stats" , () => {
+		var stats = new lib.StatsTable( {
+			reflex: 16 ,
+			dexterity: 10 ,
+			defense: [ 'average' , 'reflex' , 'dexterity' ]
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+		expect( statsP.defense.base ).to.be( null ) ;
+		expect( statsP.defense.actual ).to.be( 13 ) ;
+
+		var mods = new lib.ModifiersTable( 'ring-of-dexterity' , {
+			dexterity: [ '+' , 4 ]
+		} ) ;
+		
+		var modsP = mods.getProxy() ;
+
+		statsP.stack( modsP ) ;
+
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 14 ) ;
+		expect( statsP.defense.base ).to.be( null ) ;
+		expect( statsP.defense.actual ).to.be( 15 ) ;
+
+		var mods2 = new lib.ModifiersTable( 'helm-of-defense' , {
+			defense: [ '+' , 3 ]
+		} ) ;
+
+		var mods2P = mods2.getProxy() ;
+
+		statsP.stack( mods2P ) ;
+
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 14 ) ;
+		expect( statsP.defense.base ).to.be( null ) ;
+		expect( statsP.defense.actual ).to.be( 18 ) ;
+	} ) ;
+} ) ;
+
