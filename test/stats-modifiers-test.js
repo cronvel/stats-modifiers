@@ -390,7 +390,7 @@ describe( "Compound stats" , () => {
 
 describe( "Receiving events" , () => {
 
-	it( "Basic event test" , () => {
+	it( "One-time events" , () => {
 		var stats = new lib.StatsTable( {
 			reflex: 16 ,
 			dexterity: 10 ,
@@ -407,7 +407,7 @@ describe( "Receiving events" , () => {
 			dexterity: [ '+' , 4 ]
 		} ) ;
 		
-		mods.setEventOnce( 'new-turn' , 'remove' ) ;
+		mods.setOneTimeEvent( 'new-turn' , 'remove' ) ;
 		
 		statsP.stack( mods ) ;
 
@@ -424,7 +424,7 @@ describe( "Receiving events" , () => {
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 	} ) ;
 
-	it( "Multiple event test with countdown" , () => {
+	it( "Countdown events" , () => {
 		var stats = new lib.StatsTable( {
 			reflex: 16 ,
 			dexterity: 10 ,
@@ -441,8 +441,8 @@ describe( "Receiving events" , () => {
 			dexterity: [ '+' , 4 ]
 		} , false ) ;
 		
-		mods.setEventOnce( 'new-turn' , 'activate' ) ;
-		mods.setEventCountdown( 'new-turn' , 'remove' , 2 ) ;
+		mods.setOneTimeEvent( 'new-turn' , 'activate' ) ;
+		mods.setCountdownEvent( 'new-turn' , 3 , 'remove' ) ;
 		
 		statsP.stack( mods ) ;
 
@@ -470,6 +470,88 @@ describe( "Receiving events" , () => {
 		expect( statsP.reflex.base ).to.be( 16 ) ;
 		expect( statsP.reflex.actual ).to.be( 16 ) ;
 		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+	} ) ;
+
+	it( "Recurring events with 'fade' action" , () => {
+		var stats = new lib.StatsTable( {
+			reflex: 16 ,
+			dexterity: 10 ,
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+
+		var mods = new lib.ModifiersTable( 'dexterity-spell' , {
+			dexterity: [ '+' , 4 ]
+		} ) ;
+		
+		mods.setRecurringEvent( 'new-turn' , 'fade' ) ;
+		
+		statsP.stack( mods ) ;
+		expect( statsP.dexterity.actual ).to.be( 14 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 12 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 11 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+	} ) ;
+
+	it( "Recurring every X events with 'fade' action" , () => {
+		var stats = new lib.StatsTable( {
+			reflex: 16 ,
+			dexterity: 10 ,
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+
+		var mods = new lib.ModifiersTable( 'dexterity-spell' , {
+			dexterity: [ '+' , 9 ]
+		} ) ;
+		
+		mods.setEveryEvent( 'new-turn' , 2 , 'fade' , 3 ) ;
+		
+		statsP.stack( mods ) ;
+		expect( statsP.dexterity.actual ).to.be( 19 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 19 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 16 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 16 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 	} ) ;
 } ) ;
