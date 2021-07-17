@@ -556,3 +556,231 @@ describe( "Receiving events" , () => {
 	} ) ;
 } ) ;
 
+describe( "Operators" , () => {
+
+	it( "+ and * natural priority order" , () => {
+		var stats = new lib.StatsTable( { dexterity: 14 } ) ;
+		var statsP = stats.getProxy() ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 14 ) ;
+
+		var mods = new lib.ModifiersTable( 'clumsy-ring' , {
+			dexterity: [ [ '+' , 2 ] , [ '*' , 0.5 ] ]
+		} ) ;
+		
+		statsP.stack( mods ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 9 ) ;
+
+		statsP.unstack( mods ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 14 ) ;
+
+		var mods2 = new lib.ModifiersTable( 'clumsy-ring' , {
+			dexterity: [ [ '*' , 0.5 ] , [ '+' , 2 ] ]
+		} ) ;
+		
+		statsP.stack( mods2 ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 9 ) ;
+	} ) ;
+
+	it( "+ and * modified priority order" , () => {
+		var stats = new lib.StatsTable( { dexterity: 14 } ) ;
+		var statsP = stats.getProxy() ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 14 ) ;
+
+		var mods = new lib.ModifiersTable( 'clumsy-ring' , {
+			dexterity: [ [ '+' , 2 , 1 ] , [ '*' , 0.5 ] ]
+		} ) ;
+		
+		statsP.stack( mods ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 8 ) ;
+	} ) ;
+
+	it( "set (=) operator" , () => {
+		var stats = new lib.StatsTable( { dexterity: 14 } ) ;
+		var statsP = stats.getProxy() ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 14 ) ;
+
+		var mods = new lib.ModifiersTable( 'mediocre-ring' , {
+			dexterity: [ '=' , 8 ]
+		} ) ;
+		
+		var mods2 = new lib.ModifiersTable( 'agility-ring' , {
+			dexterity: [ '+' , 2 ]
+		} ) ;
+		
+		statsP.stack( mods ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 8 ) ;
+
+		// No effect!
+		statsP.stack( mods2 ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 8 ) ;
+
+		stats = new lib.StatsTable( { dexterity: 5 } ) ;
+		statsP = stats.getProxy() ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 5 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 5 ) ;
+
+		statsP.stack( mods ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 5 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 8 ) ;
+
+		// No effect!
+		statsP.stack( mods2 ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 5 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 8 ) ;
+	} ) ;
+
+	it( "atLeast (>=) operator" , () => {
+		var stats = new lib.StatsTable( { dexterity: 14 } ) ;
+		var statsP = stats.getProxy() ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 14 ) ;
+
+		var mods = new lib.ModifiersTable( 'hermes-ring' , {
+			dexterity: [ '>=' , 30 ]
+		} ) ;
+		
+		var mods2 = new lib.ModifiersTable( 'agility-ring' , {
+			dexterity: [ '+' , 2 ]
+		} ) ;
+		
+		statsP.stack( mods ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 30 ) ;
+
+		// No effect!
+		statsP.stack( mods2 ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 30 ) ;
+
+		stats = new lib.StatsTable( { dexterity: 40 } ) ;
+		statsP = stats.getProxy() ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 40 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 40 ) ;
+
+		statsP.stack( mods ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 40 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 40 ) ;
+
+		// HAS effect!
+		statsP.stack( mods2 ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 40 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 42 ) ;
+	} ) ;
+
+	it( "atMost (<=) operator" , () => {
+		var stats = new lib.StatsTable( { dexterity: 14 } ) ;
+		var statsP = stats.getProxy() ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 14 ) ;
+
+		var mods = new lib.ModifiersTable( 'ultimate-curse-ring' , {
+			dexterity: [ '<=' , 3 ]
+		} ) ;
+		
+		var mods2 = new lib.ModifiersTable( 'agility-ring' , {
+			dexterity: [ '+' , 2 ]
+		} ) ;
+		
+		statsP.stack( mods ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 3 ) ;
+
+		// No effect!
+		statsP.stack( mods2 ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 3 ) ;
+
+		stats = new lib.StatsTable( { dexterity: 1 } ) ;
+		statsP = stats.getProxy() ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 1 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 1 ) ;
+
+		statsP.stack( mods ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 1 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 1 ) ;
+
+		// HAS effect!
+		statsP.stack( mods2 ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 1 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 3 ) ;
+	} ) ;
+
+	it( "preset (:) operator" , () => {
+		var stats = new lib.StatsTable( { dexterity: 14 } ) ;
+		var statsP = stats.getProxy() ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 14 ) ;
+
+		var mods = new lib.ModifiersTable( 'mediocre-ring' , {
+			dexterity: [ ':' , 8 ]
+		} ) ;
+		
+		var mods2 = new lib.ModifiersTable( 'agility-ring' , {
+			dexterity: [ '+' , 2 ]
+		} ) ;
+		
+		statsP.stack( mods ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 8 ) ;
+
+		// HAS effect!
+		statsP.stack( mods2 ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+
+		stats = new lib.StatsTable( { dexterity: 5 } ) ;
+		statsP = stats.getProxy() ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 5 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 5 ) ;
+
+		statsP.stack( mods ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 5 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 8 ) ;
+
+		// HAS effect!
+		statsP.stack( mods2 ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 5 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+	} ) ;
+} ) ;
+
+
