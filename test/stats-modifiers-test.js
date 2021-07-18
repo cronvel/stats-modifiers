@@ -738,7 +738,7 @@ describe( "Operators" , () => {
 		expect( stats.stats.dexterity.getActual() ).to.be( 3 ) ;
 	} ) ;
 
-	it( "preset (:) operator" , () => {
+	it( "base (:) operator" , () => {
 		var stats = new lib.StatsTable( { dexterity: 14 } ) ;
 		var statsP = stats.getProxy() ;
 		
