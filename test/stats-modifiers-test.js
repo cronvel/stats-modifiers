@@ -70,6 +70,27 @@ describe( "Basic usage" , () => {
 		} ) ;
 	} ) ;
 	
+	it( "ModifiersTable creation using the object syntax" , () => {
+		var mods = new lib.ModifiersTable( 'staff' , {
+			strength: { operator: '+' , operand: 5 } ,
+			dexterity: [ { operator: '-' , operand: 2 } , { operator: '*' , operand: 0.8 } ]
+		} ) ;
+		
+		var modsP = mods.getProxy() ;
+		
+		expect( mods.statsModifiers.strength ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
+		expect( modsP.strength ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
+
+		expect( mods.statsModifiers.dexterity ).to.be.partially.like( {
+			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
+			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
+		} ) ;
+		expect( modsP.dexterity ).to.be.partially.like( {
+			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
+			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
+		} ) ;
+	} ) ;
+	
 	it( "Adding/removing a ModifiersTable to a StatsTable" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
