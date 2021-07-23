@@ -357,6 +357,22 @@ describe( "Compound stats" , () => {
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 		expect( statsP.defense.base ).to.be( null ) ;
 		expect( statsP.defense.actual ).to.be( 13 ) ;
+		
+		// KFG
+		stats = new lib.StatsTable( {
+			reflex: 16 ,
+			dexterity: 10 ,
+			defense: { operator: 'average' , operand: [ 'reflex' , 'dexterity' ] }
+		} ) ;
+		
+		statsP = stats.getProxy() ;
+		
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+		expect( statsP.defense.base ).to.be( null ) ;
+		expect( statsP.defense.actual ).to.be( 13 ) ;
 	} ) ;
 
 	it( "Compound stats should use modifiers of primary stats" , () => {
