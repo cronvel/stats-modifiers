@@ -56,8 +56,11 @@ describe( "Basic usage" , () => {
 				remaining: 14
 			}
 		} ) ;
+		console.log( "FINAL:" , stats ) ;
+		return ;
 		
 		var statsP = stats.getProxy() ;
+		console.log( "FINAL:" , statsP ) ;
 		
 		expect( stats.stats.hp.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.base ).to.be( 12 ) ;
@@ -371,17 +374,16 @@ describe( "Compound stats" , () => {
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 		expect( statsP.defense.base ).to.be( null ) ;
 		expect( statsP.defense.actual ).to.be( 13 ) ;
+	} ) ;
 
-		return ;
-// TODO
-		// KFG
-		stats = new lib.StatsTable( {
+	it( "Compound stats and KFG compatibility" , () => {
+		var stats = new lib.StatsTable( {
 			reflex: 16 ,
 			dexterity: 10 ,
 			defense: { operator: 'average' , operand: [ 'reflex' , 'dexterity' ] }
 		} ) ;
 		
-		statsP = stats.getProxy() ;
+		var statsP = stats.getProxy() ;
 		
 		expect( statsP.reflex.base ).to.be( 16 ) ;
 		expect( statsP.reflex.actual ).to.be( 16 ) ;
