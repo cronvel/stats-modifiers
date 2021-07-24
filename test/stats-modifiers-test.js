@@ -49,6 +49,20 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 	} ) ;
 
+	it( "zzz StatsTable with hierarchy/nested stats creation" , () => {
+		var stats = new lib.StatsTable( {
+			hp: {
+				max: 20 ,
+				remaining: 14
+			}
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( stats.stats.hp.max.base ).to.be( 20 ) ;
+		expect( statsP.hp.max.base ).to.be( 12 ) ;
+	} ) ;
+
 	it( "ModifiersTable creation" , () => {
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: [ '+' , 5 ] ,
@@ -346,7 +360,7 @@ describe( "Compound stats" , () => {
 		var stats = new lib.StatsTable( {
 			reflex: 16 ,
 			dexterity: 10 ,
-			defense: [ 'average' , 'reflex' , 'dexterity' ]
+			defense: new lib.Compound( 'average' , [ 'reflex' , 'dexterity' ] )
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
@@ -357,7 +371,9 @@ describe( "Compound stats" , () => {
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 		expect( statsP.defense.base ).to.be( null ) ;
 		expect( statsP.defense.actual ).to.be( 13 ) ;
-		
+
+		return ;
+// TODO
 		// KFG
 		stats = new lib.StatsTable( {
 			reflex: 16 ,
@@ -379,7 +395,7 @@ describe( "Compound stats" , () => {
 		var stats = new lib.StatsTable( {
 			reflex: 16 ,
 			dexterity: 10 ,
-			defense: [ 'average' , 'reflex' , 'dexterity' ]
+			defense: new lib.Compound( 'average' , [ 'reflex' , 'dexterity' ] )
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
@@ -592,6 +608,8 @@ describe( "Receiving events" , () => {
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 	} ) ;
 } ) ;
+
+
 
 describe( "Operators" , () => {
 
@@ -819,5 +837,4 @@ describe( "Operators" , () => {
 		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
 	} ) ;
 } ) ;
-
 

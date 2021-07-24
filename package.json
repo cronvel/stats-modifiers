@@ -10,7 +10,8 @@
     "test": "test"
   },
   "dependencies": {
-    "array-kit": "^0.2.4"
+    "array-kit": "^0.2.4",
+    "tree-kit": "^0.7.0"
   },
   "scripts": {
     "test": "tea-time -R dot -O"
