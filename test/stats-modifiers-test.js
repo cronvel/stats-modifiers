@@ -49,21 +49,29 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 	} ) ;
 
-	it( "zzz StatsTable with hierarchy/nested stats creation" , () => {
+	it( "StatsTable with nested stats creation" , () => {
 		var stats = new lib.StatsTable( {
 			hp: {
 				max: 20 ,
 				remaining: 14
-			}
+			} ,
+			damages: [
+				{ type: 'cutting' , damage: 24 } ,
+				{ type: 'fire' , damage: 8 }
+			]
 		} ) ;
-		console.log( "FINAL:" , stats ) ;
-		return ;
 		
 		var statsP = stats.getProxy() ;
-		console.log( "FINAL:" , statsP ) ;
 		
 		expect( stats.stats.hp.max.base ).to.be( 20 ) ;
-		expect( statsP.hp.max.base ).to.be( 12 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( stats.stats.hp.remaining.base ).to.be( 14 ) ;
+		expect( statsP.hp.remaining.base ).to.be( 14 ) ;
+
+		expect( stats.stats.damages[ 0 ].damage.base ).to.be( 24 ) ;
+		expect( statsP.damages[ 0 ].damage.base ).to.be( 24 ) ;
+		expect( stats.stats.damages[ 1 ].damage.base ).to.be( 8 ) ;
+		expect( statsP.damages[ 1 ].damage.base ).to.be( 8 ) ;
 	} ) ;
 
 	it( "ModifiersTable creation" , () => {
@@ -87,7 +95,7 @@ describe( "Basic usage" , () => {
 		} ) ;
 	} ) ;
 	
-	it( "ModifiersTable creation using the object syntax" , () => {
+	it( "ModifiersTable creation using the object syntax (KFG)" , () => {
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: { operator: '+' , operand: 5 } ,
 			dexterity: [ { operator: '-' , operand: 2 } , { operator: '*' , operand: 0.8 } ]
