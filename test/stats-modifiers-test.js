@@ -95,6 +95,27 @@ describe( "Basic usage" , () => {
 		} ) ;
 	} ) ;
 	
+	it( "ModifiersTable for nested stats creation" , () => {
+		var mods = new lib.ModifiersTable( 'staff' , {
+			"hp.max": [ '+' , 5 ] ,
+			"damages.0.damage": [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+		} ) ;
+		
+		var modsP = mods.getProxy() ;
+		
+		expect( mods.statsModifiers['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
+		expect( modsP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
+
+		expect( mods.statsModifiers['damages.0.damage'] ).to.be.partially.like( {
+			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
+			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
+		} ) ;
+		expect( modsP['damages.0.damage'] ).to.be.partially.like( {
+			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
+			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
+		} ) ;
+	} ) ;
+	
 	it( "ModifiersTable creation using the object syntax (KFG)" , () => {
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: { operator: '+' , operand: 5 } ,
@@ -116,11 +137,14 @@ describe( "Basic usage" , () => {
 		} ) ;
 	} ) ;
 	
-	it( "Adding/removing a ModifiersTable to a StatsTable" , () => {
+	it( "zzz Adding/removing a ModifiersTable to a StatsTable" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
 			dexterity: 15 ,
-			hp: 20
+			hp: {
+				max: 20 ,
+				remaining: 14
+			} ,
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
@@ -133,7 +157,8 @@ describe( "Basic usage" , () => {
 
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: [ '+' , 5 ] ,
-			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ] ,
+			"hp.max": [ '+' , 2 ]
 		} ) ;
 		
 
@@ -144,6 +169,9 @@ describe( "Basic usage" , () => {
 		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
 		expect( statsP.strength.actual ).to.be( 17 ) ;
 		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( stats.stats.hp.max.getActual() ).to.be( 22 ) ;
+		expect( statsP.hp.max.actual ).to.be( 22 ) ;
 
 
 		stats.unstack( mods ) ;
@@ -153,10 +181,14 @@ describe( "Basic usage" , () => {
 		expect( stats.stats.strength.getActual() ).to.be( 12 ) ;
 		expect( statsP.strength.actual ).to.be( 12 ) ;
 		expect( stats.stats.dexterity.getActual() ).to.be( 15 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( stats.stats.hp.max.getActual() ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
 
 
 		var mods2 = new lib.ModifiersTable( 'ring-of-strength' , {
-			strength: [ '+' , 2 ]
+			strength: [ '+' , 2 ] ,
+			"hp.remaining": [ '+' , 1 ]
 		} ) ;
 		
 		stats.stack( mods ) ;
@@ -167,6 +199,12 @@ describe( "Basic usage" , () => {
 		expect( stats.stats.strength.getActual() ).to.be( 19 ) ;
 		expect( statsP.strength.actual ).to.be( 19 ) ;
 		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( stats.stats.hp.max.getActual() ).to.be( 22 ) ;
+		expect( statsP.hp.max.actual ).to.be( 22 ) ;
+		expect( statsP.hp.remaining.base ).to.be( 14 ) ;
+		expect( stats.stats.hp.remaining.getActual() ).to.be( 15 ) ;
+		expect( statsP.hp.remaining.actual ).to.be( 15 ) ;
 	} ) ;
 		
 	it( "Updating base value of a StatsTable having a ModifiersTable" , () => {
