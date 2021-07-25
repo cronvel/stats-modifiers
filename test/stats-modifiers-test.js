@@ -74,6 +74,59 @@ describe( "Basic usage" , () => {
 		expect( statsP.damages[ 1 ].damage.base ).to.be( 8 ) ;
 	} ) ;
 
+	it( "StatsTable clone" , () => {
+		var stats = new lib.StatsTable( {
+			hp: {
+				max: 20 ,
+				remaining: 14
+			} ,
+			damages: [
+				{ type: 'cutting' , damage: 24 } ,
+				{ type: 'fire' , damage: 8 }
+			]
+		} ) ;
+		
+		var statsClone = stats.clone() ;
+		expect( statsClone ).to.equal( stats ) ;
+
+		expect( statsClone.stats.hp.max.base ).to.be( 20 ) ;
+		expect( statsClone.stats.hp.remaining.base ).to.be( 14 ) ;
+		expect( statsClone.stats.damages[ 0 ].damage.base ).to.be( 24 ) ;
+		expect( statsClone.stats.damages[ 1 ].damage.base ).to.be( 8 ) ;
+	} ) ;
+
+	it( "StatsTable extension" , () => {
+		var stats = new lib.StatsTable( {
+			hp: {
+				max: 20 ,
+				remaining: 14
+			} ,
+			damages: [
+				{ type: 'cutting' , damage: 24 } ,
+				{ type: 'fire' , damage: 8 }
+			]
+		} ) ;
+		
+		var extendedStats = stats.extend( {
+			strength: 10 ,
+			hp: {
+				injury: 3 ,
+			} ,
+			damages: [
+				{ type: 'electricity' , damage: 4 }
+			]
+		} ) ;
+
+		console.log( "FINAL:" , extendedStats.stats ) ;
+		expect( extendedStats.stats.strength.base ).to.be( 10 ) ;
+		expect( extendedStats.stats.hp.max.base ).to.be( 20 ) ;
+		expect( extendedStats.stats.hp.remaining.base ).to.be( 14 ) ;
+		expect( extendedStats.stats.hp.injury.base ).to.be( 3 ) ;
+		expect( extendedStats.stats.damages[ 0 ].damage.base ).to.be( 24 ) ;
+		expect( extendedStats.stats.damages[ 1 ].damage.base ).to.be( 8 ) ;
+		expect( extendedStats.stats.damages[ 2 ].damage.base ).to.be( 4 ) ;
+	} ) ;
+
 	it( "ModifiersTable creation" , () => {
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: [ '+' , 5 ] ,
