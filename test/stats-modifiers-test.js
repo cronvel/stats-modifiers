@@ -97,9 +97,11 @@ describe( "Basic usage" , () => {
 
 	it( "StatsTable extension" , () => {
 		var stats = new lib.StatsTable( {
+			useless: 123 ,
 			hp: {
 				max: 20 ,
-				remaining: 14
+				remaining: 14 ,
+				useless: 123
 			} ,
 			damages: [
 				{ type: 'cutting' , damage: 24 } ,
@@ -108,23 +110,29 @@ describe( "Basic usage" , () => {
 		} ) ;
 		
 		var extendedStats = stats.extend( {
+			useless: null ,	// it removes it
 			strength: 10 ,
 			hp: {
 				injury: 3 ,
+				useless: null	// it removes it
 			} ,
 			damages: [
 				{ type: 'electricity' , damage: 4 }
 			]
 		} ) ;
 
-		console.log( "FINAL:" , extendedStats.stats ) ;
 		expect( extendedStats.stats.strength.base ).to.be( 10 ) ;
 		expect( extendedStats.stats.hp.max.base ).to.be( 20 ) ;
 		expect( extendedStats.stats.hp.remaining.base ).to.be( 14 ) ;
 		expect( extendedStats.stats.hp.injury.base ).to.be( 3 ) ;
-		expect( extendedStats.stats.damages[ 0 ].damage.base ).to.be( 24 ) ;
-		expect( extendedStats.stats.damages[ 1 ].damage.base ).to.be( 8 ) ;
-		expect( extendedStats.stats.damages[ 2 ].damage.base ).to.be( 4 ) ;
+		expect( extendedStats.stats.damages ).to.have.a.length.of( 1 ) ;
+		expect( extendedStats.stats.damages[ 0 ].damage.base ).to.be( 4 ) ;
+
+		// Check stat removal
+		expect( stats.stats.useless.base ).to.be( 123 ) ;
+		expect( extendedStats.stats.useless ).to.be.undefined() ;
+		expect( stats.stats.hp.useless.base ).to.be( 123 ) ;
+		expect( extendedStats.stats.hp.useless ).to.be.undefined() ;
 	} ) ;
 
 	it( "ModifiersTable creation" , () => {
