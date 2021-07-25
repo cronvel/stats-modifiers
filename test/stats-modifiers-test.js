@@ -119,13 +119,15 @@ describe( "Basic usage" , () => {
 	it( "ModifiersTable creation using the object syntax (KFG)" , () => {
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: { operator: '+' , operand: 5 } ,
-			dexterity: [ { operator: '-' , operand: 2 } , { operator: '*' , operand: 0.8 } ]
+			dexterity: [ { operator: '-' , operand: 2 } , { operator: '*' , operand: 0.8 } ] ,
+			"hp.max": [ '+' , 2 ]
 		} ) ;
 		
 		var modsP = mods.getProxy() ;
 		
 		expect( mods.statsModifiers.strength ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
 		expect( modsP.strength ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
+		expect( modsP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 2 } } ) ;
 
 		expect( mods.statsModifiers.dexterity ).to.be.partially.like( {
 			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
@@ -137,14 +139,14 @@ describe( "Basic usage" , () => {
 		} ) ;
 	} ) ;
 	
-	it( "zzz Adding/removing a ModifiersTable to a StatsTable" , () => {
+	it( "Adding/removing a ModifiersTable to a StatsTable" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
 			dexterity: 15 ,
 			hp: {
 				max: 20 ,
 				remaining: 14
-			} ,
+			}
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
@@ -211,14 +213,18 @@ describe( "Basic usage" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
 			dexterity: 15 ,
-			hp: 20
+			hp: {
+				max: 20 ,
+				remaining: 14
+			}
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
 		
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: [ '+' , 5 ] ,
-			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ] ,
+			"hp.max": [ '+' , 2 ]
 		} ) ;
 		
 		stats.stack( mods ) ;
@@ -228,6 +234,8 @@ describe( "Basic usage" , () => {
 		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
 		expect( statsP.strength.actual ).to.be( 17 ) ;
 		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 22 ) ;
 		
 		// Modify a stat using direct stat access
 		stats.stats.strength.set( 10 ) ;
@@ -251,20 +259,29 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 6 ) ;
 		expect( stats.stats.strength.getActual() ).to.be( 11 ) ;
 		expect( statsP.strength.actual ).to.be( 11 ) ;
+
+		statsP.hp.max.base = 26 ;
+
+		expect( statsP.hp.max.base ).to.be( 26 ) ;
+		expect( statsP.hp.max.actual ).to.be( 28 ) ;
 	} ) ;
 		
 	it( "Updating a ModifiersTable already stacked on a StatsTable" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
 			dexterity: 15 ,
-			hp: 20
+			hp: {
+				max: 20 ,
+				remaining: 14
+			}
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
 		
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: [ '+' , 5 ] ,
-			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ] ,
+			"hp.max": [ '+' , 2 ]
 		} ) ;
 		
 		var modsP = mods.getProxy() ;
@@ -276,6 +293,8 @@ describe( "Basic usage" , () => {
 		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
 		expect( statsP.strength.actual ).to.be( 17 ) ;
 		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 22 ) ;
 		
 		mods.statsModifiers.strength.plus.set( 7 ) ;
 
@@ -298,13 +317,21 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( stats.stats.strength.getActual() ).to.be( 28 ) ;
 		expect( statsP.strength.actual ).to.be( 28 ) ;
+
+		modsP['hp.max'].plus = 5 ;
+
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 25 ) ;
 	} ) ;
 	
 	it( "Accessing a ModifiersTable from a StatsTable" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
 			dexterity: 15 ,
-			hp: 20
+			hp: {
+				max: 20 ,
+				remaining: 14
+			}
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
@@ -315,7 +342,8 @@ describe( "Basic usage" , () => {
 		} ) ;
 
 		var mods2 = new lib.ModifiersTable( 'ring-of-strength' , {
-			strength: [ '+' , 2 ]
+			strength: [ '+' , 2 ] ,
+			"hp.max": [ '+' , 1 ]
 		} ) ;
 		
 		stats.stack( mods ) ;
@@ -332,33 +360,53 @@ describe( "Basic usage" , () => {
 		expect( statsP.mods['ring-of-strength'].strength ).to.be.like( {
 			plus: { id: 'ring-of-strength' , operator: 'plus' , operand: 2 }
 		} ) ;
+		expect( statsP.mods['ring-of-strength']['hp.max'] ).to.be.like( {
+			plus: { id: 'ring-of-strength' , operator: 'plus' , operand: 1 }
+		} ) ;
 	} ) ;
 	
 	it( "Activate and deactivate modifiers" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
 			dexterity: 15 ,
-			hp: 20
+			hp: {
+				max: 20 ,
+				remaining: 14
+			}
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
 		
 		var mods = new lib.ModifiersTable( 'staff' , { dexterity: [ '-' , 2 ] } , true ) ,
-			mods2 = new lib.ModifiersTable( 'agile-spell' , { dexterity: [ '+' , 5 ] } , false ) ;
+			mods2 = new lib.ModifiersTable( 'agile-spell' , { dexterity: [ '+' , 5 ] } , false ) ,
+			mods3 = new lib.ModifiersTable( 'life-spell' , { "hp.max": [ '+' , 3 ] } , false ) ;
 		
 		stats.stack( mods ) ;
 		stats.stack( mods2 ) ;
+		stats.stack( mods3 ) ;
 		
 		expect( stats.stats.dexterity.getActual() ).to.be( 13 ) ;
 		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
 		
 		mods2.activate() ;
 		expect( stats.stats.dexterity.getActual() ).to.be( 18 ) ;
 		expect( statsP.dexterity.actual ).to.be( 18 ) ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
 
 		mods.deactivate() ;
 		expect( stats.stats.dexterity.getActual() ).to.be( 20 ) ;
 		expect( statsP.dexterity.actual ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
+
+		mods3.deactivate() ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
+
+		mods3.activate() ;
+		expect( statsP.hp.max.actual ).to.be( 23 ) ;
+
+		mods3.deactivate() ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
 	} ) ;
 } ) ;
 
@@ -369,7 +417,8 @@ describe( "ModifiersTable templates" , () => {
 	it( "ModifiersTable template creation" , () => {
 		var modsTemplate = new lib.ModifiersTable( 'staff' , {
 			strength: [ '+' , 5 ] ,
-			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ] ,
+			"hp.max": [ '+' , 1 ]
 		} , undefined , true ) ;
 		
 		var mods = modsTemplate.instanciate() ;
@@ -379,7 +428,10 @@ describe( "ModifiersTable templates" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
 			dexterity: 15 ,
-			hp: 20
+			hp: {
+				max: 20 ,
+				remaining: 14
+			}
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
@@ -395,6 +447,9 @@ describe( "ModifiersTable templates" , () => {
 				dexterity: {
 					plus: { id: 'staff:1' , operator: 'plus' , operand: -2 } ,
 					multiply: { id: 'staff:1' , operator: 'multiply' , operand: 0.8 }
+				} ,
+				"hp.max": {
+					plus: { id: 'staff:1' , operator: 'plus' , operand: 1 }
 				}
 			}
 		} ) ;
@@ -409,7 +464,12 @@ describe( "Compound stats" , () => {
 		var stats = new lib.StatsTable( {
 			reflex: 16 ,
 			dexterity: 10 ,
-			defense: new lib.Compound( 'average' , [ 'reflex' , 'dexterity' ] )
+			defense: new lib.Compound( 'average' , [ 'reflex' , 'dexterity' ] ) ,
+			hp: {
+				max: 20 ,
+				injury: 12 ,
+				remaining: new lib.Compound( 'minus' , [ 'hp.max' , 'hp.injury' ] )
+			}
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
@@ -420,13 +480,24 @@ describe( "Compound stats" , () => {
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 		expect( statsP.defense.base ).to.be( null ) ;
 		expect( statsP.defense.actual ).to.be( 13 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
+		expect( statsP.hp.injury.base ).to.be( 12 ) ;
+		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
+		expect( statsP.hp.remaining.base ).to.be( null ) ;
+		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
 	} ) ;
 
-	it( "Compound stats and KFG compatibility" , () => {
+	it( "Compound stats and KFG interoperability" , () => {
 		var stats = new lib.StatsTable( {
 			reflex: 16 ,
 			dexterity: 10 ,
-			defense: { operator: 'average' , operand: [ 'reflex' , 'dexterity' ] }
+			defense: { __prototypeUID__: 'kung-fig/Operator' , operator: 'average' , operand: [ 'reflex' , 'dexterity' ] } ,
+			hp: {
+				max: 20 ,
+				injury: 12 ,
+				remaining: { __prototypeUID__: 'kung-fig/Operator' , operator: 'minus' , operand: [ 'hp.max' , 'hp.injury' ] }
+			}
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
@@ -437,13 +508,24 @@ describe( "Compound stats" , () => {
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 		expect( statsP.defense.base ).to.be( null ) ;
 		expect( statsP.defense.actual ).to.be( 13 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
+		expect( statsP.hp.injury.base ).to.be( 12 ) ;
+		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
+		expect( statsP.hp.remaining.base ).to.be( null ) ;
+		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
 	} ) ;
 
 	it( "Compound stats should use modifiers of primary stats" , () => {
 		var stats = new lib.StatsTable( {
 			reflex: 16 ,
 			dexterity: 10 ,
-			defense: new lib.Compound( 'average' , [ 'reflex' , 'dexterity' ] )
+			defense: new lib.Compound( 'average' , [ 'reflex' , 'dexterity' ] ) ,
+			hp: {
+				max: 20 ,
+				injury: 12 ,
+				remaining: new lib.Compound( 'minus' , [ 'hp.max' , 'hp.injury' ] )
+			}
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
@@ -454,9 +536,16 @@ describe( "Compound stats" , () => {
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 		expect( statsP.defense.base ).to.be( null ) ;
 		expect( statsP.defense.actual ).to.be( 13 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
+		expect( statsP.hp.injury.base ).to.be( 12 ) ;
+		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
+		expect( statsP.hp.remaining.base ).to.be( null ) ;
+		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
 
-		var mods = new lib.ModifiersTable( 'ring-of-dexterity' , {
-			dexterity: [ '+' , 4 ]
+		var mods = new lib.ModifiersTable( 'ring-of-dexterity-and-vitality' , {
+			dexterity: [ '+' , 4 ] ,
+			"hp.max": [ '+' , 1 ] ,
 		} ) ;
 		
 		var modsP = mods.getProxy() ;
@@ -469,9 +558,16 @@ describe( "Compound stats" , () => {
 		expect( statsP.dexterity.actual ).to.be( 14 ) ;
 		expect( statsP.defense.base ).to.be( null ) ;
 		expect( statsP.defense.actual ).to.be( 15 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 21 ) ;
+		expect( statsP.hp.injury.base ).to.be( 12 ) ;
+		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
+		expect( statsP.hp.remaining.base ).to.be( null ) ;
+		expect( statsP.hp.remaining.actual ).to.be( 9 ) ;
 
 		var mods2 = new lib.ModifiersTable( 'helm-of-defense' , {
-			defense: [ '+' , 3 ]
+			defense: [ '+' , 3 ] ,
+			"hp.remaining": [ '+' , 2 ]
 		} ) ;
 
 		var mods2P = mods2.getProxy() ;
@@ -484,6 +580,12 @@ describe( "Compound stats" , () => {
 		expect( statsP.dexterity.actual ).to.be( 14 ) ;
 		expect( statsP.defense.base ).to.be( null ) ;
 		expect( statsP.defense.actual ).to.be( 18 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 21 ) ;
+		expect( statsP.hp.injury.base ).to.be( 12 ) ;
+		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
+		expect( statsP.hp.remaining.base ).to.be( null ) ;
+		expect( statsP.hp.remaining.actual ).to.be( 11 ) ;
 	} ) ;
 } ) ;
 
