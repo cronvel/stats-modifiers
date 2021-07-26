@@ -517,7 +517,7 @@ describe( "ModifiersTable templates" , () => {
 		} ) ;
 	} ) ;
 
-	it( "zzz templates should support events instanciation" , () => {
+	it( "templates should support events instanciation" , () => {
 		var stats = new lib.StatsTable( {
 			reflex: 16 ,
 			dexterity: 10 ,
@@ -535,7 +535,7 @@ describe( "ModifiersTable templates" , () => {
 			{ dexterity: [ '+' , 9 ] } ,
 			true ,
 			true ,
-			[ { name: 'new-turn' , every: 2 , action: 'fade' , params: [ 3 ] } ]
+			[ { name: 'new-turn' , every: 2 , action: 'fade' , amount: 3 } ]
 		) ;
 		
 		statsP.stack( mods ) ;
@@ -568,7 +568,6 @@ describe( "ModifiersTable templates" , () => {
 
 		statsP.stack( mods ) ;
 		expect( statsP.mods['dexterity-spell'] ).to.be.undefined() ;
-		console.log( statsP.mods ) ;
 		expect( statsP.mods['dexterity-spell_0'] ).to.be.undefined() ;
 		expect( statsP.mods['dexterity-spell_1'] ).to.be.an( Object ) ;
 
@@ -928,7 +927,7 @@ describe( "Receiving events" , () => {
 			dexterity: [ '+' , 9 ]
 		} ) ;
 		
-		mods.setEveryEvent( 'new-turn' , 2 , 'fade' , 3 ) ;
+		mods.setEveryEvent( 'new-turn' , 2 , 'fade' , { amount: 3 } ) ;
 		
 		statsP.stack( mods ) ;
 		expect( statsP.dexterity.actual ).to.be( 19 ) ;
@@ -972,7 +971,7 @@ describe( "Receiving events" , () => {
 			dexterity: [ '+' , 9 ]
 		} ) ;
 		
-		mods.setEvent( { name: 'new-turn' , every: 2 , action: 'fade' , params: [ 3 ] } ) ;
+		mods.setEvent( { name: 'new-turn' , every: 2 , action: 'fade' , amount: 3 } ) ;
 		
 		statsP.stack( mods ) ;
 		expect( statsP.dexterity.actual ).to.be( 19 ) ;
