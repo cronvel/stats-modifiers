@@ -485,7 +485,7 @@ describe( "ModifiersTable templates" , () => {
 		
 		var mods = modsTemplate.instanciate() ;
 		//console.log( "mods:" , mods , mods.statsModifiers ) ;
-		expect( mods.id ).to.be( 'staff:0' ) ;
+		expect( mods.id ).to.be( 'staff_0' ) ;
 
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
@@ -501,17 +501,17 @@ describe( "ModifiersTable templates" , () => {
 		statsP.stack( modsTemplate ) ;
 
 		expect( stats.modifiersTables[ 0 ] ).to.be.partially.like( {
-			id: 'staff:1' ,
+			id: 'staff_1' ,
 			statsModifiers: {
 				strength: {
-					plus: { id: 'staff:1' , operator: 'plus' , operand: 5 }
+					plus: { id: 'staff_1' , operator: 'plus' , operand: 5 }
 				} ,
 				dexterity: {
-					plus: { id: 'staff:1' , operator: 'plus' , operand: -2 } ,
-					multiply: { id: 'staff:1' , operator: 'multiply' , operand: 0.8 }
+					plus: { id: 'staff_1' , operator: 'plus' , operand: -2 } ,
+					multiply: { id: 'staff_1' , operator: 'multiply' , operand: 0.8 }
 				} ,
 				"hp.max": {
-					plus: { id: 'staff:1' , operator: 'plus' , operand: 1 }
+					plus: { id: 'staff_1' , operator: 'plus' , operand: 1 }
 				}
 			}
 		} ) ;
@@ -562,7 +562,6 @@ describe( "Compound stats" , () => {
 			}
 		} ) ;
 		
-		console.log( "stats.stats.defense:" , stats.stats.defense ) ;
 		var statsP = stats.getProxy() ;
 		
 		expect( statsP.reflex.base ).to.be( 16 ) ;
