@@ -544,25 +544,25 @@ describe( "ModifiersTable templates" , () => {
 
 		expect( statsP.dexterity.actual ).to.be( 19 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 19 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 16 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 16 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 13 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 13 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 
 
@@ -573,25 +573,25 @@ describe( "ModifiersTable templates" , () => {
 
 		expect( statsP.dexterity.actual ).to.be( 19 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 19 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 16 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 16 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 13 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 13 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 	} ) ;
 } ) ;
@@ -815,7 +815,7 @@ describe( "Receiving events" , () => {
 		expect( statsP.dexterity.base ).to.be( 10 ) ;
 		expect( statsP.dexterity.actual ).to.be( 14 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 
 		expect( statsP.reflex.base ).to.be( 16 ) ;
 		expect( statsP.reflex.actual ).to.be( 16 ) ;
@@ -850,21 +850,21 @@ describe( "Receiving events" , () => {
 		expect( statsP.dexterity.base ).to.be( 10 ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 
 		expect( statsP.reflex.base ).to.be( 16 ) ;
 		expect( statsP.reflex.actual ).to.be( 16 ) ;
 		expect( statsP.dexterity.base ).to.be( 10 ) ;
 		expect( statsP.dexterity.actual ).to.be( 14 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 
 		expect( statsP.reflex.base ).to.be( 16 ) ;
 		expect( statsP.reflex.actual ).to.be( 16 ) ;
 		expect( statsP.dexterity.base ).to.be( 10 ) ;
 		expect( statsP.dexterity.actual ).to.be( 14 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 
 		expect( statsP.reflex.base ).to.be( 16 ) ;
 		expect( statsP.reflex.actual ).to.be( 16 ) ;
@@ -894,19 +894,19 @@ describe( "Receiving events" , () => {
 		statsP.stack( mods ) ;
 		expect( statsP.dexterity.actual ).to.be( 14 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 13 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 12 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 11 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 	} ) ;
 
@@ -932,25 +932,25 @@ describe( "Receiving events" , () => {
 		statsP.stack( mods ) ;
 		expect( statsP.dexterity.actual ).to.be( 19 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 19 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 16 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 16 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 13 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 13 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 	} ) ;
 
@@ -976,25 +976,25 @@ describe( "Receiving events" , () => {
 		statsP.stack( mods ) ;
 		expect( statsP.dexterity.actual ).to.be( 19 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 19 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 16 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 16 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 13 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 13 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 
-		stats.receiveEvent( 'new-turn' ) ;
+		statsP.trigger( 'new-turn' ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 	} ) ;
 } ) ;
