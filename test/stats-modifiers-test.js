@@ -516,6 +516,85 @@ describe( "ModifiersTable templates" , () => {
 			}
 		} ) ;
 	} ) ;
+
+	it( "zzz templates should support events instanciation" , () => {
+		var stats = new lib.StatsTable( {
+			reflex: 16 ,
+			dexterity: 10 ,
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+
+		var mods = new lib.ModifiersTable(
+			'dexterity-spell' ,
+			{ dexterity: [ '+' , 9 ] } ,
+			true ,
+			true ,
+			[ { name: 'new-turn' , every: 2 , action: 'fade' , params: [ 3 ] } ]
+		) ;
+		
+		statsP.stack( mods ) ;
+		expect( statsP.mods['dexterity-spell'] ).to.be.undefined() ;
+		expect( statsP.mods['dexterity-spell_0'] ).to.be.an( Object ) ;
+
+		expect( statsP.dexterity.actual ).to.be( 19 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 19 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 16 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 16 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+
+
+		statsP.stack( mods ) ;
+		expect( statsP.mods['dexterity-spell'] ).to.be.undefined() ;
+		console.log( statsP.mods ) ;
+		expect( statsP.mods['dexterity-spell_0'] ).to.be.undefined() ;
+		expect( statsP.mods['dexterity-spell_1'] ).to.be.an( Object ) ;
+
+		expect( statsP.dexterity.actual ).to.be( 19 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 19 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 16 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 16 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+
+		stats.receiveEvent( 'new-turn' ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+	} ) ;
 } ) ;
 
 
