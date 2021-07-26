@@ -31,6 +31,7 @@
 
 
 const lib = require( '..' ) ;
+const Expression = require( 'kung-fig-expression' ) ;
 
 
 
@@ -549,18 +550,19 @@ describe( "Compound stats" , () => {
 		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
 	} ) ;
 
-	it( "Compound stats and KFG interoperability" , () => {
+	it( "Compound stats using custom function" , () => {
 		var stats = new lib.StatsTable( {
 			reflex: 16 ,
 			dexterity: 10 ,
-			defense: { __prototypeUID__: 'kung-fig/Operator' , operator: 'average' , operand: [ 'reflex' , 'dexterity' ] } ,
+			defense: new lib.Compound( stats => ( 2 * stats.reflex.actual + stats.dexterity.actual ) / 3 ) ,
 			hp: {
 				max: 20 ,
 				injury: 12 ,
-				remaining: { __prototypeUID__: 'kung-fig/Operator' , operator: 'minus' , operand: [ 'hp.max' , 'hp.injury' ] }
+				remaining: new lib.Compound( stats => stats.hp.max.actual - stats.hp.injury.actual )
 			}
 		} ) ;
 		
+		console.log( "stats.stats.defense:" , stats.stats.defense ) ;
 		var statsP = stats.getProxy() ;
 		
 		expect( statsP.reflex.base ).to.be( 16 ) ;
@@ -568,7 +570,7 @@ describe( "Compound stats" , () => {
 		expect( statsP.dexterity.base ).to.be( 10 ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 		expect( statsP.defense.base ).to.be( null ) ;
-		expect( statsP.defense.actual ).to.be( 13 ) ;
+		expect( statsP.defense.actual ).to.be( 14 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.actual ).to.be( 20 ) ;
 		expect( statsP.hp.injury.base ).to.be( 12 ) ;
@@ -647,6 +649,62 @@ describe( "Compound stats" , () => {
 		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
 		expect( statsP.hp.remaining.base ).to.be( null ) ;
 		expect( statsP.hp.remaining.actual ).to.be( 11 ) ;
+	} ) ;
+
+	it( "Compound stats and KFG interoperability: Operator syntax" , () => {
+		var stats = new lib.StatsTable( {
+			reflex: 16 ,
+			dexterity: 10 ,
+			defense: { __prototypeUID__: 'kung-fig/Operator' , operator: 'average' , operand: [ 'reflex' , 'dexterity' ] } ,
+			hp: {
+				max: 20 ,
+				injury: 12 ,
+				remaining: { __prototypeUID__: 'kung-fig/Operator' , operator: 'minus' , operand: [ 'hp.max' , 'hp.injury' ] }
+			}
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+		expect( statsP.defense.base ).to.be( null ) ;
+		expect( statsP.defense.actual ).to.be( 13 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
+		expect( statsP.hp.injury.base ).to.be( 12 ) ;
+		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
+		expect( statsP.hp.remaining.base ).to.be( null ) ;
+		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
+	} ) ;
+	
+	it( "Compound stats and KFG interoperability: Expression syntax" , () => {
+		var stats = new lib.StatsTable( {
+			reflex: 16 ,
+			dexterity: 10 ,
+			defense: Expression.parse( "( ( 2 * $reflex ) + $dexterity ) / 3" ) ,
+			hp: {
+				max: 20 ,
+				injury: 12 ,
+				remaining: Expression.parse( "$hp.max - $hp.injury" )
+			}
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+		expect( statsP.defense.base ).to.be( null ) ;
+		expect( statsP.defense.actual ).to.be( 14 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
+		expect( statsP.hp.injury.base ).to.be( 12 ) ;
+		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
+		expect( statsP.hp.remaining.base ).to.be( null ) ;
+		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
 	} ) ;
 } ) ;
 
