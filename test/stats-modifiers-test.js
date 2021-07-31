@@ -88,12 +88,22 @@ describe( "Basic usage" , () => {
 		} ) ;
 		
 		var statsClone = stats.clone() ;
+		expect( statsClone ).not.to.be( stats ) ;
 		expect( statsClone ).to.equal( stats ) ;
 
 		expect( statsClone.stats.hp.max.base ).to.be( 20 ) ;
 		expect( statsClone.stats.hp.remaining.base ).to.be( 14 ) ;
 		expect( statsClone.stats.damages[ 0 ].damage.base ).to.be( 24 ) ;
 		expect( statsClone.stats.damages[ 1 ].damage.base ).to.be( 8 ) ;
+
+		// Check that there are distinct
+		statsClone.stats.hp.max.base = 17 ;
+		expect( stats.stats.hp.max.base ).to.be( 20 ) ;
+		expect( statsClone.stats.hp.max.base ).to.be( 17 ) ;
+
+		stats.stats.hp.max.base = 21 ;
+		expect( stats.stats.hp.max.base ).to.be( 21 ) ;
+		expect( statsClone.stats.hp.max.base ).to.be( 17 ) ;
 	} ) ;
 
 	it( "StatsTable extension" , () => {
@@ -199,6 +209,76 @@ describe( "Basic usage" , () => {
 			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
 			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
 		} ) ;
+	} ) ;
+	
+	it( "ModifiersTable clone" , () => {
+		var mods = new lib.ModifiersTable( 'staff' , {
+			"hp.max": [ '+' , 5 ] ,
+			"damages.0.damage": [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+		} ) ;
+		
+		var modsP = mods.getProxy() ;
+		var modsClone = mods.clone( false ) ;
+		var modsCloneP = modsClone.getProxy() ;
+
+		expect( modsClone ).not.to.be( mods ) ;
+		expect( modsClone.id ).to.be( mods.id ) ;
+		expect( modsClone ).to.equal( mods ) ;
+		expect( modsClone.statsModifiers['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
+		expect( modsCloneP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
+
+		expect( modsClone.statsModifiers['damages.0.damage'] ).to.be.partially.like( {
+			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
+			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
+		} ) ;
+		expect( modsCloneP['damages.0.damage'] ).to.be.partially.like( {
+			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
+			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
+		} ) ;
+
+		// Check that there are distinct
+		modsCloneP['hp.max'].plus.operand = 7 ;
+		expect( modsP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
+		expect( modsCloneP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 7 } } ) ;
+
+		modsP['hp.max'].plus.operand = 3 ;
+		expect( modsP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 3 } } ) ;
+		expect( modsCloneP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 7 } } ) ;
+
+
+		// Regular clone, changing the ID
+		mods = new lib.ModifiersTable( 'staff' , {
+			"hp.max": [ '+' , 5 ] ,
+			"damages.0.damage": [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+		} ) ;
+		
+		modsP = mods.getProxy() ;
+		modsClone = mods.clone() ;
+		modsCloneP = modsClone.getProxy() ;
+
+		expect( modsClone ).not.to.be( mods ) ;
+		expect( modsClone.id ).not.to.be( mods.id ) ;
+		expect( modsClone ).not.to.equal( mods ) ;
+		expect( modsClone.statsModifiers['hp.max'] ).to.be.partially.like( { plus: { id: 'staff_clone_0' , operator: 'plus' , operand: 5 } } ) ;
+		expect( modsCloneP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff_clone_0' , operator: 'plus' , operand: 5 } } ) ;
+
+		expect( modsClone.statsModifiers['damages.0.damage'] ).to.be.partially.like( {
+			plus: { id: 'staff_clone_0' , operator: 'plus' , operand: -2 } ,
+			multiply: { id: 'staff_clone_0' , operator: 'multiply' , operand: 0.8 }
+		} ) ;
+		expect( modsCloneP['damages.0.damage'] ).to.be.partially.like( {
+			plus: { id: 'staff_clone_0' , operator: 'plus' , operand: -2 } ,
+			multiply: { id: 'staff_clone_0' , operator: 'multiply' , operand: 0.8 }
+		} ) ;
+
+		// Check that there are distinct
+		modsCloneP['hp.max'].plus.operand = 7 ;
+		expect( modsP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
+		expect( modsCloneP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff_clone_0' , operator: 'plus' , operand: 7 } } ) ;
+
+		modsP['hp.max'].plus.operand = 3 ;
+		expect( modsP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 3 } } ) ;
+		expect( modsCloneP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff_clone_0' , operator: 'plus' , operand: 7 } } ) ;
 	} ) ;
 	
 	it( "Adding/removing a ModifiersTable to a StatsTable" , () => {
@@ -1288,6 +1368,20 @@ describe( "Operators" , () => {
 		
 		expect( stats.stats.dexterity.base ).to.be( 5 ) ;
 		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+	} ) ;
+} ) ;
+
+
+
+describe( "Misc" , () => {
+
+	it( ".createCloneId()" , () => {
+		lib.unitTestResetCloneId() ;
+		expect( lib.createCloneId( 'bob' ) ).to.be( 'bob_clone_0' ) ;
+		expect( lib.createCloneId( 'bob' ) ).to.be( 'bob_clone_1' ) ;
+		expect( lib.createCloneId( 'bob_clone_1' ) ).to.be( 'bob_clone_2' ) ;
+		expect( lib.createCloneId( 'bob_clone_1' ) ).to.be( 'bob_clone_3' ) ;
+		expect( lib.createCloneId( 'bob_clonE_1' ) ).to.be( 'bob_clonE_1_clone_4' ) ;
 	} ) ;
 } ) ;
 
