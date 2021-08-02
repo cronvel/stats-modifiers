@@ -226,7 +226,7 @@ describe( "Basic usage" , () => {
 		} ) ;
 		
 
-		stats.stack( mods ) ;
+		statsP.stack( mods ) ;
 		
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.base ).to.be( 12 ) ;
@@ -238,7 +238,7 @@ describe( "Basic usage" , () => {
 		expect( statsP.hp.max.actual ).to.be( 22 ) ;
 
 
-		stats.unstack( mods ) ;
+		statsP.unstack( mods ) ;
 
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.base ).to.be( 12 ) ;
