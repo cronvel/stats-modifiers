@@ -761,41 +761,13 @@ describe( "Compound stats" , () => {
 		expect( statsP.reflex.actual ).to.be( 16 ) ;
 		expect( statsP.dexterity.base ).to.be( 10 ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
-		expect( statsP.defense.base ).to.be( null ) ;
+		expect( statsP.defense.base ).to.be( 13 ) ;
 		expect( statsP.defense.actual ).to.be( 13 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.actual ).to.be( 20 ) ;
 		expect( statsP.hp.injury.base ).to.be( 12 ) ;
 		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
-		expect( statsP.hp.remaining.base ).to.be( null ) ;
-		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
-	} ) ;
-
-	it( "Compound stats using custom function" , () => {
-		var stats = new lib.StatsTable( {
-			reflex: 16 ,
-			dexterity: 10 ,
-			defense: new lib.Compound( stats => ( 2 * stats.reflex.actual + stats.dexterity.actual ) / 3 ) ,
-			hp: {
-				max: 20 ,
-				injury: 12 ,
-				remaining: new lib.Compound( stats => stats.hp.max.actual - stats.hp.injury.actual )
-			}
-		} ) ;
-		
-		var statsP = stats.getProxy() ;
-		
-		expect( statsP.reflex.base ).to.be( 16 ) ;
-		expect( statsP.reflex.actual ).to.be( 16 ) ;
-		expect( statsP.dexterity.base ).to.be( 10 ) ;
-		expect( statsP.dexterity.actual ).to.be( 10 ) ;
-		expect( statsP.defense.base ).to.be( null ) ;
-		expect( statsP.defense.actual ).to.be( 14 ) ;
-		expect( statsP.hp.max.base ).to.be( 20 ) ;
-		expect( statsP.hp.max.actual ).to.be( 20 ) ;
-		expect( statsP.hp.injury.base ).to.be( 12 ) ;
-		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
-		expect( statsP.hp.remaining.base ).to.be( null ) ;
+		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
 		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
 	} ) ;
 
@@ -817,13 +789,13 @@ describe( "Compound stats" , () => {
 		expect( statsP.reflex.actual ).to.be( 16 ) ;
 		expect( statsP.dexterity.base ).to.be( 10 ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
-		expect( statsP.defense.base ).to.be( null ) ;
+		expect( statsP.defense.base ).to.be( 13 ) ;
 		expect( statsP.defense.actual ).to.be( 13 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.actual ).to.be( 20 ) ;
 		expect( statsP.hp.injury.base ).to.be( 12 ) ;
 		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
-		expect( statsP.hp.remaining.base ).to.be( null ) ;
+		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
 		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
 
 		var mods = new lib.ModifiersTable( 'ring-of-dexterity-and-vitality' , {
@@ -839,13 +811,13 @@ describe( "Compound stats" , () => {
 		expect( statsP.reflex.actual ).to.be( 16 ) ;
 		expect( statsP.dexterity.base ).to.be( 10 ) ;
 		expect( statsP.dexterity.actual ).to.be( 14 ) ;
-		expect( statsP.defense.base ).to.be( null ) ;
+		expect( statsP.defense.base ).to.be( 13 ) ;
 		expect( statsP.defense.actual ).to.be( 15 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.actual ).to.be( 21 ) ;
 		expect( statsP.hp.injury.base ).to.be( 12 ) ;
 		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
-		expect( statsP.hp.remaining.base ).to.be( null ) ;
+		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
 		expect( statsP.hp.remaining.actual ).to.be( 9 ) ;
 
 		var mods2 = new lib.ModifiersTable( 'helm-of-defense' , {
@@ -861,14 +833,68 @@ describe( "Compound stats" , () => {
 		expect( statsP.reflex.actual ).to.be( 16 ) ;
 		expect( statsP.dexterity.base ).to.be( 10 ) ;
 		expect( statsP.dexterity.actual ).to.be( 14 ) ;
-		expect( statsP.defense.base ).to.be( null ) ;
+		expect( statsP.defense.base ).to.be( 13 ) ;
 		expect( statsP.defense.actual ).to.be( 18 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.actual ).to.be( 21 ) ;
 		expect( statsP.hp.injury.base ).to.be( 12 ) ;
 		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
-		expect( statsP.hp.remaining.base ).to.be( null ) ;
+		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
 		expect( statsP.hp.remaining.actual ).to.be( 11 ) ;
+	} ) ;
+
+	it( "Compound stats using custom function" , () => {
+		var stats = new lib.StatsTable( {
+			reflex: 16 ,
+			dexterity: 10 ,
+			defense: new lib.Compound(
+				stats => ( 2 * stats.reflex.base + stats.dexterity.base ) / 3 ,
+				stats => ( 2 * stats.reflex.actual + stats.dexterity.actual ) / 3
+			) ,
+			hp: {
+				max: 20 ,
+				injury: 12 ,
+				remaining: new lib.Compound(
+					stats => stats.hp.max.base - stats.hp.injury.base ,
+					stats => stats.hp.max.actual - stats.hp.injury.actual
+				)
+			}
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+		expect( statsP.defense.base ).to.be( 14 ) ;
+		expect( statsP.defense.actual ).to.be( 14 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
+		expect( statsP.hp.injury.base ).to.be( 12 ) ;
+		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
+		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
+		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
+
+
+		var mods = new lib.ModifiersTable( 'ring-of-dexterity' , { dexterity: [ '+' , 3 ] } ) ;
+		var mods2 = new lib.ModifiersTable( 'ring-of-defense' , { defense: [ '+' , 1 ] } ) ;
+
+		statsP.stack( mods ) ;
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+		expect( statsP.defense.base ).to.be( 14 ) ;
+		expect( statsP.defense.actual ).to.be( 15 ) ;
+
+		statsP.stack( mods2 ) ;
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+		expect( statsP.defense.base ).to.be( 14 ) ;
+		expect( statsP.defense.actual ).to.be( 16 ) ;
 	} ) ;
 
 	it( "Compound stats and KFG interoperability: Operator syntax" , () => {
@@ -889,14 +915,34 @@ describe( "Compound stats" , () => {
 		expect( statsP.reflex.actual ).to.be( 16 ) ;
 		expect( statsP.dexterity.base ).to.be( 10 ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
-		expect( statsP.defense.base ).to.be( null ) ;
+		expect( statsP.defense.base ).to.be( 13 ) ;
 		expect( statsP.defense.actual ).to.be( 13 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.actual ).to.be( 20 ) ;
 		expect( statsP.hp.injury.base ).to.be( 12 ) ;
 		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
-		expect( statsP.hp.remaining.base ).to.be( null ) ;
+		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
 		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
+
+
+		var mods = new lib.ModifiersTable( 'ring-of-dexterity' , { dexterity: [ '+' , 3 ] } ) ;
+		var mods2 = new lib.ModifiersTable( 'ring-of-defense' , { defense: [ '+' , 1 ] } ) ;
+
+		statsP.stack( mods ) ;
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+		expect( statsP.defense.base ).to.be( 13 ) ;
+		expect( statsP.defense.actual ).to.be( 14.5 ) ;
+
+		statsP.stack( mods2 ) ;
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+		expect( statsP.defense.base ).to.be( 13 ) ;
+		expect( statsP.defense.actual ).to.be( 15.5 ) ;
 	} ) ;
 	
 	it( "Compound stats and KFG interoperability: Expression syntax" , () => {
@@ -917,14 +963,34 @@ describe( "Compound stats" , () => {
 		expect( statsP.reflex.actual ).to.be( 16 ) ;
 		expect( statsP.dexterity.base ).to.be( 10 ) ;
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
-		expect( statsP.defense.base ).to.be( null ) ;
+		expect( statsP.defense.base ).to.be( 14 ) ;
 		expect( statsP.defense.actual ).to.be( 14 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.actual ).to.be( 20 ) ;
 		expect( statsP.hp.injury.base ).to.be( 12 ) ;
 		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
-		expect( statsP.hp.remaining.base ).to.be( null ) ;
+		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
 		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
+
+
+		var mods = new lib.ModifiersTable( 'ring-of-dexterity' , { dexterity: [ '+' , 3 ] } ) ;
+		var mods2 = new lib.ModifiersTable( 'ring-of-defense' , { defense: [ '+' , 1 ] } ) ;
+
+		statsP.stack( mods ) ;
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+		expect( statsP.defense.base ).to.be( 14 ) ;
+		expect( statsP.defense.actual ).to.be( 15 ) ;
+
+		statsP.stack( mods2 ) ;
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 16 ) ;
+		expect( statsP.dexterity.base ).to.be( 10 ) ;
+		expect( statsP.dexterity.actual ).to.be( 13 ) ;
+		expect( statsP.defense.base ).to.be( 14 ) ;
+		expect( statsP.defense.actual ).to.be( 16 ) ;
 	} ) ;
 } ) ;
 
