@@ -741,6 +741,49 @@ describe( "ModifiersTable templates" , () => {
 
 
 
+describe( "Extending a ModifiersTable" , () => {
+
+	it( "Extending a ModifiersTable with another" , () => {
+		var mods = new lib.ModifiersTable( 'staff' , {
+			strength: [ '+' , 5 ] ,
+			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ] ,
+		} ) ;
+
+		var wellMade = new lib.ModifiersTable( 'well-made' , {
+			strength: [ '+' , 1 ] ,
+			dexterity: [ [ '+' , 1 ] , [ '*' , 1.125 ] ] ,
+		} ) ;
+		
+		var mods1 = mods.clone( 'well-made-staff' ).extend( wellMade ) ;
+		//console.log( "mods:" , mods , mods.statsModifiers ) ;
+		expect( mods1.id ).to.be( 'well-made-staff' ) ;
+
+		var stats = new lib.StatsTable( {
+			strength: 12 ,
+			dexterity: 15
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		statsP.stack( mods1 ) ;
+
+		expect( stats.modifiersTables[ 0 ] ).to.be.partially.like( {
+			id: 'well-made-staff' ,
+			statsModifiers: {
+				strength: {
+					plus: { id: 'well-made-staff' , operator: 'plus' , operand: 6 }
+				} ,
+				dexterity: {
+					plus: { id: 'well-made-staff' , operator: 'plus' , operand: -1 } ,
+					multiply: { id: 'well-made-staff' , operator: 'multiply' , operand: 0.9 }
+				}
+			}
+		} ) ;
+	} ) ;
+} ) ;
+
+
+
 describe( "Compound stats" , () => {
 
 	it( "Compound stats creation" , () => {
@@ -1434,6 +1477,87 @@ describe( "Operators" , () => {
 		
 		expect( stats.stats.dexterity.base ).to.be( 5 ) ;
 		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+	} ) ;
+
+	it( "percent (%) operator (works with KFG percent numbers)" , () => {
+		var stats = new lib.StatsTable( { dexterity: 10 } ) ;
+		var statsP = stats.getProxy() ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+
+		var mods = new lib.ModifiersTable( 'agility-ring' , { dexterity: [ '%' , 1.2 ] } ) ;
+		var mods2 = new lib.ModifiersTable( 'agility-ring2' , { dexterity: [ '%' , 1.3 ] } ) ;
+		var mods3 = new lib.ModifiersTable( 'agility-ring3' , { dexterity: [ '%' , 1.4 ] } ) ;
+		
+		statsP.stack( mods ) ;
+		expect( stats.stats.dexterity.base ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 12 ) ;
+
+		statsP.stack( mods2 ) ;
+		expect( stats.stats.dexterity.base ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 15 ) ;
+
+		statsP.stack( mods3 ) ;
+		expect( stats.stats.dexterity.base ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 19 ) ;
+	} ) ;
+
+	it( "power (^ or **) operator" , () => {
+		var stats = new lib.StatsTable( { dexterity: 10 } ) ;
+		var statsP = stats.getProxy() ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+
+		var mods = new lib.ModifiersTable( 'agility-ring' , { dexterity: [ '^' , 2 ] } ) ;
+		var mods2 = new lib.ModifiersTable( 'agility-ring2' , { dexterity: [ '**' , 3 ] } ) ;
+		
+		statsP.stack( mods ) ;
+		expect( stats.stats.dexterity.base ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 100 ) ;
+
+		statsP.stack( mods2 ) ;
+		expect( stats.stats.dexterity.base ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 1000000 ) ;
+	} ) ;
+
+	it( "append (+>) operator" , () => {
+		var stats = new lib.StatsTable( { text: "some" } ) ;
+		var statsP = stats.getProxy() ;
+		
+		expect( stats.stats.text.base ).to.be( "some" ) ;
+		expect( stats.stats.text.getActual() ).to.be( "some" ) ;
+
+		var mods = new lib.ModifiersTable( 'mods' , { text: [ '+>' , 'text' ] } ) ;
+		var mods2 = new lib.ModifiersTable( 'mods2' , { text: [ '+>' , 'again' ] } ) ;
+		
+		statsP.stack( mods ) ;
+		expect( stats.stats.text.base ).to.be( "some" ) ;
+		expect( stats.stats.text.getActual() ).to.be( "some text" ) ;
+
+		statsP.stack( mods2 ) ;
+		expect( stats.stats.text.base ).to.be( "some" ) ;
+		expect( stats.stats.text.getActual() ).to.be( "some text again" ) ;
+	} ) ;
+
+	it( "prepend (<+) operator" , () => {
+		var stats = new lib.StatsTable( { text: "some" } ) ;
+		var statsP = stats.getProxy() ;
+		
+		expect( stats.stats.text.base ).to.be( "some" ) ;
+		expect( stats.stats.text.getActual() ).to.be( "some" ) ;
+
+		var mods = new lib.ModifiersTable( 'mods' , { text: [ '<+' , 'text' ] } ) ;
+		var mods2 = new lib.ModifiersTable( 'mods2' , { text: [ '<+' , 'again' ] } ) ;
+		
+		statsP.stack( mods ) ;
+		expect( stats.stats.text.base ).to.be( "some" ) ;
+		expect( stats.stats.text.getActual() ).to.be( "text some" ) ;
+
+		statsP.stack( mods2 ) ;
+		expect( stats.stats.text.base ).to.be( "some" ) ;
+		expect( stats.stats.text.getActual() ).to.be( "again text some" ) ;
 	} ) ;
 } ) ;
 
