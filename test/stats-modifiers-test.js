@@ -1077,7 +1077,6 @@ describe( "Gauge stats" , () => {
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
-		console.log( stats.stats.hp ) ;
 		
 		expect( statsP.hp.base ).to.be( 1 ) ;
 		expect( statsP.hp.actual ).to.be( 1 ) ;
@@ -1107,7 +1106,6 @@ describe( "Gauge stats" , () => {
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
-		console.log( stats.stats.hp ) ;
 		
 		expect( statsP.hp.base ).to.be( 1 ) ;
 		expect( statsP.hp.actual ).to.be( 1 ) ;
@@ -1115,14 +1113,14 @@ describe( "Gauge stats" , () => {
 		statsP.hp.add( -0.2 ) ;
 		expect( statsP.hp.base ).to.be( 1 ) ;
 		expect( statsP.hp.actual ).to.be.around( 0.8 ) ;
-		expect( statsP.hp.entries ).to.be.like( [
+		expect( statsP.hp.entries ).to.be.like.around( [
 			{ value: -0.2 , weight: 1 , description: null }
 		] ) ;
 
 		statsP.hp.recover( 0.1 ) ;
 		expect( statsP.hp.base ).to.be( 1 ) ;
 		expect( statsP.hp.actual ).to.be.around( 0.9 ) ;
-		expect( statsP.hp.entries ).to.be.like( [
+		expect( statsP.hp.entries ).to.be.like.around( [
 			{ value: -0.1 , weight: 1 , description: null }
 		] ) ;
 
@@ -1134,18 +1132,129 @@ describe( "Gauge stats" , () => {
 		statsP.hp.add( -0.2 , 2 ) ;
 		expect( statsP.hp.base ).to.be( 1 ) ;
 		expect( statsP.hp.actual ).to.be.around( 0.8 ) ;
-		expect( statsP.hp.entries ).to.be.like( [
+		expect( statsP.hp.entries ).to.be.like.around( [
 			{ value: -0.2 , weight: 2 , description: null }
 		] ) ;
 
 		statsP.hp.recover( 0.1 ) ;
 		expect( statsP.hp.base ).to.be( 1 ) ;
 		expect( statsP.hp.actual ).to.be.around( 0.85 ) ;
-		expect( statsP.hp.entries ).to.be.like( [
+		expect( statsP.hp.entries ).to.be.like.around( [
 			{ value: -0.15 , weight: 2 , description: null }
+		] ) ;
+
+		statsP.hp.recover( 0.1 ) ;
+		expect( statsP.hp.base ).to.be( 1 ) ;
+		expect( statsP.hp.actual ).to.be.around( 0.9 ) ;
+		expect( statsP.hp.entries ).to.be.like.around( [
+			{ value: -0.1 , weight: 2 , description: null }
+		] ) ;
+
+		statsP.hp.recover( 0.3 ) ;
+		expect( statsP.hp.base ).to.be( 1 ) ;
+		expect( statsP.hp.actual ).to.be.around( 1 ) ;
+		expect( statsP.hp.entries ).to.be.like.around( [] ) ;
+	} ) ;
+	
+	it( "Gauge stats and recover across multiple entries" , () => {
+		var stats , statsP ;
+
+		// We use integer values to avoid rounding errors
+		stats = new lib.StatsTable( {
+			hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } )
+		} ) ;
+		
+		statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 100 ) ;
+		expect( statsP.hp.actual ).to.be( 100 ) ;
+		
+		statsP.hp.add( -10 , 1 , "injury A" ) ;
+		statsP.hp.add( -20 , 1 , "injury B" ) ;
+		expect( statsP.hp.base ).to.be( 100 ) ;
+		expect( statsP.hp.actual ).to.be( 70 ) ;
+		expect( statsP.hp.entries ).to.be.like( [
+			{ value: -10 , weight: 1 , description: "injury A" } ,
+			{ value: -20 , weight: 1 , description: "injury B" }
+		] ) ;
+
+		statsP.hp.recover( 20 ) ;
+		expect( statsP.hp.base ).to.be( 100 ) ;
+		expect( statsP.hp.actual ).to.be( 90 ) ;
+		expect( statsP.hp.entries ).to.be.like( [
+			{ value: -10 , weight: 1 , description: "injury B" }
+		] ) ;
+
+		stats = new lib.StatsTable( {
+			hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } )
+		} ) ;
+		
+		statsP = stats.getProxy() ;
+		
+		statsP.hp.add( -4 , 1 , "injury A" ) ;
+		statsP.hp.add( -10 , 1 , "injury B" ) ;
+		statsP.hp.add( -6 , 1 , "injury C" ) ;
+		expect( statsP.hp.base ).to.be( 100 ) ;
+		expect( statsP.hp.actual ).to.be( 80 ) ;
+		expect( statsP.hp.entries ).to.be.like( [
+			{ value: -4 , weight: 1 , description: "injury A" } ,
+			{ value: -10 , weight: 1 , description: "injury B" } ,
+			{ value: -6 , weight: 1 , description: "injury C" }
+		] ) ;
+
+		statsP.hp.recover( 18 ) ;
+		expect( statsP.hp.base ).to.be( 100 ) ;
+		expect( statsP.hp.actual ).to.be( 98 ) ;
+		expect( statsP.hp.entries ).to.be.like( [
+			{ value: -2 , weight: 1 , description: "injury C" }
 		] ) ;
 	} ) ;
 	
+	it( "Gauge stats and recover across multiple entries with different weight" , () => {
+		var stats , statsP ;
+
+		stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
+		statsP = stats.getProxy() ;
+		statsP.hp.add( -4 , 0.5 , "injury A" ) ;
+		statsP.hp.add( -10 , 2 , "injury B" ) ;
+		statsP.hp.add( -6 , 1 , "injury C" ) ;
+		statsP.hp.recover( 1.5 ) ;
+		expect( statsP.hp.base ).to.be( 100 ) ;
+		expect( statsP.hp.actual ).to.be( 83 ) ;
+		expect( statsP.hp.entries ).to.be.like( [
+			{ value: -1 , weight: 0.5 , description: "injury A" } ,
+			{ value: -10 , weight: 2 , description: "injury B" } ,
+			{ value: -6 , weight: 1 , description: "injury C" }
+		] ) ;
+
+		stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
+		statsP = stats.getProxy() ;
+		statsP.hp.add( -4 , 0.5 , "injury A" ) ;
+		statsP.hp.add( -10 , 2 , "injury B" ) ;
+		statsP.hp.add( -6 , 1 , "injury C" ) ;
+		statsP.hp.recover( 6 ) ;
+		expect( statsP.hp.base ).to.be( 100 ) ;
+		expect( statsP.hp.actual ).to.be( 88 ) ;
+		expect( statsP.hp.entries ).to.be.like( [
+			{ value: -10 , weight: 2 , description: "injury B" } ,
+			{ value: -2 , weight: 1 , description: "injury C" }
+		] ) ;
+
+		stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
+		statsP = stats.getProxy() ;
+		statsP.hp.add( -4 , 0.5 , "injury A" ) ;
+		statsP.hp.add( -10 , 2 , "injury B" ) ;
+		statsP.hp.add( -6 , 1 , "injury C" ) ;
+		statsP.hp.recover( 18 ) ;
+		expect( statsP.hp.base ).to.be( 100 ) ;
+		expect( statsP.hp.actual ).to.be( 95 ) ;
+		expect( statsP.hp.entries ).to.be.like( [
+			{ value: -5 , weight: 2 , description: "injury B" }
+		] ) ;
+	} ) ;
+	
+	it( "Gauge#addMerge()" ) ;
+
 	return ;
 
 	it( "Compound stats should use modifiers of primary stats" , () => {
