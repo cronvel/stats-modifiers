@@ -90,13 +90,15 @@ describe( "Basic usage" , () => {
 		var statsClone = stats.clone() ;
 		expect( statsClone ).not.to.be( stats ) ;
 		expect( statsClone ).to.equal( stats ) ;
+		expect( stats.stats.hp.max ).to.be.a( lib.Stat ) ;
+		expect( statsClone.stats.hp.max ).to.be.a( lib.Stat ) ;
 
 		expect( statsClone.stats.hp.max.base ).to.be( 20 ) ;
 		expect( statsClone.stats.hp.remaining.base ).to.be( 14 ) ;
 		expect( statsClone.stats.damages[ 0 ].damage.base ).to.be( 24 ) ;
 		expect( statsClone.stats.damages[ 1 ].damage.base ).to.be( 8 ) ;
 
-		// Check that there are distinct
+		// Check that they are distinct
 		statsClone.stats.hp.max.base = 17 ;
 		expect( stats.stats.hp.max.base ).to.be( 20 ) ;
 		expect( statsClone.stats.hp.max.base ).to.be( 17 ) ;
@@ -790,11 +792,11 @@ describe( "Compound stats" , () => {
 		var stats = new lib.StatsTable( {
 			reflex: 16 ,
 			dexterity: 10 ,
-			defense: new lib.Compound( 'average' , [ 'reflex' , 'dexterity' ] ) ,
+			defense: new lib.CompoundStat( 'average' , [ 'reflex' , 'dexterity' ] ) ,
 			hp: {
 				max: 20 ,
 				injury: 12 ,
-				remaining: new lib.Compound( 'minus' , [ 'hp.max' , 'hp.injury' ] )
+				remaining: new lib.CompoundStat( 'minus' , [ 'hp.max' , 'hp.injury' ] )
 			}
 		} ) ;
 		
@@ -818,11 +820,11 @@ describe( "Compound stats" , () => {
 		var stats = new lib.StatsTable( {
 			reflex: 16 ,
 			dexterity: 10 ,
-			defense: new lib.Compound( 'average' , [ 'reflex' , 'dexterity' ] ) ,
+			defense: new lib.CompoundStat( 'average' , [ 'reflex' , 'dexterity' ] ) ,
 			hp: {
 				max: 20 ,
 				injury: 12 ,
-				remaining: new lib.Compound( 'minus' , [ 'hp.max' , 'hp.injury' ] )
+				remaining: new lib.CompoundStat( 'minus' , [ 'hp.max' , 'hp.injury' ] )
 			}
 		} ) ;
 		
@@ -890,14 +892,14 @@ describe( "Compound stats" , () => {
 		var stats = new lib.StatsTable( {
 			reflex: 16 ,
 			dexterity: 10 ,
-			defense: new lib.Compound(
+			defense: new lib.CompoundStat(
 				stats => ( 2 * stats.reflex.base + stats.dexterity.base ) / 3 ,
 				stats => ( 2 * stats.reflex.actual + stats.dexterity.actual ) / 3
 			) ,
 			hp: {
 				max: 20 ,
 				injury: 12 ,
-				remaining: new lib.Compound(
+				remaining: new lib.CompoundStat(
 					stats => stats.hp.max.base - stats.hp.injury.base ,
 					stats => stats.hp.max.actual - stats.hp.injury.actual
 				)
@@ -1034,6 +1036,34 @@ describe( "Compound stats" , () => {
 		expect( statsP.dexterity.actual ).to.be( 13 ) ;
 		expect( statsP.defense.base ).to.be( 14 ) ;
 		expect( statsP.defense.actual ).to.be( 16 ) ;
+	} ) ;
+
+	it( "Compound stats clone" , () => {
+		var stats = new lib.StatsTable( {
+			reflex: 16 ,
+			dexterity: 10 ,
+			defense: new lib.CompoundStat( 'average' , [ 'reflex' , 'dexterity' ] )
+		} ) ;
+		
+		var statsClone = stats.clone() ;
+		expect( statsClone ).not.to.be( stats ) ;
+		expect( statsClone ).to.equal( stats ) ;
+		expect( stats.stats.reflex ).to.be.a( lib.Stat ) ;
+		expect( statsClone.stats.reflex ).to.be.a( lib.Stat ) ;
+		expect( stats.stats.defense ).to.be.a( lib.CompoundStat ) ;
+		expect( statsClone.stats.defense ).to.be.a( lib.CompoundStat ) ;
+		expect( statsClone.stats.defense ).not.to.be( stats.stats.defense ) ;
+
+		expect( statsClone.stats.reflex.base ).to.be( 16 ) ;
+		expect( statsClone.stats.dexterity.base ).to.be( 10 ) ;
+		expect( statsClone.stats.defense.getBase() ).to.be( 13 ) ;
+
+		// Check that they are distinct
+		statsClone.stats.reflex.base = 18 ;
+		expect( stats.stats.reflex.base ).to.be( 16 ) ;
+		expect( statsClone.stats.reflex.base ).to.be( 18 ) ;
+		expect( stats.stats.defense.getBase() ).to.be( 13 ) ;
+		expect( statsClone.stats.defense.getBase() ).to.be( 14 ) ;
 	} ) ;
 } ) ;
 
