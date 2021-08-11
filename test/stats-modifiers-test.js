@@ -1316,6 +1316,18 @@ describe( "Gauge stats" , () => {
 		expect( stats.stats.hp.getActual() ).to.be( 80 ) ;
 		expect( statsClone.stats.hp.entries ).to.be.like( [ { value: -15 , weight: 1 , description: null } ] ) ;
 		expect( stats.stats.hp.entries ).to.be.like( [ { value: -20 , weight: 1 , description: null } ] ) ;
+		
+		// Historical bugs, when passing a proxy of Gauge/Alignometer/Compound:
+		var stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ).getProxy() } ) ;
+		expect( stats.stats.hp.getProxy ).to.be.a( 'function' ) ;
+		expect( statsClone.stats.hp.getProxy ).to.be.a( 'function' ) ;
+		var statsP = stats.getProxy() ;
+		var statsCloneP = statsP.clone() ;
+		expect( statsCloneP.hp ).to.be.a( lib.Gauge ) ;
+		expect( statsCloneP.hp ).not.to.be( statsP.hp ) ;
+		expect( statsCloneP.hp.entries ).not.to.be( statsP.hp.entries ) ;
+		expect( statsCloneP.hp.base ).to.be( 100 ) ;
+		expect( statsCloneP.hp.actual ).to.be( 100 ) ;
 	} ) ;
 } ) ;
 
