@@ -1253,135 +1253,42 @@ describe( "Gauge stats" , () => {
 		] ) ;
 	} ) ;
 	
-	it( "Gauge#addMerge()" ) ;
+	it( "add/merge entries to a Gauge" , () => {
+		var stats , statsP ;
 
+		stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
+		statsP = stats.getProxy() ;
+		statsP.hp.addMerge( -4 , 1 , "hit" ) ;
+		statsP.hp.addMerge( -10 , 1 , "bleed" ) ;
+		statsP.hp.addMerge( -6 , 2 , "bleed" ) ;
+		expect( statsP.hp.base ).to.be( 100 ) ;
+		expect( statsP.hp.actual ).to.be( 80 ) ;
+		expect( statsP.hp.entries ).to.be.like( [
+			{ value: -4 , weight: 1 , description: "hit" } ,
+			{ value: -10 , weight: 1 , description: "bleed" } ,
+			{ value: -6 , weight: 2 , description: "bleed" }
+		] ) ;
+
+		statsP.hp.addMerge( -2 , 1 , "bleed" ) ;
+		expect( statsP.hp.base ).to.be( 100 ) ;
+		expect( statsP.hp.actual ).to.be( 78 ) ;
+		expect( statsP.hp.entries ).to.be.like( [
+			{ value: -4 , weight: 1 , description: "hit" } ,
+			{ value: -12 , weight: 1 , description: "bleed" } ,
+			{ value: -6 , weight: 2 , description: "bleed" }
+		] ) ;
+
+		statsP.hp.addMerge( -8 , 2 , "bleed" ) ;
+		expect( statsP.hp.base ).to.be( 100 ) ;
+		expect( statsP.hp.actual ).to.be( 70 ) ;
+		expect( statsP.hp.entries ).to.be.like( [
+			{ value: -4 , weight: 1 , description: "hit" } ,
+			{ value: -12 , weight: 1 , description: "bleed" } ,
+			{ value: -14 , weight: 2 , description: "bleed" }
+		] ) ;
+	} ) ;
+	
 	return ;
-
-	it( "Compound stats should use modifiers of primary stats" , () => {
-		var stats = new lib.StatsTable( {
-			reflex: 16 ,
-			dexterity: 10 ,
-			defense: new lib.CompoundStat( 'average' , [ 'reflex' , 'dexterity' ] ) ,
-			hp: {
-				max: 20 ,
-				injury: 12 ,
-				remaining: new lib.CompoundStat( 'minus' , [ 'hp.max' , 'hp.injury' ] )
-			}
-		} ) ;
-		
-		var statsP = stats.getProxy() ;
-		
-		expect( statsP.reflex.base ).to.be( 16 ) ;
-		expect( statsP.reflex.actual ).to.be( 16 ) ;
-		expect( statsP.dexterity.base ).to.be( 10 ) ;
-		expect( statsP.dexterity.actual ).to.be( 10 ) ;
-		expect( statsP.defense.base ).to.be( 13 ) ;
-		expect( statsP.defense.actual ).to.be( 13 ) ;
-		expect( statsP.hp.max.base ).to.be( 20 ) ;
-		expect( statsP.hp.max.actual ).to.be( 20 ) ;
-		expect( statsP.hp.injury.base ).to.be( 12 ) ;
-		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
-		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
-		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
-
-		var mods = new lib.ModifiersTable( 'ring-of-dexterity-and-vitality' , {
-			dexterity: [ '+' , 4 ] ,
-			"hp.max": [ '+' , 1 ] ,
-		} ) ;
-		
-		var modsP = mods.getProxy() ;
-
-		statsP.stack( modsP ) ;
-
-		expect( statsP.reflex.base ).to.be( 16 ) ;
-		expect( statsP.reflex.actual ).to.be( 16 ) ;
-		expect( statsP.dexterity.base ).to.be( 10 ) ;
-		expect( statsP.dexterity.actual ).to.be( 14 ) ;
-		expect( statsP.defense.base ).to.be( 13 ) ;
-		expect( statsP.defense.actual ).to.be( 15 ) ;
-		expect( statsP.hp.max.base ).to.be( 20 ) ;
-		expect( statsP.hp.max.actual ).to.be( 21 ) ;
-		expect( statsP.hp.injury.base ).to.be( 12 ) ;
-		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
-		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
-		expect( statsP.hp.remaining.actual ).to.be( 9 ) ;
-
-		var mods2 = new lib.ModifiersTable( 'helm-of-defense' , {
-			defense: [ '+' , 3 ] ,
-			"hp.remaining": [ '+' , 2 ]
-		} ) ;
-
-		var mods2P = mods2.getProxy() ;
-
-		statsP.stack( mods2P ) ;
-
-		expect( statsP.reflex.base ).to.be( 16 ) ;
-		expect( statsP.reflex.actual ).to.be( 16 ) ;
-		expect( statsP.dexterity.base ).to.be( 10 ) ;
-		expect( statsP.dexterity.actual ).to.be( 14 ) ;
-		expect( statsP.defense.base ).to.be( 13 ) ;
-		expect( statsP.defense.actual ).to.be( 18 ) ;
-		expect( statsP.hp.max.base ).to.be( 20 ) ;
-		expect( statsP.hp.max.actual ).to.be( 21 ) ;
-		expect( statsP.hp.injury.base ).to.be( 12 ) ;
-		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
-		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
-		expect( statsP.hp.remaining.actual ).to.be( 11 ) ;
-	} ) ;
-
-	it( "Compound stats using custom function" , () => {
-		var stats = new lib.StatsTable( {
-			reflex: 16 ,
-			dexterity: 10 ,
-			defense: new lib.CompoundStat(
-				stats => ( 2 * stats.reflex.base + stats.dexterity.base ) / 3 ,
-				stats => ( 2 * stats.reflex.actual + stats.dexterity.actual ) / 3
-			) ,
-			hp: {
-				max: 20 ,
-				injury: 12 ,
-				remaining: new lib.CompoundStat(
-					stats => stats.hp.max.base - stats.hp.injury.base ,
-					stats => stats.hp.max.actual - stats.hp.injury.actual
-				)
-			}
-		} ) ;
-		
-		var statsP = stats.getProxy() ;
-		
-		expect( statsP.reflex.base ).to.be( 16 ) ;
-		expect( statsP.reflex.actual ).to.be( 16 ) ;
-		expect( statsP.dexterity.base ).to.be( 10 ) ;
-		expect( statsP.dexterity.actual ).to.be( 10 ) ;
-		expect( statsP.defense.base ).to.be( 14 ) ;
-		expect( statsP.defense.actual ).to.be( 14 ) ;
-		expect( statsP.hp.max.base ).to.be( 20 ) ;
-		expect( statsP.hp.max.actual ).to.be( 20 ) ;
-		expect( statsP.hp.injury.base ).to.be( 12 ) ;
-		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
-		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
-		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
-
-
-		var mods = new lib.ModifiersTable( 'ring-of-dexterity' , { dexterity: [ '+' , 3 ] } ) ;
-		var mods2 = new lib.ModifiersTable( 'ring-of-defense' , { defense: [ '+' , 1 ] } ) ;
-
-		statsP.stack( mods ) ;
-		expect( statsP.reflex.base ).to.be( 16 ) ;
-		expect( statsP.reflex.actual ).to.be( 16 ) ;
-		expect( statsP.dexterity.base ).to.be( 10 ) ;
-		expect( statsP.dexterity.actual ).to.be( 13 ) ;
-		expect( statsP.defense.base ).to.be( 14 ) ;
-		expect( statsP.defense.actual ).to.be( 15 ) ;
-
-		statsP.stack( mods2 ) ;
-		expect( statsP.reflex.base ).to.be( 16 ) ;
-		expect( statsP.reflex.actual ).to.be( 16 ) ;
-		expect( statsP.dexterity.base ).to.be( 10 ) ;
-		expect( statsP.dexterity.actual ).to.be( 13 ) ;
-		expect( statsP.defense.base ).to.be( 14 ) ;
-		expect( statsP.defense.actual ).to.be( 16 ) ;
-	} ) ;
 
 	it( "Compound stats and KFG interoperability: Operator syntax" , () => {
 		var stats = new lib.StatsTable( {
