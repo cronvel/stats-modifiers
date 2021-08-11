@@ -1071,7 +1071,7 @@ describe( "Compound stats" , () => {
 
 describe( "Gauge stats" , () => {
 
-	it( "Gauge stats creation and adding entry to it" , () => {
+	it( "Gauge stats creation and adding entries to it" , () => {
 		var stats = new lib.StatsTable( {
 			hp: new lib.Gauge( { base: 1 , min: 0 , max: 1 } )
 		} ) ;
@@ -1288,130 +1288,133 @@ describe( "Gauge stats" , () => {
 		] ) ;
 	} ) ;
 	
-	return ;
+	it( "Gauge stats clone" , () => {
+		var stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
+		
+		var statsClone = stats.clone() ;
+		expect( statsClone ).not.to.be( stats ) ;
+		expect( statsClone ).to.equal( stats ) ;
+		expect( stats.stats.hp ).to.be.a( lib.Gauge ) ;
+		expect( statsClone.stats.hp ).to.be.a( lib.Gauge ) ;
+		expect( statsClone.stats.hp ).not.to.be( stats.stats.hp ) ;
+		expect( statsClone.stats.hp.entries ).not.to.be( stats.stats.hp.entries ) ;
 
-	it( "Compound stats and KFG interoperability: Operator syntax" , () => {
+		expect( statsClone.stats.hp.base ).to.be( 100 ) ;
+
+		// Check that they are distinct
+		statsClone.stats.hp.base = 110 ;
+		expect( stats.stats.hp.base ).to.be( 100 ) ;
+		expect( statsClone.stats.hp.base ).to.be( 110 ) ;
+
+		statsClone.stats.hp.add( -15 ) ;
+		stats.stats.hp.add( -20 ) ;
+		expect( statsClone.stats.hp.getActual() ).to.be( 95 ) ;
+		expect( stats.stats.hp.getActual() ).to.be( 80 ) ;
+		expect( statsClone.stats.hp.entries ).to.be.like( [ { value: -15 , weight: 1 , description: null } ] ) ;
+		expect( stats.stats.hp.entries ).to.be.like( [ { value: -20 , weight: 1 , description: null } ] ) ;
+	} ) ;
+} ) ;
+
+
+
+describe( "Alignometer stats" , () => {
+
+	it( "Alignometer stats creation and adding entries to it" , () => {
 		var stats = new lib.StatsTable( {
-			reflex: 16 ,
-			dexterity: 10 ,
-			defense: { __prototypeUID__: 'kung-fig/Operator' , operator: 'average' , operand: [ 'reflex' , 'dexterity' ] } ,
-			hp: {
-				max: 20 ,
-				injury: 12 ,
-				remaining: { __prototypeUID__: 'kung-fig/Operator' , operator: 'minus' , operand: [ 'hp.max' , 'hp.injury' ] }
-			}
+			goodness: new lib.Alignometer( { base: 0 , min: -100 , max: 100 , minWeight: 20 , maxEntries: 50 } )
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
 		
-		expect( statsP.reflex.base ).to.be( 16 ) ;
-		expect( statsP.reflex.actual ).to.be( 16 ) ;
-		expect( statsP.dexterity.base ).to.be( 10 ) ;
-		expect( statsP.dexterity.actual ).to.be( 10 ) ;
-		expect( statsP.defense.base ).to.be( 13 ) ;
-		expect( statsP.defense.actual ).to.be( 13 ) ;
-		expect( statsP.hp.max.base ).to.be( 20 ) ;
-		expect( statsP.hp.max.actual ).to.be( 20 ) ;
-		expect( statsP.hp.injury.base ).to.be( 12 ) ;
-		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
-		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
-		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
-
-
-		var mods = new lib.ModifiersTable( 'ring-of-dexterity' , { dexterity: [ '+' , 3 ] } ) ;
-		var mods2 = new lib.ModifiersTable( 'ring-of-defense' , { defense: [ '+' , 1 ] } ) ;
-
-		statsP.stack( mods ) ;
-		expect( statsP.reflex.base ).to.be( 16 ) ;
-		expect( statsP.reflex.actual ).to.be( 16 ) ;
-		expect( statsP.dexterity.base ).to.be( 10 ) ;
-		expect( statsP.dexterity.actual ).to.be( 13 ) ;
-		expect( statsP.defense.base ).to.be( 13 ) ;
-		expect( statsP.defense.actual ).to.be( 14.5 ) ;
-
-		statsP.stack( mods2 ) ;
-		expect( statsP.reflex.base ).to.be( 16 ) ;
-		expect( statsP.reflex.actual ).to.be( 16 ) ;
-		expect( statsP.dexterity.base ).to.be( 10 ) ;
-		expect( statsP.dexterity.actual ).to.be( 13 ) ;
-		expect( statsP.defense.base ).to.be( 13 ) ;
-		expect( statsP.defense.actual ).to.be( 15.5 ) ;
-	} ) ;
-	
-	it( "Compound stats and KFG interoperability: Expression syntax" , () => {
-		var stats = new lib.StatsTable( {
-			reflex: 16 ,
-			dexterity: 10 ,
-			defense: Expression.parse( "( ( 2 * $reflex ) + $dexterity ) / 3" ) ,
-			hp: {
-				max: 20 ,
-				injury: 12 ,
-				remaining: Expression.parse( "$hp.max - $hp.injury" )
-			}
-		} ) ;
+		expect( statsP.goodness.base ).to.be( 0 ) ;
+		expect( statsP.goodness.actual ).to.be( 0 ) ;
 		
-		var statsP = stats.getProxy() ;
+		// Since minWeight=20, base value has a weight of 15 here
+		statsP.goodness.add( 'up' , 100 , 5 , "charity" ) ;
+		expect( statsP.goodness.base ).to.be( 0 ) ;
+		expect( statsP.goodness.actual ).to.be( 25 ) ;
+		expect( statsP.goodness.entries ).to.be.like( [
+			{ direction: 1 , value: 100 , weight: 5 , description: "charity" }
+		] ) ;
+
+		// Since minWeight=20, base value has a weight of 10 here
+		statsP.goodness.downward( -100 , 5 , "brutality" ) ;
+		expect( statsP.goodness.base ).to.be( 0 ) ;
+		expect( statsP.goodness.actual ).to.be( 0 ) ;
+		expect( statsP.goodness.entries ).to.be.like.around( [
+			{ direction: 1 , value: 100 , weight: 5 , description: "charity" } ,
+			{ direction: -1 , value: -100 , weight: 5 , description: "brutality" }
+		] ) ;
+
+		// Since minWeight=20, base value has no more weight here
+		// "not so wise" doesn't affect anything ATM, but will act as a “plateau” after 50
+		statsP.goodness.downward( 50 , 10 , "not so wise" ) ;
+		expect( statsP.goodness.base ).to.be( 0 ) ;
+		expect( statsP.goodness.actual ).to.be( 0 ) ;
+		expect( statsP.goodness.entries ).to.be.like.around( [
+			{ direction: 1 , value: 100 , weight: 5 , description: "charity" } ,
+			{ direction: -1 , value: -100 , weight: 5 , description: "brutality" } ,
+			{ direction: -1 , value: 50 , weight: 10 , description: "not so wise" }
+		] ) ;
 		
-		expect( statsP.reflex.base ).to.be( 16 ) ;
-		expect( statsP.reflex.actual ).to.be( 16 ) ;
-		expect( statsP.dexterity.base ).to.be( 10 ) ;
-		expect( statsP.dexterity.actual ).to.be( 10 ) ;
-		expect( statsP.defense.base ).to.be( 14 ) ;
-		expect( statsP.defense.actual ).to.be( 14 ) ;
-		expect( statsP.hp.max.base ).to.be( 20 ) ;
-		expect( statsP.hp.max.actual ).to.be( 20 ) ;
-		expect( statsP.hp.injury.base ).to.be( 12 ) ;
-		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
-		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
-		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
+		// now "not so wise" affect things, and limit "saint's miracle"
+		statsP.goodness.upward( 100 , 30 , "saint's miracle" ) ;
+		expect( statsP.goodness.base ).to.be( 0 ) ;
+		expect( statsP.goodness.actual ).to.be( 70 ) ;
+		expect( statsP.goodness.entries ).to.be.like( [
+			{ direction: 1 , value: 100 , weight: 5 , description: "charity" } ,
+			{ direction: -1 , value: -100 , weight: 5 , description: "brutality" } ,
+			{ direction: -1 , value: 50 , weight: 10 , description: "not so wise" } ,
+			{ direction: 1 , value: 100 , weight: 30 , description: "saint's miracle" }
+		] ) ;
 
+		// if we remove "not so wise" we see that "saint's miracle" has more effects
+		statsP.goodness.entries.splice( 2 , 1 ) ;
+		expect( statsP.goodness.base ).to.be( 0 ) ;
+		expect( statsP.goodness.actual ).to.be( 75 ) ;
+		expect( statsP.goodness.entries ).to.be.like( [
+			{ direction: 1 , value: 100 , weight: 5 , description: "charity" } ,
+			{ direction: -1 , value: -100 , weight: 5 , description: "brutality" } ,
+			{ direction: 1 , value: 100 , weight: 30 , description: "saint's miracle" }
+		] ) ;
 
-		var mods = new lib.ModifiersTable( 'ring-of-dexterity' , { dexterity: [ '+' , 3 ] } ) ;
-		var mods2 = new lib.ModifiersTable( 'ring-of-defense' , { defense: [ '+' , 1 ] } ) ;
-
-		statsP.stack( mods ) ;
-		expect( statsP.reflex.base ).to.be( 16 ) ;
-		expect( statsP.reflex.actual ).to.be( 16 ) ;
-		expect( statsP.dexterity.base ).to.be( 10 ) ;
-		expect( statsP.dexterity.actual ).to.be( 13 ) ;
-		expect( statsP.defense.base ).to.be( 14 ) ;
-		expect( statsP.defense.actual ).to.be( 15 ) ;
-
-		statsP.stack( mods2 ) ;
-		expect( statsP.reflex.base ).to.be( 16 ) ;
-		expect( statsP.reflex.actual ).to.be( 16 ) ;
-		expect( statsP.dexterity.base ).to.be( 10 ) ;
-		expect( statsP.dexterity.actual ).to.be( 13 ) ;
-		expect( statsP.defense.base ).to.be( 14 ) ;
-		expect( statsP.defense.actual ).to.be( 16 ) ;
+		statsP.goodness.toward( 0 , 10 , "normie" ) ;
+		expect( statsP.goodness.base ).to.be( 0 ) ;
+		expect( statsP.goodness.actual ).to.be( 60 ) ;
+		expect( statsP.goodness.entries ).to.be.like( [
+			{ direction: 1 , value: 100 , weight: 5 , description: "charity" } ,
+			{ direction: -1 , value: -100 , weight: 5 , description: "brutality" } ,
+			{ direction: 1 , value: 100 , weight: 30 , description: "saint's miracle" } ,
+			{ direction: 0 , value: 0 , weight: 10 , description: "normie" }
+		] ) ;
 	} ) ;
 
-	it( "Compound stats clone" , () => {
+	it( "Alignometer stats clone" , () => {
 		var stats = new lib.StatsTable( {
-			reflex: 16 ,
-			dexterity: 10 ,
-			defense: new lib.CompoundStat( 'average' , [ 'reflex' , 'dexterity' ] )
+			goodness: new lib.Alignometer( { base: 0 , min: -100 , max: 100 , minWeight: 20 , maxEntries: 50 } )
 		} ) ;
 		
 		var statsClone = stats.clone() ;
 		expect( statsClone ).not.to.be( stats ) ;
 		expect( statsClone ).to.equal( stats ) ;
-		expect( stats.stats.reflex ).to.be.a( lib.Stat ) ;
-		expect( statsClone.stats.reflex ).to.be.a( lib.Stat ) ;
-		expect( stats.stats.defense ).to.be.a( lib.CompoundStat ) ;
-		expect( statsClone.stats.defense ).to.be.a( lib.CompoundStat ) ;
-		expect( statsClone.stats.defense ).not.to.be( stats.stats.defense ) ;
+		expect( stats.stats.goodness ).to.be.a( lib.Alignometer ) ;
+		expect( statsClone.stats.goodness ).to.be.a( lib.Alignometer ) ;
+		expect( statsClone.stats.goodness ).not.to.be( stats.stats.goodness ) ;
+		expect( statsClone.stats.goodness.entries ).not.to.be( stats.stats.goodness.entries ) ;
 
-		expect( statsClone.stats.reflex.base ).to.be( 16 ) ;
-		expect( statsClone.stats.dexterity.base ).to.be( 10 ) ;
-		expect( statsClone.stats.defense.getBase() ).to.be( 13 ) ;
+		expect( statsClone.stats.goodness.base ).to.be( 0 ) ;
 
 		// Check that they are distinct
-		statsClone.stats.reflex.base = 18 ;
-		expect( stats.stats.reflex.base ).to.be( 16 ) ;
-		expect( statsClone.stats.reflex.base ).to.be( 18 ) ;
-		expect( stats.stats.defense.getBase() ).to.be( 13 ) ;
-		expect( statsClone.stats.defense.getBase() ).to.be( 14 ) ;
+		statsClone.stats.goodness.base = 50 ;
+		expect( stats.stats.goodness.base ).to.be( 0 ) ;
+		expect( statsClone.stats.goodness.base ).to.be( 50 ) ;
+
+		statsClone.stats.goodness.toward( 20 , 10 ) ;
+		stats.stats.goodness.toward( -20 , 10 ) ;
+		expect( statsClone.stats.goodness.getActual() ).to.be( 35 ) ;
+		expect( stats.stats.goodness.getActual() ).to.be( -10 ) ;
+		expect( statsClone.stats.goodness.entries ).to.be.like( [ { direction: 0 , value: 20 , weight: 10 , description: null } ] ) ;
+		expect( stats.stats.goodness.entries ).to.be.like( [ { direction: 0 , value: -20 , weight: 10 , description: null } ] ) ;
 	} ) ;
 } ) ;
 
