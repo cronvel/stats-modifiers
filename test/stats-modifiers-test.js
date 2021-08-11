@@ -1080,6 +1080,10 @@ describe( "Gauge stats" , () => {
 		
 		expect( statsP.hp.base ).to.be( 1 ) ;
 		expect( statsP.hp.actual ).to.be( 1 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 1 ) ;
+		expect( statsP.hp.maxEntries ).to.be( Infinity ) ;
+		expect( statsP.hp['max-entries'] ).to.be( Infinity ) ;
 		
 		statsP.hp.add( -0.2 ) ;
 		expect( statsP.hp.base ).to.be( 1 ) ;
@@ -1328,6 +1332,14 @@ describe( "Alignometer stats" , () => {
 		
 		expect( statsP.goodness.base ).to.be( 0 ) ;
 		expect( statsP.goodness.actual ).to.be( 0 ) ;
+		expect( statsP.goodness.min ).to.be( -100 ) ;
+		expect( statsP.goodness.max ).to.be( 100 ) ;
+		expect( statsP.goodness.minWeight ).to.be( 20 ) ;
+		expect( statsP.goodness['min-weight'] ).to.be( 20 ) ;
+		expect( statsP.goodness.maxEntries ).to.be( 50 ) ;
+		expect( statsP.goodness['max-entries'] ).to.be( 50 ) ;
+		expect( statsP.goodness.instantMaxWeight ).to.be( 50 ) ;
+		expect( statsP.goodness['instant-max-weight'] ).to.be( 50 ) ;
 		
 		// Since minWeight=20, base value has a weight of 15 here
 		statsP.goodness.add( 'up' , 100 , 5 , "charity" ) ;
