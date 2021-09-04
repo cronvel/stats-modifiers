@@ -995,6 +995,7 @@ describe( "Compound stats" , () => {
 			reflex: 16 ,
 			dexterity: 10 ,
 			defense: Expression.parse( "( ( 2 * $reflex ) + $dexterity ) / 3" ) ,
+			quickness: Expression.parse( "$reflex" ) ,	// check for old bug when a Ref is returned
 			hp: {
 				max: 20 ,
 				injury: 12 ,
@@ -1010,6 +1011,8 @@ describe( "Compound stats" , () => {
 		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 		expect( statsP.defense.base ).to.be( 14 ) ;
 		expect( statsP.defense.actual ).to.be( 14 ) ;
+		expect( statsP.quickness.base ).to.be( 16 ) ;
+		expect( statsP.quickness.actual ).to.be( 16 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.actual ).to.be( 20 ) ;
 		expect( statsP.hp.injury.base ).to.be( 12 ) ;
@@ -1036,6 +1039,21 @@ describe( "Compound stats" , () => {
 		expect( statsP.dexterity.actual ).to.be( 13 ) ;
 		expect( statsP.defense.base ).to.be( 14 ) ;
 		expect( statsP.defense.actual ).to.be( 16 ) ;
+
+		var mods3 = new lib.ModifiersTable( 'ring-of-reflex' , { reflex: [ '+' , 3 ] } ) ;
+		var mods4 = new lib.ModifiersTable( 'ring-of-quickness' , { quickness: [ '+' , 1 ] } ) ;
+
+		statsP.stack( mods3 ) ;
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 19 ) ;
+		expect( statsP.quickness.base ).to.be( 16 ) ;
+		expect( statsP.quickness.actual ).to.be( 19 ) ;
+
+		statsP.stack( mods4 ) ;
+		expect( statsP.reflex.base ).to.be( 16 ) ;
+		expect( statsP.reflex.actual ).to.be( 19 ) ;
+		expect( statsP.quickness.base ).to.be( 16 ) ;
+		expect( statsP.quickness.actual ).to.be( 20 ) ;
 	} ) ;
 
 	it( "Compound stats clone" , () => {
