@@ -192,9 +192,12 @@ describe( "Basic usage" , () => {
 	
 	it( "ModifiersTable creation using the object syntax (KFG)" , () => {
 		var mods = new lib.ModifiersTable( 'staff' , {
-			strength: { operator: '+' , operand: 5 } ,
-			dexterity: [ { operator: '-' , operand: 2 } , { operator: '*' , operand: 0.8 } ] ,
-			"hp.max": [ '+' , 2 ]
+			strength: { __prototypeUID__: 'kung-fig/Operator' , operator: '+' , operand: 5 } ,
+			dexterity: [
+				{ __prototypeUID__: 'kung-fig/Operator' , operator: '-' , operand: 2 } ,
+				{ __prototypeUID__: 'kung-fig/Operator' , operator: '*' , operand: 0.8 }
+			] ,
+			"hp.max": { __prototypeUID__: 'kung-fig/Operator' , operator: '+' , operand: 2 }
 		} ) ;
 		
 		var modsP = mods.getProxy() ;
@@ -211,6 +214,20 @@ describe( "Basic usage" , () => {
 			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
 			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
 		} ) ;
+	} ) ;
+	
+	it( "ModifiersTable creation with unflatten object structure" , () => {
+		var mods = new lib.ModifiersTable( 'staff' , {
+			hp: {
+				max: { __prototypeUID__: 'kung-fig/Operator' , operator: '+' , operand: 2 } ,
+				remaining: { __prototypeUID__: 'kung-fig/Operator' , operator: '/' , operand: 2 }
+			}
+		} ) ;
+		
+		var modsP = mods.getProxy() ;
+		
+		expect( modsP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 2 } } ) ;
+		expect( modsP['hp.remaining'] ).to.be.partially.like( { multiply: { id: 'staff' , operator: 'multiply' , operand: 0.5 } } ) ;
 	} ) ;
 	
 	it( "ModifiersTable clone" , () => {
@@ -334,7 +351,9 @@ describe( "Basic usage" , () => {
 
 		var mods2 = new lib.ModifiersTable( 'ring-of-strength' , {
 			strength: [ '+' , 2 ] ,
-			"hp.remaining": [ '+' , 1 ]
+			hp: {
+				remaining: [ '+' , 1 ]
+			}
 		} ) ;
 		
 		stats.stack( mods ) ;
@@ -550,7 +569,9 @@ describe( "Basic usage" , () => {
 
 		var mods2 = new lib.ModifiersTable( 'ring-of-strength' , {
 			strength: [ '+' , 2 ] ,
-			"hp.max": [ '+' , 1 ]
+			hp: {
+				max: [ '+' , 1 ]
+			}
 		} ) ;
 		
 		stats.stack( mods ) ;
