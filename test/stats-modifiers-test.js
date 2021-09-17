@@ -108,6 +108,7 @@ describe( "Basic usage" , () => {
 		expect( statsClone.stats.hp.max.base ).to.be( 17 ) ;
 	} ) ;
 
+
 	it( "StatsTable extension" , () => {
 		var stats = new lib.StatsTable( {
 			useless: 123 ,
@@ -1492,6 +1493,30 @@ describe( "Alignometer stats" , () => {
 		expect( stats.stats.goodness.getActual() ).to.be( -10 ) ;
 		expect( statsClone.stats.goodness.entries ).to.be.like( [ { direction: 0 , value: 20 , weight: 10 , description: null } ] ) ;
 		expect( stats.stats.goodness.entries ).to.be.like( [ { direction: 0 , value: -20 , weight: 10 , description: null } ] ) ;
+	} ) ;
+} ) ;
+
+
+
+describe( "zzz DynamicContainer" , () => {
+
+	it( "DynamicContainer" , () => {
+		var stats = new lib.StatsTable( {
+			damages: new lib.DynamicContainer( {
+				of: { damage: 0 } ,
+				base: {
+					blunt: {
+						damage: 3
+					}
+				}
+			} )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		console.log( "dbg:" , stats.stats.damages ) ;
+		expect( stats.stats.damages ).to.be.a( lib.DynamicContainer ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 3 ) ;
 	} ) ;
 } ) ;
 
