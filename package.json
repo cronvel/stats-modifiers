@@ -11,10 +11,10 @@
   },
   "dependencies": {
     "array-kit": "^0.2.4",
-    "tree-kit": "^0.7.0"
+    "tree-kit": "^0.7.3"
   },
   "devDependencies": {
-    "kung-fig-expression": "^0.45.9"
+    "kung-fig-expression": "^0.48.6"
   },
   "scripts": {
     "test": "tea-time -R dot -O"
