@@ -1498,30 +1498,6 @@ describe( "Alignometer stats" , () => {
 
 
 
-describe( "zzz DynamicContainer" , () => {
-
-	it( "DynamicContainer" , () => {
-		var stats = new lib.StatsTable( {
-			damages: new lib.DynamicContainer( {
-				of: { damage: 0 } ,
-				base: {
-					blunt: {
-						damage: 3
-					}
-				}
-			} )
-		} ) ;
-		
-		var statsP = stats.getProxy() ;
-		
-		console.log( "dbg:" , stats.stats.damages ) ;
-		expect( stats.stats.damages ).to.be.a( lib.DynamicContainer ) ;
-		expect( statsP.damages.blunt.damage.base ).to.be( 3 ) ;
-	} ) ;
-} ) ;
-
-
-
 describe( "Receiving events" , () => {
 
 	it( "One-time events" , () => {
