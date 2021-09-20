@@ -48,6 +48,9 @@ describe( "Basic usage" , () => {
 		
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.base ).to.be( 12 ) ;
+
+		expect( stats.stats.strength.parentTable ).to.be( stats ) ;
+		expect( stats.stats.strength.pathKey ).to.be( 'strength' ) ;
 	} ) ;
 
 	it( "StatsTable with nested stats creation" , () => {
@@ -73,6 +76,9 @@ describe( "Basic usage" , () => {
 		expect( statsP.damages[ 0 ].damage.base ).to.be( 24 ) ;
 		expect( stats.stats.damages[ 1 ].damage.base ).to.be( 8 ) ;
 		expect( statsP.damages[ 1 ].damage.base ).to.be( 8 ) ;
+
+		expect( stats.stats.hp.max.parentTable ).to.be( stats ) ;
+		expect( stats.stats.hp.max.pathKey ).to.be( 'hp.max' ) ;
 	} ) ;
 
 	it( "StatsTable clone" , () => {
@@ -106,8 +112,12 @@ describe( "Basic usage" , () => {
 		stats.stats.hp.max.base = 21 ;
 		expect( stats.stats.hp.max.base ).to.be( 21 ) ;
 		expect( statsClone.stats.hp.max.base ).to.be( 17 ) ;
-	} ) ;
 
+		expect( stats.stats.hp.max.parentTable ).to.be( stats ) ;
+		expect( stats.stats.hp.max.pathKey ).to.be( 'hp.max' ) ;
+		expect( statsClone.stats.hp.max.parentTable ).to.be( statsClone ) ;
+		expect( statsClone.stats.hp.max.pathKey ).to.be( 'hp.max' ) ;
+	} ) ;
 
 	it( "StatsTable extension" , () => {
 		var stats = new lib.StatsTable( {
@@ -836,6 +846,9 @@ describe( "Compound stats" , () => {
 		expect( statsP.hp.injury.actual ).to.be( 12 ) ;
 		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
 		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
+
+		expect( stats.stats.hp.remaining.parentTable ).to.be( stats ) ;
+		expect( stats.stats.hp.remaining.pathKey ).to.be( 'hp.remaining' ) ;
 	} ) ;
 
 	it( "Compound stats should use modifiers of primary stats" , () => {
@@ -1142,6 +1155,9 @@ describe( "Gauge stats" , () => {
 			{ value: -0.1 , weight: 0.5 , description: null } ,
 			{ value: -0.3 , weight: 0.8 , description: "hit by a rock" }
 		] ) ;
+
+		expect( stats.stats.hp.parentTable ).to.be( stats ) ;
+		expect( stats.stats.hp.pathKey ).to.be( 'hp' ) ;
 	} ) ;
 	
 	it( "Gauge stats and recover" , () => {
@@ -1396,6 +1412,9 @@ describe( "Alignometer stats" , () => {
 		
 		var statsP = stats.getProxy() ;
 		
+		expect( stats.stats.goodness.parentTable ).to.be( stats ) ;
+		expect( stats.stats.goodness.pathKey ).to.be( 'goodness' ) ;
+
 		expect( statsP.goodness.base ).to.be( 0 ) ;
 		expect( statsP.goodness.actual ).to.be( 0 ) ;
 		expect( statsP.goodness.min ).to.be( -100 ) ;
