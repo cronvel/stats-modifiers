@@ -53,7 +53,7 @@ describe( "Basic usage" , () => {
 		expect( stats.stats.strength.pathKey ).to.be( 'strength' ) ;
 	} ) ;
 
-	it( "StatsTable with nested stats creation" , () => {
+	it( "zzz StatsTable with nested stats creation" , () => {
 		var stats = new lib.StatsTable( {
 			hp: {
 				max: 20 ,
