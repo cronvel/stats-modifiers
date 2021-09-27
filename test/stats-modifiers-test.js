@@ -49,7 +49,7 @@ describe( "Basic usage" , () => {
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.base ).to.be( 12 ) ;
 
-		expect( stats.stats.strength.parentTable ).to.be( stats ) ;
+		expect( stats.stats.strength[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.stats.strength.pathKey ).to.be( 'strength' ) ;
 	} ) ;
 
@@ -77,7 +77,7 @@ describe( "Basic usage" , () => {
 		expect( stats.stats.damages[ 1 ].damage.base ).to.be( 8 ) ;
 		expect( statsP.damages[ 1 ].damage.base ).to.be( 8 ) ;
 
-		expect( stats.stats.hp.max.parentTable ).to.be( stats ) ;
+		expect( stats.stats.hp.max[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.stats.hp.max.pathKey ).to.be( 'hp.max' ) ;
 	} ) ;
 
@@ -113,9 +113,9 @@ describe( "Basic usage" , () => {
 		expect( stats.stats.hp.max.base ).to.be( 21 ) ;
 		expect( statsClone.stats.hp.max.base ).to.be( 17 ) ;
 
-		expect( stats.stats.hp.max.parentTable ).to.be( stats ) ;
+		expect( stats.stats.hp.max[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.stats.hp.max.pathKey ).to.be( 'hp.max' ) ;
-		expect( statsClone.stats.hp.max.parentTable ).to.be( statsClone ) ;
+		expect( statsClone.stats.hp.max[ lib.SYMBOL_PARENT ] ).to.be( statsClone ) ;
 		expect( statsClone.stats.hp.max.pathKey ).to.be( 'hp.max' ) ;
 	} ) ;
 
@@ -847,7 +847,7 @@ describe( "Compound stats" , () => {
 		expect( statsP.hp.remaining.base ).to.be( 8 ) ;
 		expect( statsP.hp.remaining.actual ).to.be( 8 ) ;
 
-		expect( stats.stats.hp.remaining.parentTable ).to.be( stats ) ;
+		expect( stats.stats.hp.remaining[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.stats.hp.remaining.pathKey ).to.be( 'hp.remaining' ) ;
 	} ) ;
 
@@ -1156,7 +1156,7 @@ describe( "Gauge stats" , () => {
 			{ value: -0.3 , weight: 0.8 , description: "hit by a rock" }
 		] ) ;
 
-		expect( stats.stats.hp.parentTable ).to.be( stats ) ;
+		expect( stats.stats.hp[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.stats.hp.pathKey ).to.be( 'hp' ) ;
 	} ) ;
 	
@@ -1412,7 +1412,7 @@ describe( "Alignometer stats" , () => {
 		
 		var statsP = stats.getProxy() ;
 		
-		expect( stats.stats.goodness.parentTable ).to.be( stats ) ;
+		expect( stats.stats.goodness[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.stats.goodness.pathKey ).to.be( 'goodness' ) ;
 
 		expect( statsP.goodness.base ).to.be( 0 ) ;
