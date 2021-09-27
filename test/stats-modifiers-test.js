@@ -53,7 +53,7 @@ describe( "Basic usage" , () => {
 		expect( stats.stats.strength.pathKey ).to.be( 'strength' ) ;
 	} ) ;
 
-	it( "zzz StatsTable with nested stats creation" , () => {
+	it( "StatsTable with nested stats creation" , () => {
 		var stats = new lib.StatsTable( {
 			hp: {
 				max: 20 ,
@@ -646,6 +646,111 @@ describe( "Basic usage" , () => {
 
 		mods3.deactivate() ;
 		expect( statsP.hp.max.actual ).to.be( 20 ) ;
+	} ) ;
+} ) ;
+
+
+
+describe( "zzz Wildcard stats" , () => {
+
+	it( "StatsTable with wildcard stats creation" , () => {
+		var stats = new lib.StatsTable( {
+			damages: {
+				blunt: { damage: 10 } ,
+				"*": { damage: 0 }
+			}
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( stats.stats.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+
+		expect( stats.stats.damages['*'].damage.base ).to.be( 0 ) ;
+		expect( statsP.damages['*'].damage.base ).to.be( 0 ) ;
+
+		expect( stats.stats.damages.blunt.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.stats.damages.blunt.damage.pathKey ).to.be( 'damages.blunt.damage' ) ;
+	} ) ;
+
+	it( "Adding/removing a ModifiersTable to a StatsTable" , () => {
+		var stats = new lib.StatsTable( {
+			damages: {
+				blunt: { damage: 10 } ,
+				"*": { damage: 0 }
+			}
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+
+		expect( Object.keys( statsP.damages ) ).to.equal( [ 'blunt' ] ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
+		expect( statsP.damages.fire ).to.be( undefined ) ;
+		
+		return ;
+
+		var mods = new lib.ModifiersTable( 'fire-brand' , {
+			"damages": [ '#' , 'fire' ] ,		// Add a fire type to the wild-card
+			"damages.fire.damage": [ '+' , 5 ]
+		} ) ;
+		
+		statsP.stack( mods ) ;
+
+		expect( Object.keys( statsP.damages ) ).to.equal( [ 'blunt' ] ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
+		expect( statsP.damages.fire.damage.base ).to.be( 0 ) ;
+		expect( statsP.damages.fire.damage.actual ).to.be( 5 ) ;
+
+		return ;
+		
+
+
+
+		expect( stats.stats.strength.base ).to.be( 12 ) ;
+		expect( statsP.strength.base ).to.be( 12 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
+		expect( statsP.strength.actual ).to.be( 17 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( stats.stats.hp.max.getActual() ).to.be( 22 ) ;
+		expect( statsP.hp.max.actual ).to.be( 22 ) ;
+
+
+		statsP.unstack( mods ) ;
+
+		expect( stats.stats.strength.base ).to.be( 12 ) ;
+		expect( statsP.strength.base ).to.be( 12 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 12 ) ;
+		expect( statsP.strength.actual ).to.be( 12 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 15 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( stats.stats.hp.max.getActual() ).to.be( 20 ) ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
+
+
+		var mods2 = new lib.ModifiersTable( 'ring-of-strength' , {
+			strength: [ '+' , 2 ] ,
+			hp: {
+				remaining: [ '+' , 1 ]
+			}
+		} ) ;
+		
+		stats.stack( mods ) ;
+		stats.stack( mods2 ) ;
+		
+		expect( stats.stats.strength.base ).to.be( 12 ) ;
+		expect( statsP.strength.base ).to.be( 12 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 19 ) ;
+		expect( statsP.strength.actual ).to.be( 19 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		expect( statsP.hp.max.base ).to.be( 20 ) ;
+		expect( stats.stats.hp.max.getActual() ).to.be( 22 ) ;
+		expect( statsP.hp.max.actual ).to.be( 22 ) ;
+		expect( statsP.hp.remaining.base ).to.be( 14 ) ;
+		expect( stats.stats.hp.remaining.getActual() ).to.be( 15 ) ;
+		expect( statsP.hp.remaining.actual ).to.be( 15 ) ;
 	} ) ;
 } ) ;
 
