@@ -651,13 +651,13 @@ describe( "Basic usage" , () => {
 
 
 
-describe( "zzz Wildcard stats" , () => {
+describe( "Wildcard stats" , () => {
 
 	it( "StatsTable with wildcard stats creation" , () => {
 		var stats = new lib.StatsTable( {
 			damages: {
 				blunt: { damage: 10 } ,
-				"*": { damage: 0 }
+				"*": { damage: 1 }
 			}
 		} ) ;
 		
@@ -666,18 +666,18 @@ describe( "zzz Wildcard stats" , () => {
 		expect( stats.stats.damages.blunt.damage.base ).to.be( 10 ) ;
 		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
 
-		expect( stats.stats.damages['*'].damage.base ).to.be( 0 ) ;
-		expect( statsP.damages['*'].damage.base ).to.be( 0 ) ;
+		expect( stats.stats.damages['*'].damage.base ).to.be( 1 ) ;
+		expect( statsP.damages['*'].damage.base ).to.be( 1 ) ;
 
 		expect( stats.stats.damages.blunt.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.stats.damages.blunt.damage.pathKey ).to.be( 'damages.blunt.damage' ) ;
 	} ) ;
 
-	it( "xxx Adding/removing a ModifiersTable to a StatsTable" , () => {
+	it( "Adding/removing a ModifiersTable to a StatsTable" , () => {
 		var stats = new lib.StatsTable( {
 			damages: {
 				blunt: { damage: 10 } ,
-				"*": { damage: 0 }
+				"*": { damage: 1 }
 			}
 		} ) ;
 		
@@ -685,6 +685,8 @@ describe( "zzz Wildcard stats" , () => {
 
 		expect( statsP.damages.base ).to.be.a( Set ) ;
 		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.actual ).to.only.contain( 'blunt' ) ;
 		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
 		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
 		expect( statsP.damages.fire ).to.be( undefined ) ;
@@ -702,60 +704,50 @@ describe( "zzz Wildcard stats" , () => {
 		expect( statsP.damages.actual ).to.only.contain( 'blunt' , 'fire' ) ;
 		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
 		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
-		console.log( "\n\n\n=================\n" ) ;
-		expect( statsP.damages.fire.damage.base ).to.be( 0 ) ;
-		console.log( "\n\n\n=================\n" ) ;return ;
-		
-		expect( statsP.damages.fire.damage.actual ).to.be( 5 ) ;
-
-		return ;
-		
-
-
-
-		expect( stats.stats.strength.base ).to.be( 12 ) ;
-		expect( statsP.strength.base ).to.be( 12 ) ;
-		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
-		expect( statsP.strength.actual ).to.be( 17 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
-		expect( statsP.hp.max.base ).to.be( 20 ) ;
-		expect( stats.stats.hp.max.getActual() ).to.be( 22 ) ;
-		expect( statsP.hp.max.actual ).to.be( 22 ) ;
-
+		expect( statsP.damages.fire.damage.base ).to.be( 1 ) ;
+		expect( statsP.damages.fire.damage.actual ).to.be( 6 ) ;
 
 		statsP.unstack( mods ) ;
 
-		expect( stats.stats.strength.base ).to.be( 12 ) ;
-		expect( statsP.strength.base ).to.be( 12 ) ;
-		expect( stats.stats.strength.getActual() ).to.be( 12 ) ;
-		expect( statsP.strength.actual ).to.be( 12 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 15 ) ;
-		expect( statsP.hp.max.base ).to.be( 20 ) ;
-		expect( stats.stats.hp.max.getActual() ).to.be( 20 ) ;
-		expect( statsP.hp.max.actual ).to.be( 20 ) ;
+		expect( statsP.damages.base ).to.be.a( Set ) ;
+		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.actual ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
+		expect( statsP.damages.fire ).to.be( undefined ) ;
 
-
-		var mods2 = new lib.ModifiersTable( 'ring-of-strength' , {
-			strength: [ '+' , 2 ] ,
-			hp: {
-				remaining: [ '+' , 1 ]
-			}
+		var mods2 = new lib.ModifiersTable( 'ring-of-fire-and-storm' , {
+			"damages": [ '#' , [ 'fire' , 'lightning' ] ] ,
+			"damages.fire.damage": [ '+' , 3 ] ,
+			"damages.lightning.damage": [ '+' , 3 ]
 		} ) ;
 		
 		stats.stack( mods ) ;
 		stats.stack( mods2 ) ;
-		
-		expect( stats.stats.strength.base ).to.be( 12 ) ;
-		expect( statsP.strength.base ).to.be( 12 ) ;
-		expect( stats.stats.strength.getActual() ).to.be( 19 ) ;
-		expect( statsP.strength.actual ).to.be( 19 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
-		expect( statsP.hp.max.base ).to.be( 20 ) ;
-		expect( stats.stats.hp.max.getActual() ).to.be( 22 ) ;
-		expect( statsP.hp.max.actual ).to.be( 22 ) ;
-		expect( statsP.hp.remaining.base ).to.be( 14 ) ;
-		expect( stats.stats.hp.remaining.getActual() ).to.be( 15 ) ;
-		expect( statsP.hp.remaining.actual ).to.be( 15 ) ;
+
+		expect( statsP.damages.base ).to.be.a( Set ) ;
+		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.actual ).to.only.contain( 'blunt' , 'fire' , 'lightning' ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
+		expect( statsP.damages.fire.damage.base ).to.be( 1 ) ;
+		expect( statsP.damages.fire.damage.actual ).to.be( 9 ) ;
+		expect( statsP.damages.lightning.damage.base ).to.be( 1 ) ;
+		expect( statsP.damages.lightning.damage.actual ).to.be( 4 ) ;
+
+		statsP.unstack( mods ) ;
+		statsP.unstack( mods2 ) ;
+
+		expect( statsP.damages.base ).to.be.a( Set ) ;
+		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.actual ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
+		expect( statsP.damages.fire ).to.be( undefined ) ;
+		expect( statsP.damages.lightning ).to.be( undefined ) ;
 	} ) ;
 } ) ;
 
