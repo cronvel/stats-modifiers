@@ -673,7 +673,7 @@ describe( "zzz Wildcard stats" , () => {
 		expect( stats.stats.damages.blunt.damage.pathKey ).to.be( 'damages.blunt.damage' ) ;
 	} ) ;
 
-	it( "Adding/removing a ModifiersTable to a StatsTable" , () => {
+	it( "xxx Adding/removing a ModifiersTable to a StatsTable" , () => {
 		var stats = new lib.StatsTable( {
 			damages: {
 				blunt: { damage: 10 } ,
@@ -683,13 +683,12 @@ describe( "zzz Wildcard stats" , () => {
 		
 		var statsP = stats.getProxy() ;
 
-		expect( Object.keys( statsP.damages ) ).to.equal( [ 'blunt' ] ) ;
+		expect( statsP.damages.base ).to.be.a( Set ) ;
+		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
 		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
 		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
 		expect( statsP.damages.fire ).to.be( undefined ) ;
 		
-		return ;
-
 		var mods = new lib.ModifiersTable( 'fire-brand' , {
 			"damages": [ '#' , 'fire' ] ,		// Add a fire type to the wild-card
 			"damages.fire.damage": [ '+' , 5 ]
@@ -697,7 +696,10 @@ describe( "zzz Wildcard stats" , () => {
 		
 		statsP.stack( mods ) ;
 
-		expect( Object.keys( statsP.damages ) ).to.equal( [ 'blunt' ] ) ;
+		expect( statsP.damages.base ).to.be.a( Set ) ;
+		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.actual ).to.only.contain( 'blunt' , 'fire' ) ;
 		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
 		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
 		expect( statsP.damages.fire.damage.base ).to.be( 0 ) ;
