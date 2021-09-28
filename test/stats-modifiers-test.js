@@ -702,7 +702,10 @@ describe( "zzz Wildcard stats" , () => {
 		expect( statsP.damages.actual ).to.only.contain( 'blunt' , 'fire' ) ;
 		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
 		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
+		console.log( "\n\n\n=================\n" ) ;
 		expect( statsP.damages.fire.damage.base ).to.be( 0 ) ;
+		console.log( "\n\n\n=================\n" ) ;return ;
+		
 		expect( statsP.damages.fire.damage.actual ).to.be( 5 ) ;
 
 		return ;
