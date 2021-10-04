@@ -1945,13 +1945,23 @@ describe( "Operators" , () => {
 		expect( stats.stats.dexterity.getActual() ).to.be( 14 ) ;
 
 		var mods = new lib.ModifiersTable( 'clumsy-ring' , {
-			dexterity: [ [ '+' , 2 , 1 ] , [ '*' , 0.5 ] ]
+			dexterity: [ [ '+' , 4 , 1 ] , [ '*' , 0.5 ] ]
 		} ) ;
 		
 		statsP.stack( mods ) ;
 		
 		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 8 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 9 ) ;
+
+		var mods2 = new lib.ModifiersTable( 'clumsy-ring2' , {
+			dexterity: [ [ '+' , 4 , -1 ] , [ '*' , 0.5 ] ]
+		} ) ;
+		
+		statsP.unstack( mods ) ;
+		statsP.stack( mods2 ) ;
+		
+		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 11 ) ;
 	} ) ;
 
 	it( "set (=) operator" , () => {
