@@ -1,6 +1,6 @@
 {
   "name": "stats-modifiers",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "description": "Stats and modifiers lib for gamedev.",
   "main": "lib/stats-modifiers.js",
   "engines": {
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "array-kit": "^0.2.4",
-    "tree-kit": "^0.7.3"
+    "tree-kit": "^0.7.4"
   },
   "devDependencies": {
     "kung-fig-expression": "^0.48.6"
