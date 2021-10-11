@@ -314,7 +314,7 @@ describe( "Basic usage" , () => {
 	it( "Adding/removing a ModifiersTable to a StatsTable" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
-			dexterity: 15 ,
+			dexterity: 17 ,
 			hp: {
 				max: 20 ,
 				remaining: 14
@@ -327,7 +327,7 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( stats.stats.strength.getActual() ).to.be( 12 ) ;
 		expect( statsP.strength.actual ).to.be( 12 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 15 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 17 ) ;
 
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: [ '+' , 5 ] ,
@@ -342,7 +342,7 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
 		expect( statsP.strength.actual ).to.be( 17 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 12 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( stats.stats.hp.max.getActual() ).to.be( 22 ) ;
 		expect( statsP.hp.max.actual ).to.be( 22 ) ;
@@ -354,7 +354,7 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( stats.stats.strength.getActual() ).to.be( 12 ) ;
 		expect( statsP.strength.actual ).to.be( 12 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 15 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 17 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( stats.stats.hp.max.getActual() ).to.be( 20 ) ;
 		expect( statsP.hp.max.actual ).to.be( 20 ) ;
@@ -374,7 +374,7 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( stats.stats.strength.getActual() ).to.be( 19 ) ;
 		expect( statsP.strength.actual ).to.be( 19 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 12 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( stats.stats.hp.max.getActual() ).to.be( 22 ) ;
 		expect( statsP.hp.max.actual ).to.be( 22 ) ;
@@ -386,7 +386,7 @@ describe( "Basic usage" , () => {
 	it( "Should prevent multiple stacking of the same ModifiersTable" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
-			dexterity: 15 ,
+			dexterity: 17 ,
 			hp: {
 				max: 20 ,
 				remaining: 14
@@ -399,7 +399,7 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( stats.stats.strength.getActual() ).to.be( 12 ) ;
 		expect( statsP.strength.actual ).to.be( 12 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 15 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 17 ) ;
 
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: [ '+' , 5 ] ,
@@ -414,7 +414,7 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
 		expect( statsP.strength.actual ).to.be( 17 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 12 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( stats.stats.hp.max.getActual() ).to.be( 22 ) ;
 		expect( statsP.hp.max.actual ).to.be( 22 ) ;
@@ -426,7 +426,7 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
 		expect( statsP.strength.actual ).to.be( 17 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 12 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( stats.stats.hp.max.getActual() ).to.be( 22 ) ;
 		expect( statsP.hp.max.actual ).to.be( 22 ) ;
@@ -440,7 +440,7 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
 		expect( statsP.strength.actual ).to.be( 17 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 12 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( stats.stats.hp.max.getActual() ).to.be( 22 ) ;
 		expect( statsP.hp.max.actual ).to.be( 22 ) ;
@@ -449,7 +449,7 @@ describe( "Basic usage" , () => {
 	it( "Updating base value of a StatsTable having a ModifiersTable" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
-			dexterity: 15 ,
+			dexterity: 17 ,
 			hp: {
 				max: 20 ,
 				remaining: 14
@@ -470,7 +470,7 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
 		expect( statsP.strength.actual ).to.be( 17 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 12 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.actual ).to.be( 22 ) ;
 		
@@ -506,7 +506,7 @@ describe( "Basic usage" , () => {
 	it( "Updating a ModifiersTable already stacked on a StatsTable" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
-			dexterity: 15 ,
+			dexterity: 17 ,
 			hp: {
 				max: 20 ,
 				remaining: 14
@@ -529,7 +529,7 @@ describe( "Basic usage" , () => {
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( stats.stats.strength.getActual() ).to.be( 17 ) ;
 		expect( statsP.strength.actual ).to.be( 17 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 10 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 12 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.actual ).to.be( 22 ) ;
 		
@@ -552,8 +552,8 @@ describe( "Basic usage" , () => {
 
 		expect( stats.stats.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.base ).to.be( 12 ) ;
-		expect( stats.stats.strength.getActual() ).to.be( 28 ) ;
-		expect( statsP.strength.actual ).to.be( 28 ) ;
+		expect( stats.stats.strength.getActual() ).to.be( 32 ) ;
+		expect( statsP.strength.actual ).to.be( 32 ) ;
 
 		modsP['hp.max'].plus = 5 ;
 
@@ -1906,7 +1906,7 @@ describe( "Receiving events" , () => {
 
 describe( "Operators" , () => {
 
-	it( "+ and * natural priority order" , () => {
+	it( "+ and * priority order" , () => {
 		var stats = new lib.StatsTable( { dexterity: 14 } ) ;
 		var statsP = stats.getProxy() ;
 		
@@ -1920,7 +1920,7 @@ describe( "Operators" , () => {
 		statsP.stack( mods ) ;
 		
 		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 9 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 8 ) ;
 
 		statsP.unstack( mods ) ;
 		
@@ -1934,7 +1934,7 @@ describe( "Operators" , () => {
 		statsP.stack( mods2 ) ;
 		
 		expect( stats.stats.dexterity.base ).to.be( 14 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 9 ) ;
+		expect( stats.stats.dexterity.getActual() ).to.be( 8 ) ;
 	} ) ;
 
 	it( "+ and * modified priority order" , () => {
