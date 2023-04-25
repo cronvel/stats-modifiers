@@ -1295,6 +1295,141 @@ describe( "Compound stats" , () => {
 
 
 
+describe( "zzz Gauge stats" , () => {
+
+	it( "Gauge stats creation" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Gauge( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+	} ) ;
+	
+	it( "Removing points of a Gauge" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Gauge( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+
+		expect( statsP.hp.remove( 1 ) ).to.be( 1 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.used ).to.be( 1 ) ;
+
+		expect( statsP.hp.remove( 2 ) ).to.be( 2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.used ).to.be( 3 ) ;
+
+		statsP.hp.remove( 20 ) ;
+		//expect( statsP.hp.remove( 20 ) ).to.be( 5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.used ).to.be( 8 ) ;
+
+		expect( statsP.hp.remove( 5 ) ).to.be( 0 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.used ).to.be( 8 ) ;
+	} ) ;
+	
+	it( "Using points of a Gauge" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Gauge( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+
+		expect( statsP.hp.use( 1 ) ).to.be( true ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.used ).to.be( 1 ) ;
+
+		expect( statsP.hp.use( 2 ) ).to.be( true ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.used ).to.be( 3 ) ;
+
+		expect( statsP.hp.use( 20 ) ).to.be( false ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.used ).to.be( 3 ) ;
+
+		expect( statsP.hp.use( 5 ) ).to.be( true ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.used ).to.be( 8 ) ;
+	} ) ;
+	
+	it( "Gauge stats clone" , () => {
+		var stats , statsClone , statsP , statsCloneP ;
+		
+		stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
+		statsClone = stats.clone() ;
+		expect( statsClone ).not.to.be( stats ) ;
+		expect( statsClone ).to.equal( stats ) ;
+		expect( stats.stats.hp ).to.be.a( lib.Gauge ) ;
+		expect( statsClone.stats.hp ).to.be.a( lib.Gauge ) ;
+		expect( statsClone.stats.hp ).not.to.be( stats.stats.hp ) ;
+
+		expect( statsClone.stats.hp.base ).to.be( 100 ) ;
+
+		// Check that they are distinct
+		statsClone.stats.hp.base = 110 ;
+		expect( stats.stats.hp.base ).to.be( 100 ) ;
+		expect( statsClone.stats.hp.base ).to.be( 110 ) ;
+
+		statsClone.stats.hp.use( 15 ) ;
+		stats.stats.hp.use( 20 ) ;
+		expect( statsClone.stats.hp.getActual() ).to.be( 95 ) ;
+		expect( stats.stats.hp.getActual() ).to.be( 80 ) ;
+		
+		// Historical bugs, when passing a proxy of Gauge/HistoryAlignometer/Compound:
+		stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ).getProxy() } ) ;
+		statsClone = stats.clone() ;
+		expect( stats.stats.hp.getProxy ).to.be.a( 'function' ) ;
+		expect( statsClone.stats.hp.getProxy ).to.be.a( 'function' ) ;
+		statsP = stats.getProxy() ;
+		statsCloneP = statsP.clone() ;
+		expect( statsCloneP.hp ).to.be.a( lib.Gauge ) ;
+		expect( statsCloneP.hp ).not.to.be( statsP.hp ) ;
+		expect( statsCloneP.hp.base ).to.be( 100 ) ;
+		expect( statsCloneP.hp.actual ).to.be( 100 ) ;
+
+		stats = new lib.StatsTable( { nested: { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ).getProxy() } } ) ;
+		statsClone = stats.clone() ;
+		expect( stats.stats.nested.hp.getProxy ).to.be.a( 'function' ) ;
+		expect( statsClone.stats.nested.hp.getProxy ).to.be.a( 'function' ) ;
+		statsP = stats.getProxy() ;
+		statsCloneP = statsP.clone() ;
+		expect( statsCloneP.nested.hp ).to.be.a( lib.Gauge ) ;
+		expect( statsCloneP.nested.hp ).not.to.be( statsP.nested.hp ) ;
+		expect( statsCloneP.nested.hp.base ).to.be( 100 ) ;
+		expect( statsCloneP.nested.hp.actual ).to.be( 100 ) ;
+	} ) ;
+} ) ;
+
+
+
 describe( "HistoryGauge stats" , () => {
 
 	it( "HistoryGauge stats creation and adding entries to it" , () => {
