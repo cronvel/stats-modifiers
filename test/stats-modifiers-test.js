@@ -1596,6 +1596,23 @@ describe( "Gauge stats" , () => {
 		expect( statsP.hp.min ).to.be( 0 ) ;
 		expect( statsP.hp.max ).to.be( 8 ) ;
 		expect( statsP.hp.lost ).to.be( 2 ) ;
+
+		statsP.unstack( modsP ) ;
+		statsP.hp.replenish() ;
+
+		var modsMax = new lib.ModifiersTable( 'max-health-ring' , {
+			"hp.max": [ '+' , 5 ]
+		} ) ;
+
+		var modsMaxP = modsMax.getProxy() ;
+
+		statsP.stack( modsMaxP ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 0 ) ;
+		expect( statsP.hp.actualMax ).to.be( 13 ) ;
 	} ) ;
 	
 	it( "Gauge stats clone" , () => {
