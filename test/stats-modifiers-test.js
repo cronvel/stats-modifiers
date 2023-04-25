@@ -1295,7 +1295,7 @@ describe( "Compound stats" , () => {
 
 
 
-describe( "zzz Gauge stats" , () => {
+describe( "Gauge stats" , () => {
 
 	it( "Gauge stats creation" , () => {
 		var stats = new lib.StatsTable( {
@@ -1308,10 +1308,10 @@ describe( "zzz Gauge stats" , () => {
 		expect( statsP.hp.actual ).to.be( 8 ) ;
 		expect( statsP.hp.min ).to.be( 0 ) ;
 		expect( statsP.hp.max ).to.be( 8 ) ;
-		expect( statsP.hp.used ).to.be( 0 ) ;
+		expect( statsP.hp.spent ).to.be( 0 ) ;
 	} ) ;
-	
-	it( "Removing points of a Gauge" , () => {
+
+	it( "Adding points of a Gauge" , () => {
 		var stats = new lib.StatsTable( {
 			hp: new lib.Gauge( { base: 8 } )
 		} ) ;
@@ -1320,33 +1320,34 @@ describe( "zzz Gauge stats" , () => {
 		
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 8 ) ;
-		expect( statsP.hp.min ).to.be( 0 ) ;
-		expect( statsP.hp.max ).to.be( 8 ) ;
-		expect( statsP.hp.used ).to.be( 0 ) ;
+		expect( statsP.hp.spent ).to.be( 0 ) ;
 
-		expect( statsP.hp.remove( 1 ) ).to.be( 1 ) ;
-		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( 7 ) ;
-		expect( statsP.hp.used ).to.be( 1 ) ;
-
-		expect( statsP.hp.remove( 2 ) ).to.be( 2 ) ;
+		expect( statsP.hp.add( -3 ) ).to.be( -3 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 5 ) ;
-		expect( statsP.hp.used ).to.be( 3 ) ;
+		expect( statsP.hp.gained ).to.be( 0 ) ;
+		expect( statsP.hp.spent ).to.be( 3 ) ;
 
-		statsP.hp.remove( 20 ) ;
-		//expect( statsP.hp.remove( 20 ) ).to.be( 5 ) ;
+		expect( statsP.hp.add( 2 ) ).to.be( 2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.gained ).to.be( 0 ) ;
+		expect( statsP.hp.spent ).to.be( 1 ) ;
+
+		expect( statsP.hp.add( 20 ) ).to.be( 1 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.gained ).to.be( 0 ) ;
+		expect( statsP.hp.spent ).to.be( 0 ) ;
+
+		expect( statsP.hp.add( -50 ) ).to.be( -8 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 0 ) ;
-		expect( statsP.hp.used ).to.be( 8 ) ;
-
-		expect( statsP.hp.remove( 5 ) ).to.be( 0 ) ;
-		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( 0 ) ;
-		expect( statsP.hp.used ).to.be( 8 ) ;
+		expect( statsP.hp.gained ).to.be( 0 ) ;
+		expect( statsP.hp.spent ).to.be( 8 ) ;
 	} ) ;
 	
-	it( "Using points of a Gauge" , () => {
+	it( "Losing points of a Gauge" , () => {
 		var stats = new lib.StatsTable( {
 			hp: new lib.Gauge( { base: 8 } )
 		} ) ;
@@ -1355,29 +1356,246 @@ describe( "zzz Gauge stats" , () => {
 		
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 8 ) ;
-		expect( statsP.hp.min ).to.be( 0 ) ;
-		expect( statsP.hp.max ).to.be( 8 ) ;
-		expect( statsP.hp.used ).to.be( 0 ) ;
+		expect( statsP.hp.spent ).to.be( 0 ) ;
 
-		expect( statsP.hp.use( 1 ) ).to.be( true ) ;
+		expect( statsP.hp.lose( 1 ) ).to.be( 1 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 7 ) ;
-		expect( statsP.hp.used ).to.be( 1 ) ;
+		expect( statsP.hp.spent ).to.be( 1 ) ;
 
-		expect( statsP.hp.use( 2 ) ).to.be( true ) ;
+		expect( statsP.hp.lose( 2 ) ).to.be( 2 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 5 ) ;
-		expect( statsP.hp.used ).to.be( 3 ) ;
+		expect( statsP.hp.spent ).to.be( 3 ) ;
 
-		expect( statsP.hp.use( 20 ) ).to.be( false ) ;
-		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( 5 ) ;
-		expect( statsP.hp.used ).to.be( 3 ) ;
-
-		expect( statsP.hp.use( 5 ) ).to.be( true ) ;
+		expect( statsP.hp.lose( 20 ) ).to.be( 5 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 0 ) ;
-		expect( statsP.hp.used ).to.be( 8 ) ;
+		expect( statsP.hp.spent ).to.be( 8 ) ;
+
+		expect( statsP.hp.lose( 5 ) ).to.be( 0 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.spent ).to.be( 8 ) ;
+	} ) ;
+	
+	it( "Spending points of a Gauge" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Gauge( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.spent ).to.be( 0 ) ;
+
+		expect( statsP.hp.spend( 1 ) ).to.be( true ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.spent ).to.be( 1 ) ;
+
+		expect( statsP.hp.spend( 2 ) ).to.be( true ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.spent ).to.be( 3 ) ;
+
+		expect( statsP.hp.spend( 20 ) ).to.be( false ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.spent ).to.be( 3 ) ;
+
+		expect( statsP.hp.spend( 5 ) ).to.be( true ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.spent ).to.be( 8 ) ;
+	} ) ;
+	
+	it( "Replenishing the Gauge" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Gauge( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.spent ).to.be( 0 ) ;
+
+		expect( statsP.hp.lose( 5 ) ).to.be( 5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 3 ) ;
+		expect( statsP.hp.spent ).to.be( 5 ) ;
+
+		expect( statsP.hp.replenish() ).to.be( 5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.spent ).to.be( 0 ) ;
+
+		expect( statsP.hp.lose( 20 ) ).to.be( 8 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.spent ).to.be( 8 ) ;
+
+		expect( statsP.hp.replenish() ).to.be( 8 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.spent ).to.be( 0 ) ;
+	} ) ;
+	
+	it( "Emptying the Gauge" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Gauge( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.spent ).to.be( 0 ) ;
+
+		expect( statsP.hp.empty() ).to.be( 8 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.spent ).to.be( 8 ) ;
+	} ) ;
+
+	it( "Restoring the Gauge" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Gauge( { base: 6 , max: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 6 ) ;
+		expect( statsP.hp.actual ).to.be( 6 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.spent ).to.be( 0 ) ;
+
+		expect( statsP.hp.empty() ).to.be( 6 ) ;
+		expect( statsP.hp.base ).to.be( 6 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.spent ).to.be( 6 ) ;
+
+		expect( statsP.hp.restore() ).to.be( 6 ) ;
+		expect( statsP.hp.base ).to.be( 6 ) ;
+		expect( statsP.hp.actual ).to.be( 6 ) ;
+		expect( statsP.hp.spent ).to.be( 0 ) ;
+
+		expect( statsP.hp.replenish() ).to.be( 2 ) ;
+		expect( statsP.hp.base ).to.be( 6 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.gained ).to.be( 2 ) ;
+
+		expect( statsP.hp.restore() ).to.be( -2 ) ;
+		expect( statsP.hp.base ).to.be( 6 ) ;
+		expect( statsP.hp.actual ).to.be( 6 ) ;
+		expect( statsP.hp.spent ).to.be( 0 ) ;
+	} ) ;
+	
+	it( "Gaining points of a Gauge" , () => {
+		var stats = new lib.StatsTable( {
+			xp: new lib.Gauge( { base: 0, max: 10 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.xp.base ).to.be( 0 ) ;
+		expect( statsP.xp.actual ).to.be( 0 ) ;
+		expect( statsP.xp.gained ).to.be( 0 ) ;
+
+		expect( statsP.xp.gain( 1 ) ).to.be( 1 ) ;
+		expect( statsP.xp.base ).to.be( 0 ) ;
+		expect( statsP.xp.actual ).to.be( 1 ) ;
+		expect( statsP.xp.gained ).to.be( 1 ) ;
+
+		expect( statsP.xp.gain( 8 ) ).to.be( 8 ) ;
+		expect( statsP.xp.base ).to.be( 0 ) ;
+		expect( statsP.xp.actual ).to.be( 9 ) ;
+		expect( statsP.xp.gained ).to.be( 9 ) ;
+
+		expect( statsP.xp.gain( 8 ) ).to.be( 1 ) ;
+		expect( statsP.xp.base ).to.be( 0 ) ;
+		expect( statsP.xp.actual ).to.be( 10 ) ;
+		expect( statsP.xp.gained ).to.be( 10 ) ;
+	} ) ;
+	
+	it( "Refilling points of a Gauge" , () => {
+		var stats = new lib.StatsTable( {
+			xp: new lib.Gauge( { base: 0, max: 10 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.xp.base ).to.be( 0 ) ;
+		expect( statsP.xp.actual ).to.be( 0 ) ;
+		expect( statsP.xp.gained ).to.be( 0 ) ;
+
+		expect( statsP.xp.refill( 1 ) ).to.be( true ) ;
+		expect( statsP.xp.base ).to.be( 0 ) ;
+		expect( statsP.xp.actual ).to.be( 1 ) ;
+		expect( statsP.xp.gained ).to.be( 1 ) ;
+
+		expect( statsP.xp.refill( 8 ) ).to.be( true ) ;
+		expect( statsP.xp.base ).to.be( 0 ) ;
+		expect( statsP.xp.actual ).to.be( 9 ) ;
+		expect( statsP.xp.gained ).to.be( 9 ) ;
+
+		expect( statsP.xp.refill( 8 ) ).to.be( false ) ;
+		expect( statsP.xp.base ).to.be( 0 ) ;
+		expect( statsP.xp.actual ).to.be( 9 ) ;
+		expect( statsP.xp.gained ).to.be( 9 ) ;
+	} ) ;
+
+	it( "zzz Gauge stats with Modifiers creation" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Gauge( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		var mods = new lib.ModifiersTable( 'health-ring' , {
+			hp: [ '+' , 2 ]
+		} ) ;
+
+		var modsP = mods.getProxy() ;
+
+		expect( statsP.hp.lose( 5 ) ).to.be( 5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 3 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 5 ) ;
+
+		statsP.stack( modsP ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 5 ) ;
+
+		statsP.unstack( modsP ) ;
+		statsP.hp.replenish() ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 0 ) ;
+
+		statsP.stack( modsP ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 0 ) ;
+
+		statsP.hp.lose( 2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 2 ) ;
 	} ) ;
 	
 	it( "Gauge stats clone" , () => {
@@ -1398,8 +1616,8 @@ describe( "zzz Gauge stats" , () => {
 		expect( stats.stats.hp.base ).to.be( 100 ) ;
 		expect( statsClone.stats.hp.base ).to.be( 110 ) ;
 
-		statsClone.stats.hp.use( 15 ) ;
-		stats.stats.hp.use( 20 ) ;
+		statsClone.stats.hp.spend( 15 ) ;
+		stats.stats.hp.spend( 20 ) ;
 		expect( statsClone.stats.hp.getActual() ).to.be( 95 ) ;
 		expect( stats.stats.hp.getActual() ).to.be( 80 ) ;
 		
@@ -1725,6 +1943,7 @@ describe( "HistoryAlignometer stats" , () => {
 
 		expect( statsP.goodness.base ).to.be( 0 ) ;
 		expect( statsP.goodness.actual ).to.be( 0 ) ;
+		expect( statsP.goodness.instant ).to.be( 0 ) ;
 		expect( statsP.goodness.min ).to.be( -100 ) ;
 		expect( statsP.goodness.max ).to.be( 100 ) ;
 		expect( statsP.goodness.minWeight ).to.be( 20 ) ;
@@ -1738,6 +1957,7 @@ describe( "HistoryAlignometer stats" , () => {
 		statsP.goodness.add( 'up' , 100 , 5 , "charity" ) ;
 		expect( statsP.goodness.base ).to.be( 0 ) ;
 		expect( statsP.goodness.actual ).to.be( 25 ) ;
+		expect( statsP.goodness.instant ).to.be( 25 ) ;
 		expect( statsP.goodness.entries ).to.be.like( [
 			{ direction: 1 , value: 100 , weight: 5 , description: "charity" }
 		] ) ;
@@ -1746,6 +1966,7 @@ describe( "HistoryAlignometer stats" , () => {
 		statsP.goodness.downward( -100 , 5 , "brutality" ) ;
 		expect( statsP.goodness.base ).to.be( 0 ) ;
 		expect( statsP.goodness.actual ).to.be( 0 ) ;
+		expect( statsP.goodness.instant ).to.be( 0 ) ;
 		expect( statsP.goodness.entries ).to.be.like.around( [
 			{ direction: 1 , value: 100 , weight: 5 , description: "charity" } ,
 			{ direction: -1 , value: -100 , weight: 5 , description: "brutality" }
@@ -1756,6 +1977,7 @@ describe( "HistoryAlignometer stats" , () => {
 		statsP.goodness.downward( 50 , 10 , "not so wise" ) ;
 		expect( statsP.goodness.base ).to.be( 0 ) ;
 		expect( statsP.goodness.actual ).to.be( 0 ) ;
+		expect( statsP.goodness.instant ).to.be( 0 ) ;
 		expect( statsP.goodness.entries ).to.be.like.around( [
 			{ direction: 1 , value: 100 , weight: 5 , description: "charity" } ,
 			{ direction: -1 , value: -100 , weight: 5 , description: "brutality" } ,
@@ -1766,6 +1988,7 @@ describe( "HistoryAlignometer stats" , () => {
 		statsP.goodness.upward( 100 , 30 , "saint's miracle" ) ;
 		expect( statsP.goodness.base ).to.be( 0 ) ;
 		expect( statsP.goodness.actual ).to.be( 70 ) ;
+		expect( statsP.goodness.instant ).to.be( 70 ) ;
 		expect( statsP.goodness.entries ).to.be.like( [
 			{ direction: 1 , value: 100 , weight: 5 , description: "charity" } ,
 			{ direction: -1 , value: -100 , weight: 5 , description: "brutality" } ,
@@ -1777,6 +2000,7 @@ describe( "HistoryAlignometer stats" , () => {
 		statsP.goodness.entries.splice( 2 , 1 ) ;
 		expect( statsP.goodness.base ).to.be( 0 ) ;
 		expect( statsP.goodness.actual ).to.be( 75 ) ;
+		expect( statsP.goodness.instant ).to.be( 75 ) ;
 		expect( statsP.goodness.entries ).to.be.like( [
 			{ direction: 1 , value: 100 , weight: 5 , description: "charity" } ,
 			{ direction: -1 , value: -100 , weight: 5 , description: "brutality" } ,
@@ -1786,11 +2010,25 @@ describe( "HistoryAlignometer stats" , () => {
 		statsP.goodness.toward( 0 , 10 , "normie" ) ;
 		expect( statsP.goodness.base ).to.be( 0 ) ;
 		expect( statsP.goodness.actual ).to.be( 60 ) ;
+		expect( statsP.goodness.instant ).to.be( 60 ) ;
 		expect( statsP.goodness.entries ).to.be.like( [
 			{ direction: 1 , value: 100 , weight: 5 , description: "charity" } ,
 			{ direction: -1 , value: -100 , weight: 5 , description: "brutality" } ,
 			{ direction: 1 , value: 100 , weight: 30 , description: "saint's miracle" } ,
 			{ direction: 0 , value: 0 , weight: 10 , description: "normie" }
+		] ) ;
+
+		statsP.goodness.upward( 100 , 10 , "abnegation" ) ;
+		expect( statsP.goodness.base ).to.be( 0 ) ;
+		expect( statsP.goodness.actual ).to.be.around( 66.66666666666667 ) ;
+		// Instant is capped to 50 weight, so charity and brutality are now out
+		expect( statsP.goodness.instant ).to.be( 80 ) ;
+		expect( statsP.goodness.entries ).to.be.like( [
+			{ direction: 1 , value: 100 , weight: 5 , description: "charity" } ,
+			{ direction: -1 , value: -100 , weight: 5 , description: "brutality" } ,
+			{ direction: 1 , value: 100 , weight: 30 , description: "saint's miracle" } ,
+			{ direction: 0 , value: 0 , weight: 10 , description: "normie" } ,
+			{ direction: 1 , value: 100 , weight: 10 , description: "abnegation" }
 		] ) ;
 	} ) ;
 
