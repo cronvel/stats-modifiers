@@ -1295,11 +1295,11 @@ describe( "Compound stats" , () => {
 
 
 
-describe( "Gauge stats" , () => {
+describe( "HistoryGauge stats" , () => {
 
-	it( "Gauge stats creation and adding entries to it" , () => {
+	it( "HistoryGauge stats creation and adding entries to it" , () => {
 		var stats = new lib.StatsTable( {
-			hp: new lib.Gauge( { base: 1 , min: 0 , max: 1 } )
+			hp: new lib.HistoryGauge( { base: 1 , min: 0 , max: 1 } )
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
@@ -1333,9 +1333,9 @@ describe( "Gauge stats" , () => {
 		expect( stats.stats.hp.pathKey ).to.be( 'hp' ) ;
 	} ) ;
 	
-	it( "Gauge stats and recover" , () => {
+	it( "HistoryGauge stats and recover" , () => {
 		var stats = new lib.StatsTable( {
-			hp: new lib.Gauge( { base: 1 , min: 0 , max: 1 } )
+			hp: new lib.HistoryGauge( { base: 1 , min: 0 , max: 1 } )
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
@@ -1389,12 +1389,12 @@ describe( "Gauge stats" , () => {
 		expect( statsP.hp.entries ).to.be.like.around( [] ) ;
 	} ) ;
 	
-	it( "Gauge stats and recover across multiple entries" , () => {
+	it( "HistoryGauge stats and recover across multiple entries" , () => {
 		var stats , statsP ;
 
 		// We use integer values to avoid rounding errors
 		stats = new lib.StatsTable( {
-			hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } )
+			hp: new lib.HistoryGauge( { base: 100 , min: 0 , max: 100 } )
 		} ) ;
 		
 		statsP = stats.getProxy() ;
@@ -1419,7 +1419,7 @@ describe( "Gauge stats" , () => {
 		] ) ;
 
 		stats = new lib.StatsTable( {
-			hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } )
+			hp: new lib.HistoryGauge( { base: 100 , min: 0 , max: 100 } )
 		} ) ;
 		
 		statsP = stats.getProxy() ;
@@ -1443,10 +1443,10 @@ describe( "Gauge stats" , () => {
 		] ) ;
 	} ) ;
 	
-	it( "Gauge stats and recover across multiple entries with different weight" , () => {
+	it( "HistoryGauge stats and recover across multiple entries with different weight" , () => {
 		var stats , statsP ;
 
-		stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
+		stats = new lib.StatsTable( { hp: new lib.HistoryGauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
 		statsP = stats.getProxy() ;
 		statsP.hp.add( -4 , 0.5 , "injury A" ) ;
 		statsP.hp.add( -10 , 2 , "injury B" ) ;
@@ -1460,7 +1460,7 @@ describe( "Gauge stats" , () => {
 			{ value: -6 , weight: 1 , description: "injury C" }
 		] ) ;
 
-		stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
+		stats = new lib.StatsTable( { hp: new lib.HistoryGauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
 		statsP = stats.getProxy() ;
 		statsP.hp.add( -4 , 0.5 , "injury A" ) ;
 		statsP.hp.add( -10 , 2 , "injury B" ) ;
@@ -1473,7 +1473,7 @@ describe( "Gauge stats" , () => {
 			{ value: -2 , weight: 1 , description: "injury C" }
 		] ) ;
 
-		stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
+		stats = new lib.StatsTable( { hp: new lib.HistoryGauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
 		statsP = stats.getProxy() ;
 		statsP.hp.add( -4 , 0.5 , "injury A" ) ;
 		statsP.hp.add( -10 , 2 , "injury B" ) ;
@@ -1486,10 +1486,10 @@ describe( "Gauge stats" , () => {
 		] ) ;
 	} ) ;
 	
-	it( "add/merge entries to a Gauge" , () => {
+	it( "add/merge entries to a HistoryGauge" , () => {
 		var stats , statsP ;
 
-		stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
+		stats = new lib.StatsTable( { hp: new lib.HistoryGauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
 		statsP = stats.getProxy() ;
 		statsP.hp.addMerge( -4 , 1 , "hit" ) ;
 		statsP.hp.addMerge( -10 , 1 , "bleed" ) ;
@@ -1521,15 +1521,15 @@ describe( "Gauge stats" , () => {
 		] ) ;
 	} ) ;
 	
-	it( "Gauge stats clone" , () => {
+	it( "HistoryGauge stats clone" , () => {
 		var stats , statsClone , statsP , statsCloneP ;
 		
-		stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
+		stats = new lib.StatsTable( { hp: new lib.HistoryGauge( { base: 100 , min: 0 , max: 100 } ) } ) ;
 		statsClone = stats.clone() ;
 		expect( statsClone ).not.to.be( stats ) ;
 		expect( statsClone ).to.equal( stats ) ;
-		expect( stats.stats.hp ).to.be.a( lib.Gauge ) ;
-		expect( statsClone.stats.hp ).to.be.a( lib.Gauge ) ;
+		expect( stats.stats.hp ).to.be.a( lib.HistoryGauge ) ;
+		expect( statsClone.stats.hp ).to.be.a( lib.HistoryGauge ) ;
 		expect( statsClone.stats.hp ).not.to.be( stats.stats.hp ) ;
 		expect( statsClone.stats.hp.entries ).not.to.be( stats.stats.hp.entries ) ;
 
@@ -1547,26 +1547,26 @@ describe( "Gauge stats" , () => {
 		expect( statsClone.stats.hp.entries ).to.be.like( [ { value: -15 , weight: 1 , description: null } ] ) ;
 		expect( stats.stats.hp.entries ).to.be.like( [ { value: -20 , weight: 1 , description: null } ] ) ;
 		
-		// Historical bugs, when passing a proxy of Gauge/Alignometer/Compound:
-		stats = new lib.StatsTable( { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ).getProxy() } ) ;
+		// Historical bugs, when passing a proxy of HistoryGauge/HistoryAlignometer/Compound:
+		stats = new lib.StatsTable( { hp: new lib.HistoryGauge( { base: 100 , min: 0 , max: 100 } ).getProxy() } ) ;
 		statsClone = stats.clone() ;
 		expect( stats.stats.hp.getProxy ).to.be.a( 'function' ) ;
 		expect( statsClone.stats.hp.getProxy ).to.be.a( 'function' ) ;
 		statsP = stats.getProxy() ;
 		statsCloneP = statsP.clone() ;
-		expect( statsCloneP.hp ).to.be.a( lib.Gauge ) ;
+		expect( statsCloneP.hp ).to.be.a( lib.HistoryGauge ) ;
 		expect( statsCloneP.hp ).not.to.be( statsP.hp ) ;
 		expect( statsCloneP.hp.entries ).not.to.be( statsP.hp.entries ) ;
 		expect( statsCloneP.hp.base ).to.be( 100 ) ;
 		expect( statsCloneP.hp.actual ).to.be( 100 ) ;
 
-		stats = new lib.StatsTable( { nested: { hp: new lib.Gauge( { base: 100 , min: 0 , max: 100 } ).getProxy() } } ) ;
+		stats = new lib.StatsTable( { nested: { hp: new lib.HistoryGauge( { base: 100 , min: 0 , max: 100 } ).getProxy() } } ) ;
 		statsClone = stats.clone() ;
 		expect( stats.stats.nested.hp.getProxy ).to.be.a( 'function' ) ;
 		expect( statsClone.stats.nested.hp.getProxy ).to.be.a( 'function' ) ;
 		statsP = stats.getProxy() ;
 		statsCloneP = statsP.clone() ;
-		expect( statsCloneP.nested.hp ).to.be.a( lib.Gauge ) ;
+		expect( statsCloneP.nested.hp ).to.be.a( lib.HistoryGauge ) ;
 		expect( statsCloneP.nested.hp ).not.to.be( statsP.nested.hp ) ;
 		expect( statsCloneP.nested.hp.entries ).not.to.be( statsP.nested.hp.entries ) ;
 		expect( statsCloneP.nested.hp.base ).to.be( 100 ) ;
@@ -1576,11 +1576,11 @@ describe( "Gauge stats" , () => {
 
 
 
-describe( "Alignometer stats" , () => {
+describe( "HistoryAlignometer stats" , () => {
 
-	it( "Alignometer stats creation and adding entries to it" , () => {
+	it( "HistoryAlignometer stats creation and adding entries to it" , () => {
 		var stats = new lib.StatsTable( {
-			goodness: new lib.Alignometer( { base: 0 , min: -100 , max: 100 , minWeight: 20 , maxEntries: 50 } )
+			goodness: new lib.HistoryAlignometer( { base: 0 , min: -100 , max: 100 , minWeight: 20 , maxEntries: 50 } )
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
@@ -1659,16 +1659,16 @@ describe( "Alignometer stats" , () => {
 		] ) ;
 	} ) ;
 
-	it( "Alignometer stats clone" , () => {
+	it( "HistoryAlignometer stats clone" , () => {
 		var stats = new lib.StatsTable( {
-			goodness: new lib.Alignometer( { base: 0 , min: -100 , max: 100 , minWeight: 20 , maxEntries: 50 } )
+			goodness: new lib.HistoryAlignometer( { base: 0 , min: -100 , max: 100 , minWeight: 20 , maxEntries: 50 } )
 		} ) ;
 		
 		var statsClone = stats.clone() ;
 		expect( statsClone ).not.to.be( stats ) ;
 		expect( statsClone ).to.equal( stats ) ;
-		expect( stats.stats.goodness ).to.be.a( lib.Alignometer ) ;
-		expect( statsClone.stats.goodness ).to.be.a( lib.Alignometer ) ;
+		expect( stats.stats.goodness ).to.be.a( lib.HistoryAlignometer ) ;
+		expect( statsClone.stats.goodness ).to.be.a( lib.HistoryAlignometer ) ;
 		expect( statsClone.stats.goodness ).not.to.be( stats.stats.goodness ) ;
 		expect( statsClone.stats.goodness.entries ).not.to.be( stats.stats.goodness.entries ) ;
 
