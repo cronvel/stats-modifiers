@@ -1295,7 +1295,328 @@ describe( "Compound stats" , () => {
 
 
 
-describe( "Gauge stats" , () => {
+describe( "Pool stats" , () => {
+
+	it( "Pool stats creation" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+	} ) ;
+
+	it( "Adding points to a Pool" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+
+		expect( statsP.hp.add( -3 ) ).to.be( -3 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.used ).to.be( 3 ) ;
+
+		expect( statsP.hp.add( 2 ) ).to.be( 2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.used ).to.be( 1 ) ;
+
+		expect( statsP.hp.add( 20 ) ).to.be( 1 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+
+		expect( statsP.hp.add( -50 ) ).to.be( -50 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.used ).to.be( 50 ) ;
+	} ) ;
+	
+	it( "Losing points from a Pool" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 0 ) ;
+
+		expect( statsP.hp.lose( 1 ) ).to.be( 1 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.lost ).to.be( 1 ) ;
+
+		expect( statsP.hp.lose( 2 ) ).to.be( 2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.lost ).to.be( 3 ) ;
+
+		expect( statsP.hp.lose( 20 ) ).to.be( 20 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.lost ).to.be( 23 ) ;
+
+		expect( statsP.hp.lose( 5 ) ).to.be( 5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.lost ).to.be( 28 ) ;
+	} ) ;
+	
+	it( "Using points from a Pool" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+
+		expect( statsP.hp.use( 1 ) ).to.be( true ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.used ).to.be( 1 ) ;
+
+		expect( statsP.hp.use( 2 ) ).to.be( true ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.used ).to.be( 3 ) ;
+
+		expect( statsP.hp.use( 20 ) ).to.be( false ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.used ).to.be( 3 ) ;
+
+		expect( statsP.hp.use( 5 ) ).to.be( true ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.used ).to.be( 8 ) ;
+	} ) ;
+	
+	it( "Restoring points of a Pool" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		statsP.hp.empty() ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.used ).to.be( 8 ) ;
+
+		expect( statsP.hp.restore( 1 ) ).to.be( 1 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 1 ) ;
+		expect( statsP.hp.used ).to.be( 7 ) ;
+
+		expect( statsP.hp.restore( 3 ) ).to.be( 3 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 4 ) ;
+		expect( statsP.hp.used ).to.be( 4 ) ;
+
+		expect( statsP.hp.restore( 20 ) ).to.be( 4 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+	} ) ;
+	
+	it( "Replenishing the Pool" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+
+		expect( statsP.hp.lose( 5 ) ).to.be( 5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 3 ) ;
+		expect( statsP.hp.used ).to.be( 5 ) ;
+
+		expect( statsP.hp.replenish() ).to.be( 5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+
+		expect( statsP.hp.lose( 20 ) ).to.be( 20 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.used ).to.be( 20 ) ;
+
+		expect( statsP.hp.replenish() ).to.be( 20 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+	} ) ;
+	
+	it( "Emptying the Pool" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+
+		expect( statsP.hp.empty() ).to.be( 8 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.used ).to.be( 8 ) ;
+	} ) ;
+
+	it( "Pool stats with Modifiers" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		var mods = new lib.ModifiersTable( 'health-ring' , {
+			hp: [ '+' , 2 ]
+		} ) ;
+
+		var modsP = mods.getProxy() ;
+
+		expect( statsP.hp.lose( 5 ) ).to.be( 5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 3 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 5 ) ;
+
+		statsP.stack( modsP ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.max ).to.be( 10 ) ;
+		expect( statsP.hp.lost ).to.be( 5 ) ;
+
+		statsP.unstack( modsP ) ;
+		statsP.hp.replenish() ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 0 ) ;
+
+		statsP.stack( modsP ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 10 ) ;
+		expect( statsP.hp.max ).to.be( 10 ) ;
+		expect( statsP.hp.lost ).to.be( 0 ) ;
+
+		statsP.hp.lose( 2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.max ).to.be( 10 ) ;
+		expect( statsP.hp.lost ).to.be( 2 ) ;
+	} ) ;
+
+	it( "Pool with a multiply Modifiers" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		var mods = new lib.ModifiersTable( 'health-ring' , {
+			hp: [ '*' , 2 ]
+		} ) ;
+
+		var modsP = mods.getProxy() ;
+
+		statsP.hp.lose( 6 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 2 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 6 ) ;
+
+		statsP.stack( modsP ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 10 ) ;
+		expect( statsP.hp.max ).to.be( 16 ) ;
+		expect( statsP.hp.lost ).to.be( 6 ) ;
+
+		statsP.hp.lose( 1 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 9 ) ;
+		expect( statsP.hp.max ).to.be( 16 ) ;
+		expect( statsP.hp.lost ).to.be( 7 ) ;
+
+		statsP.unstack( modsP ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 1 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 7 ) ;
+	} ) ;
+
+	it( "Pool stats clone" , () => {
+		var stats , statsClone , statsP , statsCloneP ;
+		
+		stats = new lib.StatsTable( { hp: new lib.Pool( { base: 100 , min: 0 , max: 100 } ) } ) ;
+		statsClone = stats.clone() ;
+		expect( statsClone ).not.to.be( stats ) ;
+		expect( statsClone ).to.equal( stats ) ;
+		expect( stats.stats.hp ).to.be.a( lib.Pool ) ;
+		expect( statsClone.stats.hp ).to.be.a( lib.Pool ) ;
+		expect( statsClone.stats.hp ).not.to.be( stats.stats.hp ) ;
+
+		expect( statsClone.stats.hp.base ).to.be( 100 ) ;
+
+		// Check that they are distinct
+		statsClone.stats.hp.base = 110 ;
+		expect( stats.stats.hp.base ).to.be( 100 ) ;
+		expect( statsClone.stats.hp.base ).to.be( 110 ) ;
+
+		statsClone.stats.hp.use( 15 ) ;
+		stats.stats.hp.use( 20 ) ;
+		expect( statsClone.stats.hp.getActual() ).to.be( 95 ) ;
+		expect( stats.stats.hp.getActual() ).to.be( 80 ) ;
+		
+		// Historical bugs, when passing a proxy of Pool/HistoryAlignometer/Compound:
+		stats = new lib.StatsTable( { hp: new lib.Pool( { base: 100 , min: 0 , max: 100 } ).getProxy() } ) ;
+		statsClone = stats.clone() ;
+		expect( stats.stats.hp.getProxy ).to.be.a( 'function' ) ;
+		expect( statsClone.stats.hp.getProxy ).to.be.a( 'function' ) ;
+		statsP = stats.getProxy() ;
+		statsCloneP = statsP.clone() ;
+		expect( statsCloneP.hp ).to.be.a( lib.Pool ) ;
+		expect( statsCloneP.hp ).not.to.be( statsP.hp ) ;
+		expect( statsCloneP.hp.base ).to.be( 100 ) ;
+		expect( statsCloneP.hp.actual ).to.be( 100 ) ;
+
+		stats = new lib.StatsTable( { nested: { hp: new lib.Pool( { base: 100 , min: 0 , max: 100 } ).getProxy() } } ) ;
+		statsClone = stats.clone() ;
+		expect( stats.stats.nested.hp.getProxy ).to.be.a( 'function' ) ;
+		expect( statsClone.stats.nested.hp.getProxy ).to.be.a( 'function' ) ;
+		statsP = stats.getProxy() ;
+		statsCloneP = statsP.clone() ;
+		expect( statsCloneP.nested.hp ).to.be.a( lib.Pool ) ;
+		expect( statsCloneP.nested.hp ).not.to.be( statsP.nested.hp ) ;
+		expect( statsCloneP.nested.hp.base ).to.be( 100 ) ;
+		expect( statsCloneP.nested.hp.actual ).to.be( 100 ) ;
+	} ) ;
+} ) ;
+
+
+
+describe( "Gauge stats [Deprecated?]" , () => {
 
 	it( "Gauge stats creation" , () => {
 		var stats = new lib.StatsTable( {
@@ -1691,6 +2012,45 @@ describe( "Gauge stats" , () => {
 		expect( statsP.hp.actualMax ).to.be( 8 ) ;
 	} ) ;
 	
+	it( "Gauge having a multiply Modifiers" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Gauge( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		var mods = new lib.ModifiersTable( 'health-ring' , {
+			hp: [ '*' , 2 ] ,
+			"hp.max": [ '*' , 2 ]
+		} ) ;
+
+		var modsP = mods.getProxy() ;
+
+		statsP.hp.lose( 6 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 2 ) ;
+		expect( statsP.hp.actualMax ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 6 ) ;
+
+		statsP.stack( modsP ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 10 ) ;
+		expect( statsP.hp.actualMax ).to.be( 16 ) ;
+		expect( statsP.hp.lost ).to.be( 6 ) ;
+
+		statsP.hp.lose( 1 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 9 ) ;
+		expect( statsP.hp.actualMax ).to.be( 16 ) ;
+		expect( statsP.hp.lost ).to.be( 7 ) ;
+
+		statsP.unstack( modsP ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 1 ) ;
+		expect( statsP.hp.actualMax ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 7 ) ;
+	} ) ;
+
 	it( "Gauge stats clone" , () => {
 		var stats , statsClone , statsP , statsCloneP ;
 		
