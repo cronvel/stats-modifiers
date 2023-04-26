@@ -1548,7 +1548,7 @@ describe( "Gauge stats" , () => {
 		expect( statsP.xp.gained ).to.be( 9 ) ;
 	} ) ;
 
-	it( "zzz Gauge stats with Modifiers creation" , () => {
+	it( "Gauge stats with Modifiers" , () => {
 		var stats = new lib.StatsTable( {
 			hp: new lib.Gauge( { base: 8 } )
 		} ) ;
@@ -1596,23 +1596,99 @@ describe( "Gauge stats" , () => {
 		expect( statsP.hp.min ).to.be( 0 ) ;
 		expect( statsP.hp.max ).to.be( 8 ) ;
 		expect( statsP.hp.lost ).to.be( 2 ) ;
+	} ) ;
 
-		statsP.unstack( modsP ) ;
-		statsP.hp.replenish() ;
-
-		var modsMax = new lib.ModifiersTable( 'max-health-ring' , {
+	it( "Gauge stats with Modifiers on .max" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Gauge( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		var mods = new lib.ModifiersTable( 'health-ring' , {
 			"hp.max": [ '+' , 5 ]
 		} ) ;
 
-		var modsMaxP = modsMax.getProxy() ;
+		var modsP = mods.getProxy() ;
 
-		statsP.stack( modsMaxP ) ;
+		statsP.stack( modsP ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 8 ) ;
 		expect( statsP.hp.min ).to.be( 0 ) ;
 		expect( statsP.hp.max ).to.be( 8 ) ;
 		expect( statsP.hp.lost ).to.be( 0 ) ;
 		expect( statsP.hp.actualMax ).to.be( 13 ) ;
+
+		expect( statsP.hp.gain( 2 ) ).to.be( 2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 10 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.gained ).to.be( 2 ) ;
+		expect( statsP.hp.actualMax ).to.be( 13 ) ;
+
+		expect( statsP.hp.gain( 8 ) ).to.be( 3 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 13 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.gained ).to.be( 5 ) ;
+		expect( statsP.hp.actualMax ).to.be( 13 ) ;
+
+		statsP.unstack( modsP ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.gained ).to.be( 5 ) ;
+		expect( statsP.hp.actualMax ).to.be( 8 ) ;
+	} ) ;
+	
+	it( "Gauge stats with Modifiers on base and .max" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Gauge( { base: 8 } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		var mods = new lib.ModifiersTable( 'health-ring' , {
+			hp: [ '+' , 5 ] ,
+			"hp.max": [ '+' , 5 ]
+		} ) ;
+
+		var modsP = mods.getProxy() ;
+
+		statsP.stack( modsP ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 13 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 0 ) ;
+		expect( statsP.hp.actualMax ).to.be( 13 ) ;
+
+		expect( statsP.hp.gain( 2 ) ).to.be( 0 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 13 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.gained ).to.be( 0 ) ;
+		expect( statsP.hp.actualMax ).to.be( 13 ) ;
+
+		expect( statsP.hp.lose( 7 ) ).to.be( 7 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 6 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 7 ) ;
+		expect( statsP.hp.actualMax ).to.be( 13 ) ;
+
+		statsP.unstack( modsP ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 1 ) ;
+		expect( statsP.hp.min ).to.be( 0 ) ;
+		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 7 ) ;
+		expect( statsP.hp.actualMax ).to.be( 8 ) ;
 	} ) ;
 	
 	it( "Gauge stats clone" , () => {

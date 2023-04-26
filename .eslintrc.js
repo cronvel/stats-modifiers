@@ -9,6 +9,7 @@ module.exports = {
 		'ecmaVersion': 2020
 	} ,
 	'extends': [ 'eslint:recommended' ] ,
+	'ignorePatterns': [ "*.min.js" ] ,
 	'rules': {
 		
 		/*
@@ -81,7 +82,7 @@ module.exports = {
 			'words': true ,
 			'nonwords': true ,
 			'overrides': {
-				'-': false ,
+				//'-': false ,
 			}
 		} ] ,
 		'space-in-parens': [ 'error' , 'always' , {
