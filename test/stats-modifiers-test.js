@@ -692,7 +692,7 @@ describe( "Wildcard stats" , () => {
 		expect( statsP.damages.fire ).to.be( undefined ) ;
 		
 		var mods = new lib.ModifiersTable( 'fire-brand' , {
-			"damages": [ '#' , 'fire' ] ,		// Add a fire type to the wild-card
+			"damages": [ '#+' , 'fire' ] ,		// Add a fire type to the wild-card
 			"damages.fire.damage": [ '+' , 5 ]
 		} ) ;
 		
@@ -718,7 +718,7 @@ describe( "Wildcard stats" , () => {
 		expect( statsP.damages.fire ).to.be( undefined ) ;
 
 		var mods2 = new lib.ModifiersTable( 'ring-of-fire-and-storm' , {
-			"damages": [ '#' , [ 'fire' , 'lightning' ] ] ,
+			"damages": [ '#+' , [ 'fire' , 'lightning' ] ] ,
 			"damages.fire.damage": [ '+' , 3 ] ,
 			"damages.lightning.damage": [ '+' , 3 ]
 		} ) ;
@@ -780,8 +780,8 @@ describe( "Wildcard stats" , () => {
 		expect( statsP.damages.blunt.effects.target.damage.actual ).to.be( 10 ) ;
 		
 		var mods = new lib.ModifiersTable( 'fire-brand' , {
-			"damages": [ '#' , 'fire' ] ,
-			"damages.fire.effects": [ '#' , [ 'target' , 'area' ] ] ,
+			"damages": [ '#+' , 'fire' ] ,
+			"damages.fire.effects": [ '#+' , [ 'target' , 'area' ] ] ,
 			"damages.fire.effects.target.damage": [ '+' , 10 ] ,
 			"damages.fire.effects.area.damage": [ '+' , 3 ]
 		} ) ;
@@ -3009,15 +3009,15 @@ describe( "Operators" , () => {
 		expect( stats.stats.dexterity.getActual() ).to.be( 1000000 ) ;
 	} ) ;
 
-	it( "append (+>) operator" , () => {
+	it( "append (_+) operator" , () => {
 		var stats = new lib.StatsTable( { text: "some" } ) ;
 		var statsP = stats.getProxy() ;
 		
 		expect( stats.stats.text.base ).to.be( "some" ) ;
 		expect( stats.stats.text.getActual() ).to.be( "some" ) ;
 
-		var mods = new lib.ModifiersTable( 'mods' , { text: [ '+>' , 'text' ] } ) ;
-		var mods2 = new lib.ModifiersTable( 'mods2' , { text: [ '+>' , 'again' ] } ) ;
+		var mods = new lib.ModifiersTable( 'mods' , { text: [ '_+' , 'text' ] } ) ;
+		var mods2 = new lib.ModifiersTable( 'mods2' , { text: [ '_+' , 'again' ] } ) ;
 		
 		statsP.stack( mods ) ;
 		expect( stats.stats.text.base ).to.be( "some" ) ;
@@ -3028,15 +3028,15 @@ describe( "Operators" , () => {
 		expect( stats.stats.text.getActual() ).to.be( "some text again" ) ;
 	} ) ;
 
-	it( "prepend (<+) operator" , () => {
+	it( "prepend (+_) operator" , () => {
 		var stats = new lib.StatsTable( { text: "some" } ) ;
 		var statsP = stats.getProxy() ;
 		
 		expect( stats.stats.text.base ).to.be( "some" ) ;
 		expect( stats.stats.text.getActual() ).to.be( "some" ) ;
 
-		var mods = new lib.ModifiersTable( 'mods' , { text: [ '<+' , 'text' ] } ) ;
-		var mods2 = new lib.ModifiersTable( 'mods2' , { text: [ '<+' , 'again' ] } ) ;
+		var mods = new lib.ModifiersTable( 'mods' , { text: [ '+_' , 'text' ] } ) ;
+		var mods2 = new lib.ModifiersTable( 'mods2' , { text: [ '+_' , 'again' ] } ) ;
 		
 		statsP.stack( mods ) ;
 		expect( stats.stats.text.base ).to.be( "some" ) ;
