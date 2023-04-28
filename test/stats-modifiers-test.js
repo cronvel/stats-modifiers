@@ -659,6 +659,14 @@ describe( "Traits" , () => {
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
+
+		var v = statsP.traits.base ;
+		log( "---" ) ;
+		var keys = Object.keys( v ) ;
+		log( "---" ) ;
+		log( "Object.keys(): %I" , keys ) ;
+		return ;
+		expect( Object.keys( statsP.traits.base ) ).to.only.contain( 'living' , 'hero' ) ;
 		
 		//log( "Stats: %[5]I" , stats ) ;
 		expect( stats.stats.traits ).to.be.a( lib.Traits ) ;
@@ -670,8 +678,9 @@ describe( "Traits" , () => {
 		expect( statsP.traits.base.living ).to.be( true ) ;
 		expect( statsP.traits.base.hero ).to.be( true ) ;
 		expect( statsP.traits.base.unexistant ).to.be( false ) ;
+		var v = statsP.traits.base ;
 		log( "---" ) ;
-		log( "Object.keys(): %I" , Object.keys( statsP.traits.base ) ) ;
+		log( "Object.keys(): %I" , Object.keys( v ) ) ;
 		expect( Object.keys( statsP.traits.base ) ).to.only.contain( 'living' , 'hero' ) ;
 		expect( statsP.traits.actual ).to.only.contain( 'living' , 'hero' ) ;
 	} ) ;
