@@ -667,7 +667,12 @@ describe( "Traits" , () => {
 
 		expect( statsP.traits ).to.be.a( lib.Traits ) ;
 		expect( statsP.traits.base ).to.be.a( Set ) ;
-		expect( statsP.traits.base ).to.only.contain( 'living' , 'hero' ) ;
+		expect( statsP.traits.base.living ).to.be( true ) ;
+		expect( statsP.traits.base.hero ).to.be( true ) ;
+		expect( statsP.traits.base.unexistant ).to.be( false ) ;
+		log( "---" ) ;
+		log( "Object.keys(): %I" , Object.keys( statsP.traits.base ) ) ;
+		expect( Object.keys( statsP.traits.base ) ).to.only.contain( 'living' , 'hero' ) ;
 		expect( statsP.traits.actual ).to.only.contain( 'living' , 'hero' ) ;
 	} ) ;
 
