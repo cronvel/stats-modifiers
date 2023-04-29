@@ -862,7 +862,7 @@ describe( "NewTraits" , () => {
 		expect( statsP.traits.actual.living ).to.be( true ) ;
 		expect( statsP.traits.actual.hero ).to.be( true ) ;
 		expect( statsP.traits.actual.unexistant ).to.be( false ) ;
-		//expect( Object.keys( statsP.traits.actual ) ).to.only.contain( 'living' , 'hero' ) ;
+		expect( Object.keys( statsP.traits.actual ) ).to.only.contain( 'living' , 'hero' ) ;
 	} ) ;
 
 	it( "NewTraits stat with Modifiers featuring the add/remove operator" , () => {
