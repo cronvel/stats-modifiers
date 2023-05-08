@@ -957,6 +957,180 @@ describe( "Wildcard stats" , () => {
 
 
 
+describe( "zzz New Wildcard stats" , () => {
+
+	it( "StatsTable with wildcard stats creation" , () => {
+		var stats = new lib.StatsTable( {
+			damages: new lib.WildStats( {
+				_: { area: 1 , damage: 1 } ,
+				blunt: { area: 1 , damage: 10 }
+			} )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( stats.stats.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+
+		expect( stats.stats.damages['*'].damage.base ).to.be( 1 ) ;
+		expect( statsP.damages['*'].damage.base ).to.be( 1 ) ;
+
+		expect( stats.stats.damages.blunt.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.stats.damages.blunt.damage.pathKey ).to.be( 'damages.blunt.damage' ) ;
+	} ) ;
+	return ;
+
+	it( "Adding/removing a ModifiersTable to a StatsTable" , () => {
+		var stats = new lib.StatsTable( {
+			damages: {
+				"*": { damage: 1 } ,
+				blunt: { damage: 10 }
+			}
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+
+		expect( statsP.damages.base ).to.be.a( Set ) ;
+		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.actual ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
+		expect( statsP.damages.fire ).to.be( undefined ) ;
+		
+		var mods = new lib.ModifiersTable( 'fire-brand' , {
+			"damages": [ '#+' , 'fire' ] ,		// Add a fire type to the wild-card
+			"damages.fire.damage": [ '+' , 5 ]
+		} ) ;
+		
+		statsP.stack( mods ) ;
+
+		expect( statsP.damages.base ).to.be.a( Set ) ;
+		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.actual ).to.only.contain( 'blunt' , 'fire' ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
+		expect( statsP.damages.fire.damage.base ).to.be( 1 ) ;
+		expect( statsP.damages.fire.damage.actual ).to.be( 6 ) ;
+
+		statsP.unstack( mods ) ;
+
+		expect( statsP.damages.base ).to.be.a( Set ) ;
+		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.actual ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
+		expect( statsP.damages.fire ).to.be( undefined ) ;
+
+		var mods2 = new lib.ModifiersTable( 'ring-of-fire-and-storm' , {
+			"damages": [ '#+' , [ 'fire' , 'lightning' ] ] ,
+			"damages.fire.damage": [ '+' , 3 ] ,
+			"damages.lightning.damage": [ '+' , 3 ]
+		} ) ;
+		
+		stats.stack( mods ) ;
+		stats.stack( mods2 ) ;
+
+		expect( statsP.damages.base ).to.be.a( Set ) ;
+		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.actual ).to.only.contain( 'blunt' , 'fire' , 'lightning' ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
+		expect( statsP.damages.fire.damage.base ).to.be( 1 ) ;
+		expect( statsP.damages.fire.damage.actual ).to.be( 9 ) ;
+		expect( statsP.damages.lightning.damage.base ).to.be( 1 ) ;
+		expect( statsP.damages.lightning.damage.actual ).to.be( 4 ) ;
+
+		statsP.unstack( mods ) ;
+		statsP.unstack( mods2 ) ;
+
+		expect( statsP.damages.base ).to.be.a( Set ) ;
+		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.actual ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
+		expect( statsP.damages.fire ).to.be( undefined ) ;
+		expect( statsP.damages.lightning ).to.be( undefined ) ;
+	} ) ;
+
+	it( "Nested wildcard" , () => {
+		var stats = new lib.StatsTable( {
+			damages: {
+				"*": {
+					effects: {
+						"*": { damage: 1 }
+					}
+				} ,
+				blunt: {
+					effects: {
+						target: { damage: 10 }
+					}
+				}
+			}
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+
+		expect( statsP.damages.base ).to.be.a( Set ) ;
+		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.actual ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.blunt.effects.base ).to.be.a( Set ) ;
+		expect( statsP.damages.blunt.effects.base ).to.only.contain( 'target' ) ;
+		expect( statsP.damages.blunt.effects.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.blunt.effects.actual ).to.only.contain( 'target' ) ;
+		expect( statsP.damages.blunt.effects.target.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.effects.target.damage.actual ).to.be( 10 ) ;
+		
+		var mods = new lib.ModifiersTable( 'fire-brand' , {
+			"damages": [ '#+' , 'fire' ] ,
+			"damages.fire.effects": [ '#+' , [ 'target' , 'area' ] ] ,
+			"damages.fire.effects.target.damage": [ '+' , 10 ] ,
+			"damages.fire.effects.area.damage": [ '+' , 3 ]
+		} ) ;
+		
+		statsP.stack( mods ) ;
+
+		expect( statsP.damages.base ).to.be.a( Set ) ;
+		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.actual ).to.only.contain( 'blunt' , 'fire' ) ;
+		expect( statsP.damages.blunt.effects.base ).to.be.a( Set ) ;
+		expect( statsP.damages.blunt.effects.base ).to.only.contain( 'target' ) ;
+		expect( statsP.damages.blunt.effects.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.blunt.effects.actual ).to.only.contain( 'target' ) ;
+		expect( statsP.damages.fire.effects.base ).to.be.a( Set ) ;
+		expect( statsP.damages.fire.effects.base ).to.be.empty() ;
+		expect( statsP.damages.fire.effects.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.fire.effects.actual ).to.only.contain( 'target' , 'area' ) ;
+		expect( statsP.damages.blunt.effects.target.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.effects.target.damage.actual ).to.be( 10 ) ;
+		expect( statsP.damages.fire.effects.target.damage.base ).to.be( 1 ) ;
+		expect( statsP.damages.fire.effects.target.damage.actual ).to.be( 11 ) ;
+		expect( statsP.damages.fire.effects.area.damage.base ).to.be( 1 ) ;
+		expect( statsP.damages.fire.effects.area.damage.actual ).to.be( 4 ) ;
+
+		statsP.unstack( mods ) ;
+
+		expect( statsP.damages.base ).to.be.a( Set ) ;
+		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.actual ).to.only.contain( 'blunt' ) ;
+		expect( statsP.damages.blunt.effects.base ).to.be.a( Set ) ;
+		expect( statsP.damages.blunt.effects.base ).to.only.contain( 'target' ) ;
+		expect( statsP.damages.blunt.effects.actual ).to.be.a( Set ) ;
+		expect( statsP.damages.blunt.effects.actual ).to.only.contain( 'target' ) ;
+		expect( statsP.damages.blunt.effects.target.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.effects.target.damage.actual ).to.be( 10 ) ;
+	} ) ;
+} ) ;
+
+
+
 describe( "ModifiersTable templates" , () => {
 
 	it( "ModifiersTable template creation" , () => {
