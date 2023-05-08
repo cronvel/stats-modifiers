@@ -653,7 +653,7 @@ describe( "Basic usage" , () => {
 
 describe( "Traits" , () => {
 
-	it( "StatsTable with implicit Traits stats creation (Set)" , () => {
+	it.skip( "StatsTable with implicit Traits stats creation (Set)" , () => {
 		var stats = new lib.StatsTable( {
 			traits: new Set( [ 'living' , 'hero' ] )
 		} ) ;
@@ -688,11 +688,11 @@ describe( "Traits" , () => {
 		
 		//log( "Stats: %[5]I" , stats ) ;
 		expect( stats.stats.traits ).to.be.a( lib.Traits ) ;
-		expect( stats.stats.traits.base ).to.be.a( Set ) ;
-		expect( stats.stats.traits.base ).to.only.contain( 'living' , 'hero' ) ;
+		expect( stats.stats.traits.base ).to.be.an( Object ) ;
+		expect( stats.stats.traits.base ).to.only.have.own.keys( 'living' , 'hero' ) ;
 
 		expect( statsP.traits ).to.be.a( lib.Traits ) ;
-		expect( statsP.traits.base ).to.be.a( Set ) ;
+		//expect( statsP.traits.base ).to.be.a( Set ) ;
 		expect( statsP.traits.base.living ).to.be( true ) ;
 		expect( statsP.traits.base.hero ).to.be( true ) ;
 		expect( statsP.traits.base.unexistant ).to.be( false ) ;
@@ -706,168 +706,6 @@ describe( "Traits" , () => {
 	it( "Traits stat with Modifiers featuring the add/remove operator" , () => {
 		var stats = new lib.StatsTable( {
 			traits: new lib.Traits( [ 'living' , 'hero' ] )
-		} ) ;
-		
-		var statsP = stats.getProxy() ;
-		
-		var mods = new lib.ModifiersTable( 'initiative-ring' , {
-			traits: [ '#+' , 'firstStrike' ]
-		} ) ;
-
-		var modsP = mods.getProxy() ;
-
-		var mods2 = new lib.ModifiersTable( 'undead-ring' , {
-			traits: [ '#-' , [ 'firstStrike' , 'living' ] ]
-		} ) ;
-
-		var mods2P = mods2.getProxy() ;
-
-		expect( statsP.traits.base.living ).to.be( true ) ;
-		expect( statsP.traits.base.hero ).to.be( true ) ;
-		expect( statsP.traits.base.firstStrike ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.base ) ).to.only.contain( 'living' , 'hero' ) ;
-		expect( statsP.traits.actual.living ).to.be( true ) ;
-		expect( statsP.traits.actual.hero ).to.be( true ) ;
-		expect( statsP.traits.actual.firstStrike ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.actual ) ).to.only.contain( 'living' , 'hero' ) ;
-
-		statsP.stack( modsP ) ;
-		expect( statsP.traits.base.living ).to.be( true ) ;
-		expect( statsP.traits.base.hero ).to.be( true ) ;
-		expect( statsP.traits.base.firstStrike ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.base ) ).to.only.contain( 'living' , 'hero' ) ;
-		expect( statsP.traits.actual.living ).to.be( true ) ;
-		expect( statsP.traits.actual.hero ).to.be( true ) ;
-		expect( statsP.traits.actual.firstStrike ).to.be( true ) ;
-		expect( Object.keys( statsP.traits.actual ) ).to.only.contain( 'living' , 'hero' , 'firstStrike' ) ;
-
-		statsP.unstack( modsP ) ;
-		expect( statsP.traits.base.living ).to.be( true ) ;
-		expect( statsP.traits.base.hero ).to.be( true ) ;
-		expect( statsP.traits.base.firstStrike ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.base ) ).to.only.contain( 'living' , 'hero' ) ;
-		expect( statsP.traits.actual.living ).to.be( true ) ;
-		expect( statsP.traits.actual.hero ).to.be( true ) ;
-		expect( statsP.traits.actual.firstStrike ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.actual ) ).to.only.contain( 'living' , 'hero' ) ;
-
-		statsP.stack( modsP ) ;
-		statsP.stack( mods2P ) ;
-		expect( statsP.traits.base.living ).to.be( true ) ;
-		expect( statsP.traits.base.hero ).to.be( true ) ;
-		expect( statsP.traits.base.firstStrike ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.base ) ).to.only.contain( 'living' , 'hero' ) ;
-		expect( statsP.traits.actual.living ).to.be( false ) ;
-		expect( statsP.traits.actual.hero ).to.be( true ) ;
-		expect( statsP.traits.actual.firstStrike ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.actual ) ).to.only.contain( 'hero' ) ;
-
-		// Stacking them in reverse order: removing tags must always have precedence to have consistent results...
-		statsP.unstack( modsP ) ;
-		statsP.unstack( mods2P ) ;
-		statsP.stack( mods2P ) ;
-		statsP.stack( modsP ) ;
-		expect( statsP.traits.base.living ).to.be( true ) ;
-		expect( statsP.traits.base.hero ).to.be( true ) ;
-		expect( statsP.traits.base.firstStrike ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.base ) ).to.only.contain( 'living' , 'hero' ) ;
-		expect( statsP.traits.actual.living ).to.be( false ) ;
-		expect( statsP.traits.actual.hero ).to.be( true ) ;
-		expect( statsP.traits.actual.firstStrike ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.actual ) ).to.only.contain( 'hero' ) ;
-	} ) ;
-
-	it( "Traits stat with Modifiers featuring the instersect operator" , () => {
-		var stats = new lib.StatsTable( {
-			traits: new lib.Traits( [ 'living' , 'hero' ] )
-		} ) ;
-		
-		var statsP = stats.getProxy() ;
-		
-		var mods = new lib.ModifiersTable( 'random-ring' , {
-			traits: [ '#*' , 'living' , 'firstStrike' ]
-		} ) ;
-
-		var modsP = mods.getProxy() ;
-
-		expect( statsP.traits.base.living ).to.be( true ) ;
-		expect( statsP.traits.base.hero ).to.be( true ) ;
-		expect( statsP.traits.base.firstStrike ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.base ) ).to.only.contain( 'living' , 'hero' ) ;
-		expect( statsP.traits.actual.living ).to.be( true ) ;
-		expect( statsP.traits.actual.hero ).to.be( true ) ;
-		expect( statsP.traits.actual.firstStrike ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.actual ) ).to.only.contain( 'living' , 'hero' ) ;
-
-		statsP.stack( modsP ) ;
-		expect( statsP.traits.base.living ).to.be( true ) ;
-		expect( statsP.traits.base.hero ).to.be( true ) ;
-		expect( statsP.traits.base.firstStrike ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.base ) ).to.only.contain( 'living' , 'hero' ) ;
-		expect( statsP.traits.actual.living ).to.be( true ) ;
-		expect( statsP.traits.actual.hero ).to.be( false ) ;
-		expect( statsP.traits.actual.firstStrike ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.actual ) ).to.only.contain( 'living' ) ;
-	} ) ;
-} ) ;
-
-
-
-describe( "NewTraits" , () => {
-
-	it.skip( "StatsTable with implicit NewTraits stats creation (Set)" , () => {
-		var stats = new lib.StatsTable( {
-			traits: new Set( [ 'living' , 'hero' ] )
-		} ) ;
-		
-		var statsP = stats.getProxy() ;
-
-		var v = statsP.traits.base ;
-		
-		//log( "Stats: %[5]I" , stats ) ;
-		expect( stats.stats.traits ).to.be.a( lib.NewTraits ) ;
-		expect( stats.stats.traits.base ).to.be.a( Set ) ;
-		expect( stats.stats.traits.base ).to.only.contain( 'living' , 'hero' ) ;
-
-		expect( statsP.traits ).to.be.a( lib.NewTraits ) ;
-		expect( statsP.traits.base ).to.be.a( Set ) ;
-		expect( statsP.traits.base.living ).to.be( true ) ;
-		expect( statsP.traits.base.hero ).to.be( true ) ;
-		expect( statsP.traits.base.unexistant ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.base ) ).to.only.contain( 'living' , 'hero' ) ;
-		expect( statsP.traits.actual.living ).to.be( true ) ;
-		expect( statsP.traits.actual.hero ).to.be( true ) ;
-		expect( statsP.traits.actual.unexistant ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.actual ) ).to.only.contain( 'living' , 'hero' ) ;
-	} ) ;
-
-	it( "StatsTable with explicit NewTraits stats creation" , () => {
-		var stats = new lib.StatsTable( {
-			traits: new lib.NewTraits( [ 'living' , 'hero' ] )
-		} ) ;
-		
-		var statsP = stats.getProxy() ;
-		
-		//log( "Stats: %[5]I" , stats ) ;
-		expect( stats.stats.traits ).to.be.a( lib.NewTraits ) ;
-		expect( stats.stats.traits.base ).to.be.an( Object ) ;
-		expect( stats.stats.traits.base ).to.only.have.own.keys( 'living' , 'hero' ) ;
-
-		expect( statsP.traits ).to.be.a( lib.NewTraits ) ;
-		//expect( statsP.traits.base ).to.be.a( Set ) ;
-		expect( statsP.traits.base.living ).to.be( true ) ;
-		expect( statsP.traits.base.hero ).to.be( true ) ;
-		expect( statsP.traits.base.unexistant ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.base ) ).to.only.contain( 'living' , 'hero' ) ;
-		expect( statsP.traits.actual.living ).to.be( true ) ;
-		expect( statsP.traits.actual.hero ).to.be( true ) ;
-		expect( statsP.traits.actual.unexistant ).to.be( false ) ;
-		expect( Object.keys( statsP.traits.actual ) ).to.only.contain( 'living' , 'hero' ) ;
-	} ) ;
-
-	it( "NewTraits stat with Modifiers featuring the add/remove operator" , () => {
-		var stats = new lib.StatsTable( {
-			traits: new lib.NewTraits( [ 'living' , 'hero' ] )
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
