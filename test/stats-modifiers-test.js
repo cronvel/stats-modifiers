@@ -43,14 +43,19 @@ describe( "Basic usage" , () => {
 			dexterity: 15 ,
 			hp: 20
 		} ) ;
+		log( "stats: %[5]I" , stats ) ;
+		log( "nested parent: %[5]I" , stats.nestedStats[ lib.SYMBOL_PARENT ] ) ;
 		
 		var statsP = stats.getProxy() ;
 		
-		expect( stats.stats.strength.base ).to.be( 12 ) ;
+		expect( stats.nestedStats[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.strength[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+
+		expect( stats.nestedStats.stats.strength.base ).to.be( 12 ) ;
+		log( "stats: %[5]I" , statsP.strength ) ;
 		expect( statsP.strength.base ).to.be( 12 ) ;
 
-		expect( stats.stats.strength[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
-		expect( stats.stats.strength.pathKey ).to.be( 'strength' ) ;
+		expect( stats.nestedStats.stats.strength.pathKey ).to.be( 'strength' ) ;
 	} ) ;
 
 	it( "StatsTable with nested stats creation" , () => {
