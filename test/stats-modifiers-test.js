@@ -35,9 +35,9 @@ const Expression = require( 'kung-fig-expression' ) ;
 
 
 
-describe( "Basic usage" , () => {
+describe( "Stats Table instanciation and cloning tests" , () => {
 
-	it( "StatsTable creation" , () => {
+	it( "StatsTable creation and basic proxy features" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
 			dexterity: 15 ,
@@ -57,11 +57,14 @@ describe( "Basic usage" , () => {
 		expect( stats.nestedStats.stats.strength[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.nestedStats.stats.strength.pathKey ).to.be( 'strength' ) ;
 		expect( stats.nestedStats.stats.strength.base ).to.be( 12 ) ;
+
+		expect( statsP.strength ).not.to.be( stats.nestedStats.stats.strength ) ;
+		expect( statsP.strength ).to.be( statsP.strength ) ;	// <- check that the proxy is cached
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.actual ).to.be( 12 ) ;
 	} ) ;
 
-	it( "StatsTable with nested stats creation" , () => {
+	it( "StatsTable with nested stats creation and basic proxy features" , () => {
 		var stats = new lib.StatsTable( {
 			hp: {
 				max: 20 ,
@@ -84,11 +87,15 @@ describe( "Basic usage" , () => {
 		expect( stats.nestedStats.stats.hp ).to.be.a( lib.NestedStats ) ;
 		expect( stats.nestedStats.stats.hp[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.nestedStats.stats.hp.pathKey ).to.be( 'hp' ) ;
+		expect( statsP.hp ).not.to.be( stats.nestedStats.stats.hp ) ;
+		expect( statsP.hp ).to.be( statsP.hp ) ;	// <- check that the proxy is cached
 
 		expect( stats.nestedStats.stats.hp.stats.max ).to.be.a( lib.Stat ) ;
 		expect( stats.nestedStats.stats.hp.stats.max[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.nestedStats.stats.hp.stats.max.pathKey ).to.be( 'hp.max' ) ;
 		expect( stats.nestedStats.stats.hp.stats.max.base ).to.be( 20 ) ;
+		expect( statsP.hp.max ).not.to.be( stats.nestedStats.stats.hp.stats.max ) ;
+		expect( statsP.hp.max ).to.be( statsP.hp.max ) ;	// <- check that the proxy is cached
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.actual ).to.be( 20 ) ;
 
@@ -134,36 +141,58 @@ describe( "Basic usage" , () => {
 				max: 20 ,
 				remaining: 14
 			} ,
-			damages: [
-				{ type: 'cutting' , damage: 24 } ,
-				{ type: 'fire' , damage: 8 }
-			]
+			damages: {
+				cutting: { damage: 24 } ,
+				fire: { damage: 8 }
+			}
 		} ) ;
 		
-		var statsClone = stats.clone() ;
-		expect( statsClone ).not.to.be( stats ) ;
-		expect( statsClone ).to.equal( stats ) ;
-		expect( stats.stats.hp.max ).to.be.a( lib.Stat ) ;
-		expect( statsClone.stats.hp.max ).to.be.a( lib.Stat ) ;
+		var statsClone = stats.clone() ,
+			statsP = stats.getProxy() ,
+			statsCloneP = statsClone.getProxy() ;
 
-		expect( statsClone.stats.hp.max.base ).to.be( 20 ) ;
-		expect( statsClone.stats.hp.remaining.base ).to.be( 14 ) ;
-		expect( statsClone.stats.damages[ 0 ].damage.base ).to.be( 24 ) ;
-		expect( statsClone.stats.damages[ 1 ].damage.base ).to.be( 8 ) ;
+		expect( statsClone ).to.equal( stats ) ;
+		expect( stats.nestedStats.stats.hp.stats.max ).to.be.a( lib.Stat ) ;
+		expect( statsClone.nestedStats.stats.hp.stats.max ).to.be.a( lib.Stat ) ;
+
+		expect( statsClone.nestedStats.stats.hp.stats.max.base ).to.be( 20 ) ;
+		expect( statsClone.nestedStats.stats.hp.stats.remaining.base ).to.be( 14 ) ;
+		expect( statsClone.nestedStats.stats.damages.stats.cutting.stats.damage.base ).to.be( 24 ) ;
+		expect( statsClone.nestedStats.stats.damages.stats.fire.stats.damage.base ).to.be( 8 ) ;
 
 		// Check that they are distinct
-		statsClone.stats.hp.max.base = 17 ;
-		expect( stats.stats.hp.max.base ).to.be( 20 ) ;
-		expect( statsClone.stats.hp.max.base ).to.be( 17 ) ;
 
-		stats.stats.hp.max.base = 21 ;
-		expect( stats.stats.hp.max.base ).to.be( 21 ) ;
-		expect( statsClone.stats.hp.max.base ).to.be( 17 ) ;
+		expect( statsClone ).not.to.be( stats ) ;
+		expect( statsClone.nestedStats ).not.to.be( stats.nestedStats ) ;
+		expect( statsClone.nestedStats.stats ).not.to.be( stats.nestedStats.stats ) ;
+		expect( statsClone.nestedStats.stats.hp ).not.to.be( stats.nestedStats.stats.hp ) ;
+		expect( statsClone.nestedStats.stats.hp.stats.max ).not.to.be( stats.nestedStats.stats.hp.stats.max ) ;
 
-		expect( stats.stats.hp.max[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
-		expect( stats.stats.hp.max.pathKey ).to.be( 'hp.max' ) ;
-		expect( statsClone.stats.hp.max[ lib.SYMBOL_PARENT ] ).to.be( statsClone ) ;
-		expect( statsClone.stats.hp.max.pathKey ).to.be( 'hp.max' ) ;
+		statsP.hp ; statsCloneP.hp ; statsP.hp.max ; statsCloneP.hp.max ;	// trigger proxy cache
+		expect( statsClone.nestedStats.proxy ).not.to.be( stats.nestedStats.proxy ) ;
+		expect( statsClone.nestedStats.stats.hp.proxy ).not.to.be( stats.nestedStats.stats.hp.proxy ) ;
+		expect( statsClone.nestedStats.stats.hp.stats.max.proxy ).not.to.be( stats.nestedStats.stats.hp.stats.max.proxy ) ;
+		
+		expect( stats.nestedStats.stats.hp.stats.max[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.hp.stats.max.pathKey ).to.be( 'hp.max' ) ;
+		expect( statsClone.nestedStats.stats.hp.stats.max[ lib.SYMBOL_PARENT ] ).to.be( statsClone ) ;
+		expect( statsClone.nestedStats.stats.hp.stats.max.pathKey ).to.be( 'hp.max' ) ;
+
+		statsClone.nestedStats.stats.hp.stats.max.base = 17 ;
+		expect( statsClone.nestedStats.stats.hp.stats.max.base ).to.be( 17 ) ;
+		expect( stats.nestedStats.stats.hp.stats.max.base ).to.be( 20 ) ;
+
+		stats.nestedStats.stats.hp.stats.max.base = 21 ;
+		expect( stats.nestedStats.stats.hp.stats.max.base ).to.be( 21 ) ;
+		expect( statsClone.nestedStats.stats.hp.stats.max.base ).to.be( 17 ) ;
+
+		statsCloneP.damages.cutting.damage = 19 ;
+		expect( statsCloneP.damages.cutting.damage.base ).to.be( 19 ) ;
+		expect( statsP.damages.cutting.damage.base ).to.be( 24 ) ;
+
+		statsP.damages.cutting.damage = 30 ;
+		expect( statsCloneP.damages.cutting.damage.base ).to.be( 19 ) ;
+		expect( statsP.damages.cutting.damage.base ).to.be( 30 ) ;
 	} ) ;
 
 	it( "StatsTable extension" , () => {
@@ -174,10 +203,10 @@ describe( "Basic usage" , () => {
 				remaining: 14 ,
 				useless: 123
 			} ,
-			damages: [
-				{ type: 'cutting' , damage: 24 } ,
-				{ type: 'fire' , damage: 8 }
-			]
+			damages: {
+				cutting: { damage: 24 } ,
+				fire: { damage: 8 }
+			}
 		} ) ;
 		
 		var extendedStats = stats.extend( {
@@ -187,26 +216,34 @@ describe( "Basic usage" , () => {
 				injury: 3 ,
 				useless: null	// it removes it
 			} ,
-			damages: [
-				{ type: 'electricity' , damage: 4 }
-			]
+			damages: {
+				electricity: { damage: 4 }
+			}
 		} ) ;
 
-		expect( extendedStats.stats.strength.base ).to.be( 10 ) ;
-		expect( extendedStats.stats.hp.max.base ).to.be( 20 ) ;
-		expect( extendedStats.stats.hp.remaining.base ).to.be( 14 ) ;
-		expect( extendedStats.stats.hp.injury.base ).to.be( 3 ) ;
-		expect( extendedStats.stats.damages ).to.have.a.length.of( 1 ) ;
-		expect( extendedStats.stats.damages[ 0 ].damage.base ).to.be( 4 ) ;
+		expect( extendedStats.nestedStats.stats.strength.base ).to.be( 10 ) ;
+		//log( "extendedStats.nestedStats.stats.hp.stats %[5]I" , extendedStats.nestedStats.stats.hp.stats ) ;
+		expect( extendedStats.nestedStats.stats.hp.stats.max.base ).to.be( 20 ) ;
+		expect( extendedStats.nestedStats.stats.hp.stats.remaining.base ).to.be( 14 ) ;
+		expect( extendedStats.nestedStats.stats.hp.stats.injury.base ).to.be( 3 ) ;
+		expect( extendedStats.nestedStats.stats.damages.stats ).to.only.have.own.keys( 'cutting' , 'fire' , 'electricity' ) ;
+		expect( extendedStats.nestedStats.stats.damages.stats.cutting.stats.damage.base ).to.be( 24 ) ;
+		expect( extendedStats.nestedStats.stats.damages.stats.fire.stats.damage.base ).to.be( 8 ) ;
+		expect( extendedStats.nestedStats.stats.damages.stats.electricity.stats.damage.base ).to.be( 4 ) ;
 
 		// Check stat removal
-		expect( stats.stats.useless.base ).to.be( 123 ) ;
-		expect( extendedStats.stats.useless ).to.be.undefined() ;
-		expect( stats.stats.hp.useless.base ).to.be( 123 ) ;
-		expect( extendedStats.stats.hp.useless ).to.be.undefined() ;
+		expect( stats.nestedStats.stats.useless.base ).to.be( 123 ) ;
+		expect( extendedStats.nestedStats.stats.useless ).to.be.undefined() ;
+		expect( stats.nestedStats.stats.hp.stats.useless.base ).to.be( 123 ) ;
+		expect( extendedStats.nestedStats.stats.hp.stats.useless ).to.be.undefined() ;
 	} ) ;
+} ) ;
+	
 
-	it( "ModifiersTable creation" , () => {
+
+describe( "Modifiers Table instanciation and cloning tests" , () => {
+
+	it( "ModifiersTable creation and basic proxy features" , () => {
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: [ '+' , 5 ] ,
 			dexterity: [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
@@ -227,7 +264,7 @@ describe( "Basic usage" , () => {
 		} ) ;
 	} ) ;
 	
-	it( "ModifiersTable for nested stats creation" , () => {
+	it( "ModifiersTable for nested stats creation and basic proxy features" , () => {
 		var mods = new lib.ModifiersTable( 'staff' , {
 			"hp.max": [ '+' , 5 ] ,
 			"damages.0.damage": [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
@@ -357,7 +394,12 @@ describe( "Basic usage" , () => {
 		expect( modsP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 3 } } ) ;
 		expect( modsCloneP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff_clone_0' , operator: 'plus' , operand: 7 } } ) ;
 	} ) ;
+} ) ;
 	
+
+
+describe( "Attaching Modifiers Tables to Stats Tables" , () => {
+
 	it( "Adding/removing a ModifiersTable to a StatsTable" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
@@ -370,11 +412,9 @@ describe( "Basic usage" , () => {
 		
 		var statsP = stats.getProxy() ;
 		
-		expect( stats.stats.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.base ).to.be( 12 ) ;
-		expect( stats.stats.strength.getActual() ).to.be( 12 ) ;
 		expect( statsP.strength.actual ).to.be( 12 ) ;
-		expect( stats.stats.dexterity.getActual() ).to.be( 17 ) ;
+		expect( statsP.dexterity.actual ).to.be( 17 ) ;
 
 		var mods = new lib.ModifiersTable( 'staff' , {
 			strength: [ '+' , 5 ] ,
