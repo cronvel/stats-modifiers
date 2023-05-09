@@ -43,19 +43,22 @@ describe( "Basic usage" , () => {
 			dexterity: 15 ,
 			hp: 20
 		} ) ;
-		log( "stats: %[5]I" , stats ) ;
-		log( "nested parent: %[5]I" , stats.nestedStats[ lib.SYMBOL_PARENT ] ) ;
+
+		//log( "stats: %[5]I" , stats ) ;
+		//log( "nested parent: %[5]I" , stats.nestedStats[ lib.SYMBOL_PARENT ] ) ;
 		
 		var statsP = stats.getProxy() ;
 		
+		expect( stats.nestedStats ).to.be.a( lib.NestedStats ) ;
 		expect( stats.nestedStats[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.pathKey ).to.be( '' ) ;
+
+		expect( stats.nestedStats.stats.strength ).to.be.a( lib.Stat ) ;
 		expect( stats.nestedStats.stats.strength[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
-
-		expect( stats.nestedStats.stats.strength.base ).to.be( 12 ) ;
-		log( "stats: %[5]I" , statsP.strength ) ;
-		expect( statsP.strength.base ).to.be( 12 ) ;
-
 		expect( stats.nestedStats.stats.strength.pathKey ).to.be( 'strength' ) ;
+		expect( stats.nestedStats.stats.strength.base ).to.be( 12 ) ;
+		expect( statsP.strength.base ).to.be( 12 ) ;
+		expect( statsP.strength.actual ).to.be( 12 ) ;
 	} ) ;
 
 	it( "StatsTable with nested stats creation" , () => {
@@ -64,26 +67,65 @@ describe( "Basic usage" , () => {
 				max: 20 ,
 				remaining: 14
 			} ,
-			damages: [
-				{ type: 'cutting' , damage: 24 } ,
-				{ type: 'fire' , damage: 8 }
-			]
+			damages: {
+				cutting: { damage: 24 } ,
+				fire: { damage: 8 }
+			}
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
 		
-		expect( stats.stats.hp.max.base ).to.be( 20 ) ;
+
+		expect( stats.nestedStats ).to.be.a( lib.NestedStats ) ;
+		expect( stats.nestedStats[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.pathKey ).to.be( '' ) ;
+
+
+		expect( stats.nestedStats.stats.hp ).to.be.a( lib.NestedStats ) ;
+		expect( stats.nestedStats.stats.hp[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.hp.pathKey ).to.be( 'hp' ) ;
+
+		expect( stats.nestedStats.stats.hp.stats.max ).to.be.a( lib.Stat ) ;
+		expect( stats.nestedStats.stats.hp.stats.max[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.hp.stats.max.pathKey ).to.be( 'hp.max' ) ;
+		expect( stats.nestedStats.stats.hp.stats.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
-		expect( stats.stats.hp.remaining.base ).to.be( 14 ) ;
+		expect( statsP.hp.max.actual ).to.be( 20 ) ;
+
+		expect( stats.nestedStats.stats.hp.stats.remaining ).to.be.a( lib.Stat ) ;
+		expect( stats.nestedStats.stats.hp.stats.remaining[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.hp.stats.remaining.pathKey ).to.be( 'hp.remaining' ) ;
+		expect( stats.nestedStats.stats.hp.stats.remaining.base ).to.be( 14 ) ;
 		expect( statsP.hp.remaining.base ).to.be( 14 ) ;
+		expect( statsP.hp.remaining.actual ).to.be( 14 ) ;
 
-		expect( stats.stats.damages[ 0 ].damage.base ).to.be( 24 ) ;
-		expect( statsP.damages[ 0 ].damage.base ).to.be( 24 ) ;
-		expect( stats.stats.damages[ 1 ].damage.base ).to.be( 8 ) ;
-		expect( statsP.damages[ 1 ].damage.base ).to.be( 8 ) ;
 
-		expect( stats.stats.hp.max[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
-		expect( stats.stats.hp.max.pathKey ).to.be( 'hp.max' ) ;
+		expect( stats.nestedStats.stats.damages ).to.be.a( lib.NestedStats ) ;
+		expect( stats.nestedStats.stats.damages[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.pathKey ).to.be( 'damages' ) ;
+
+		expect( stats.nestedStats.stats.damages.stats.cutting ).to.be.a( lib.NestedStats ) ;
+		expect( stats.nestedStats.stats.damages.stats.cutting[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.stats.cutting.pathKey ).to.be( 'damages.cutting' ) ;
+
+		expect( stats.nestedStats.stats.damages.stats.cutting.stats.damage ).to.be.a( lib.Stat ) ;
+		expect( stats.nestedStats.stats.damages.stats.cutting.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.stats.cutting.stats.damage.pathKey ).to.be( 'damages.cutting.damage' ) ;
+		expect( stats.nestedStats.stats.damages.stats.cutting.stats.damage.base ).to.be( 24 ) ;
+		expect( statsP.damages.cutting.damage.base ).to.be( 24 ) ;
+		expect( statsP.damages.cutting.damage.actual ).to.be( 24 ) ;
+
+
+		expect( stats.nestedStats.stats.damages.stats.fire ).to.be.a( lib.NestedStats ) ;
+		expect( stats.nestedStats.stats.damages.stats.fire[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.stats.fire.pathKey ).to.be( 'damages.fire' ) ;
+
+		expect( stats.nestedStats.stats.damages.stats.fire.stats.damage ).to.be.a( lib.Stat ) ;
+		expect( stats.nestedStats.stats.damages.stats.fire.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.stats.fire.stats.damage.pathKey ).to.be( 'damages.fire.damage' ) ;
+		expect( stats.nestedStats.stats.damages.stats.fire.stats.damage.base ).to.be( 8 ) ;
+		expect( statsP.damages.fire.damage.base ).to.be( 8 ) ;
+		expect( statsP.damages.fire.damage.actual ).to.be( 8 ) ;
 	} ) ;
 
 	it( "StatsTable clone" , () => {
