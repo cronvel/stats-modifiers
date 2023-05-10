@@ -135,6 +135,51 @@ describe( "Stats Table instanciation and cloning tests" , () => {
 		expect( statsP.damages.fire.damage.actual ).to.be( 8 ) ;
 	} ) ;
 
+	it( "Should re-attach cleanly when creating Nested Stats explicitly" , () => {
+		var stats ;
+
+		stats = new lib.StatsTable( {
+			damages: new lib.NestedStats( {
+				blunt: { area: 1 , damage: 10 }
+			} )
+		} ) ;
+
+		expect( stats.nestedStats.stats.damages[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.pathKey ).to.be( 'damages' ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.pathKey ).to.be( 'damages.blunt' ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.pathKey ).to.be( 'damages.blunt.damage' ) ;
+
+
+		stats = new lib.StatsTable( {
+			damages: new lib.NestedStats( {
+				blunt: new lib.NestedStats( { area: 1 , damage: 10 } )
+			} )
+		} ) ;
+
+		expect( stats.nestedStats.stats.damages[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.pathKey ).to.be( 'damages' ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.pathKey ).to.be( 'damages.blunt' ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.pathKey ).to.be( 'damages.blunt.damage' ) ;
+
+
+		stats = new lib.StatsTable( new lib.NestedStats( {
+			damages: new lib.NestedStats( {
+				blunt: new lib.NestedStats( { area: 1 , damage: 10 } )
+			} )
+		} ) ) ;
+
+		expect( stats.nestedStats.stats.damages[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.pathKey ).to.be( 'damages' ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.pathKey ).to.be( 'damages.blunt' ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.pathKey ).to.be( 'damages.blunt.damage' ) ;
+	} ) ;
+
 	it( "StatsTable clone" , () => {
 		var stats = new lib.StatsTable( {
 			hp: {
@@ -841,21 +886,32 @@ describe( "Wild Nested Stats" , () => {
 	it( "StatsTable with wildcard stats creation" , () => {
 		var stats = new lib.StatsTable( {
 			damages: new lib.WildNestedStats( {
-				_: { area: 1 , damage: 1 } ,
+				_: { area: 1 , damage: 0 } ,
 				blunt: { area: 1 , damage: 10 }
 			} )
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
 		
-		expect( stats.nestedStats.stats.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.base ).to.be( 10 ) ;
 		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
 
-		expect( stats.nestedStats.stats.damages['*'].damage.base ).to.be( 1 ) ;
-		expect( statsP.damages['*'].damage.base ).to.be( 1 ) ;
+		expect( stats.nestedStats.stats.damages.template.stats.damage.base ).to.be( 0 ) ;
+		expect( statsP.damages.template.damage.base ).to.be( 0 ) ;
 
-		expect( stats.nestedStats.stats.damages.blunt.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
-		expect( stats.nestedStats.stats.damages.blunt.damage.pathKey ).to.be( 'damages.blunt.damage' ) ;
+		// Check re-attachment for stats
+		expect( stats.nestedStats.stats.damages[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.pathKey ).to.be( 'damages' ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.pathKey ).to.be( 'damages.blunt' ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.pathKey ).to.be( 'damages.blunt.damage' ) ;
+
+		// Check re-attachment for template stats
+		expect( stats.nestedStats.stats.damages.template[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.template.pathKey ).to.be( 'damages.template' ) ;
+		expect( stats.nestedStats.stats.damages.template.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+		expect( stats.nestedStats.stats.damages.template.stats.damage.pathKey ).to.be( 'damages.template.damage' ) ;
 	} ) ;
 	return ;
 
@@ -935,6 +991,7 @@ describe( "Wild Nested Stats" , () => {
 		expect( statsP.damages.fire ).to.be( undefined ) ;
 		expect( statsP.damages.lightning ).to.be( undefined ) ;
 	} ) ;
+	return ;
 
 	it( "Nested wildcard" , () => {
 		var stats = new lib.StatsTable( {
