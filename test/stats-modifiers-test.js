@@ -62,6 +62,7 @@ describe( "Stats Table instanciation and cloning tests" , () => {
 		expect( statsP.strength ).to.be( statsP.strength ) ;	// <- check that the proxy is cached
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.actual ).to.be( 12 ) ;
+		expect( statsP.strength[ lib.SYMBOL_PATH_KEY ] ).to.be( 'strength' ) ;
 
 		expect( statsP ).to.only.have.own.keys( 'mods' , 'strength' , 'dexterity' , 'hp' ) ;
 	} ) ;
@@ -92,6 +93,7 @@ describe( "Stats Table instanciation and cloning tests" , () => {
 		expect( statsP.hp ).to.only.have.own.keys( 'max' , 'remaining' ) ;
 		expect( statsP.hp ).not.to.be( stats.nestedStats.stats.hp ) ;
 		expect( statsP.hp ).to.be( statsP.hp ) ;	// <- check that the proxy is cached
+		expect( statsP.hp[ lib.SYMBOL_PATH_KEY ] ).to.be( 'hp' ) ;
 
 		expect( stats.nestedStats.stats.hp.stats.max ).to.be.a( lib.Stat ) ;
 		expect( stats.nestedStats.stats.hp.stats.max[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
@@ -101,6 +103,7 @@ describe( "Stats Table instanciation and cloning tests" , () => {
 		expect( statsP.hp.max ).to.be( statsP.hp.max ) ;	// <- check that the proxy is cached
 		expect( statsP.hp.max.base ).to.be( 20 ) ;
 		expect( statsP.hp.max.actual ).to.be( 20 ) ;
+		expect( statsP.hp.max[ lib.SYMBOL_PATH_KEY ] ).to.be( 'hp.max' ) ;
 
 		expect( stats.nestedStats.stats.hp.stats.remaining ).to.be.a( lib.Stat ) ;
 		expect( stats.nestedStats.stats.hp.stats.remaining[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
@@ -108,16 +111,19 @@ describe( "Stats Table instanciation and cloning tests" , () => {
 		expect( stats.nestedStats.stats.hp.stats.remaining.base ).to.be( 14 ) ;
 		expect( statsP.hp.remaining.base ).to.be( 14 ) ;
 		expect( statsP.hp.remaining.actual ).to.be( 14 ) ;
+		expect( statsP.hp.remaining[ lib.SYMBOL_PATH_KEY ] ).to.be( 'hp.remaining' ) ;
 
 
 		expect( stats.nestedStats.stats.damages ).to.be.a( lib.NestedStats ) ;
 		expect( stats.nestedStats.stats.damages[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.nestedStats.stats.damages.pathKey ).to.be( 'damages' ) ;
-		expect( statsP.hp ).to.only.have.own.keys( 'cutting' , 'fire' ) ;
+		expect( statsP.damages ).to.only.have.own.keys( 'cutting' , 'fire' ) ;
+		expect( statsP.damages[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages' ) ;
 
 		expect( stats.nestedStats.stats.damages.stats.cutting ).to.be.a( lib.NestedStats ) ;
 		expect( stats.nestedStats.stats.damages.stats.cutting[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.nestedStats.stats.damages.stats.cutting.pathKey ).to.be( 'damages.cutting' ) ;
+		expect( statsP.damages.cutting[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.cutting' ) ;
 
 		expect( stats.nestedStats.stats.damages.stats.cutting.stats.damage ).to.be.a( lib.Stat ) ;
 		expect( stats.nestedStats.stats.damages.stats.cutting.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
@@ -125,11 +131,13 @@ describe( "Stats Table instanciation and cloning tests" , () => {
 		expect( stats.nestedStats.stats.damages.stats.cutting.stats.damage.base ).to.be( 24 ) ;
 		expect( statsP.damages.cutting.damage.base ).to.be( 24 ) ;
 		expect( statsP.damages.cutting.damage.actual ).to.be( 24 ) ;
+		expect( statsP.damages.cutting.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.cutting.damage' ) ;
 
 
 		expect( stats.nestedStats.stats.damages.stats.fire ).to.be.a( lib.NestedStats ) ;
 		expect( stats.nestedStats.stats.damages.stats.fire[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.nestedStats.stats.damages.stats.fire.pathKey ).to.be( 'damages.fire' ) ;
+		expect( statsP.damages.fire[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire' ) ;
 
 		expect( stats.nestedStats.stats.damages.stats.fire.stats.damage ).to.be.a( lib.Stat ) ;
 		expect( stats.nestedStats.stats.damages.stats.fire.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
@@ -137,6 +145,7 @@ describe( "Stats Table instanciation and cloning tests" , () => {
 		expect( stats.nestedStats.stats.damages.stats.fire.stats.damage.base ).to.be( 8 ) ;
 		expect( statsP.damages.fire.damage.base ).to.be( 8 ) ;
 		expect( statsP.damages.fire.damage.actual ).to.be( 8 ) ;
+		expect( statsP.damages.fire.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire.damage' ) ;
 	} ) ;
 
 	it( "Should re-attach cleanly when creating Nested Stats explicitly" , () => {
@@ -904,6 +913,10 @@ describe( "Wild Nested Stats" , () => {
 		expect( stats.nestedStats.stats.damages.template.stats.damage.base ).to.be( 0 ) ;
 		expect( statsP.damages.template.damage.base ).to.be( 0 ) ;
 		expect( statsP.damages ).to.only.have.own.keys( 'template' , 'blunt' , 'fire' ) ;
+		expect( statsP.damages[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages' ) ;
+		expect( statsP.damages.fire[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire' ) ;
+		expect( statsP.damages.blunt[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.blunt' ) ;
+		expect( statsP.damages.fire.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire.damage' ) ;
 
 		expect( statsP.damages.base.blunt.damage.base ).to.be( 10 ) ;
 		expect( statsP.damages.base ).to.only.have.own.keys( 'blunt' , 'fire' ) ;
