@@ -883,11 +883,12 @@ describe( "Traits" , () => {
 
 describe( "Wild Nested Stats" , () => {
 
-	it( "StatsTable with wildcard stats creation" , () => {
+	it( "WildNestedStats creation and proxy features" , () => {
 		var stats = new lib.StatsTable( {
 			damages: new lib.WildNestedStats( {
 				_: { area: 1 , damage: 0 } ,
-				blunt: { area: 1 , damage: 10 }
+				blunt: { area: 1 , damage: 10 } ,
+				fire: { area: 2 , damage: 4 }
 			} )
 		} ) ;
 		
