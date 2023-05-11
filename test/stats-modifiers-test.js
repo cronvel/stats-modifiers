@@ -62,6 +62,8 @@ describe( "Stats Table instanciation and cloning tests" , () => {
 		expect( statsP.strength ).to.be( statsP.strength ) ;	// <- check that the proxy is cached
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.actual ).to.be( 12 ) ;
+
+		expect( statsP ).to.only.have.own.keys( 'mods' , 'strength' , 'dexterity' , 'hp' ) ;
 	} ) ;
 
 	it( "StatsTable with nested stats creation and basic proxy features" , () => {
@@ -87,6 +89,7 @@ describe( "Stats Table instanciation and cloning tests" , () => {
 		expect( stats.nestedStats.stats.hp ).to.be.a( lib.NestedStats ) ;
 		expect( stats.nestedStats.stats.hp[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.nestedStats.stats.hp.pathKey ).to.be( 'hp' ) ;
+		expect( statsP.hp ).to.only.have.own.keys( 'max' , 'remaining' ) ;
 		expect( statsP.hp ).not.to.be( stats.nestedStats.stats.hp ) ;
 		expect( statsP.hp ).to.be( statsP.hp ) ;	// <- check that the proxy is cached
 
@@ -110,6 +113,7 @@ describe( "Stats Table instanciation and cloning tests" , () => {
 		expect( stats.nestedStats.stats.damages ).to.be.a( lib.NestedStats ) ;
 		expect( stats.nestedStats.stats.damages[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.nestedStats.stats.damages.pathKey ).to.be( 'damages' ) ;
+		expect( statsP.hp ).to.only.have.own.keys( 'cutting' , 'fire' ) ;
 
 		expect( stats.nestedStats.stats.damages.stats.cutting ).to.be.a( lib.NestedStats ) ;
 		expect( stats.nestedStats.stats.damages.stats.cutting[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
@@ -899,6 +903,10 @@ describe( "Wild Nested Stats" , () => {
 
 		expect( stats.nestedStats.stats.damages.template.stats.damage.base ).to.be( 0 ) ;
 		expect( statsP.damages.template.damage.base ).to.be( 0 ) ;
+		expect( statsP.damages ).to.only.have.own.keys( 'template' , 'blunt' , 'fire' ) ;
+
+		expect( statsP.damages.base.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.base ).to.only.have.own.keys( 'blunt' , 'fire' ) ;
 
 		// Check re-attachment for stats
 		expect( stats.nestedStats.stats.damages[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
