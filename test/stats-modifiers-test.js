@@ -907,20 +907,28 @@ describe( "Wild Nested Stats" , () => {
 		
 		var statsP = stats.getProxy() ;
 		
-		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.base ).to.be( 10 ) ;
-		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
 
-		expect( stats.nestedStats.stats.damages.template.stats.damage.base ).to.be( 0 ) ;
-		expect( statsP.damages.template.damage.base ).to.be( 0 ) ;
 		//log( "statsP.damages: %[5l50000s5000]I" , statsP.damages ) ;
-		//expect( statsP.damages ).to.only.have.own.keys( 'template' , 'blunt' , 'fire' ) ;
 		expect( statsP.damages[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages' ) ;
 		expect( statsP.damages.fire[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire' ) ;
 		expect( statsP.damages.blunt[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.blunt' ) ;
 		expect( statsP.damages.fire.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire.damage' ) ;
+		expect( statsP.damages.base.fire[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire' ) ;
+		expect( statsP.damages.base.fire.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire.damage' ) ;
+		expect( statsP.damages.actual.fire[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire' ) ;
+		expect( statsP.damages.actual.fire.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire.damage' ) ;
+		expect( statsP.damages.template.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.template.damage' ) ;
 
-		expect( statsP.damages.base.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages ).to.only.have.own.keys( 'template' , 'blunt' , 'fire' ) ;
+		expect( stats.nestedStats.stats.damages.template.stats.damage.base ).to.be( 0 ) ;
+		expect( statsP.damages.template.damage.base ).to.be( 0 ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
 		expect( statsP.damages.base ).to.only.have.own.keys( 'blunt' , 'fire' ) ;
+		expect( statsP.damages.base.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.actual ).to.only.have.own.keys( 'blunt' , 'fire' ) ;
+		expect( statsP.damages.actual.blunt.damage.base ).to.be( 10 ) ;	// it makes no sense to mix 'actual' and 'base', but we test it anyway
+		expect( statsP.damages.actual.blunt.damage.actual ).to.be( 10 ) ;
 
 		// Check re-attachment for stats
 		expect( stats.nestedStats.stats.damages[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
@@ -936,41 +944,38 @@ describe( "Wild Nested Stats" , () => {
 		expect( stats.nestedStats.stats.damages.template.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.nestedStats.stats.damages.template.stats.damage.pathKey ).to.be( 'damages.template.damage' ) ;
 	} ) ;
-	return ;
 
-	it( "Adding/removing a ModifiersTable to a StatsTable" , () => {
+	it( "xxx Adding/removing a ModifiersTable to a StatsTable having WildNestedStats" , () => {
 		var stats = new lib.StatsTable( {
-			damages: {
-				"*": { damage: 1 } ,
-				blunt: { damage: 10 }
-			}
+			damages: new lib.WildNestedStats( {
+				_: { area: 1 , damage: 0 } ,
+				blunt: { area: 1 , damage: 10 } ,
+				fire: { area: 2 , damage: 4 }
+			} )
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
 
-		expect( statsP.damages.base ).to.be.a( Set ) ;
-		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
-		expect( statsP.damages.actual ).to.be.a( Set ) ;
-		expect( statsP.damages.actual ).to.only.contain( 'blunt' ) ;
-		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
-		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
-		expect( statsP.damages.fire ).to.be( undefined ) ;
-		
 		var mods = new lib.ModifiersTable( 'fire-brand' , {
-			"damages": [ '#+' , 'fire' ] ,		// Add a fire type to the wild-card
-			"damages.fire.damage": [ '+' , 5 ]
+			"damages.lightning": [ '#' ] ,		// Add an lightning type to the wild nested stats
+			"damages.lightning.damage": [ '+' , 5 ]
 		} ) ;
 		
 		statsP.stack( mods ) ;
+		expect( statsP.damages.actual.lightning ).to.be.truthy() ;
+		return ;
 
-		expect( statsP.damages.base ).to.be.a( Set ) ;
-		expect( statsP.damages.base ).to.only.contain( 'blunt' ) ;
-		expect( statsP.damages.actual ).to.be.a( Set ) ;
-		expect( statsP.damages.actual ).to.only.contain( 'blunt' , 'fire' ) ;
+		expect( statsP.damages ).to.only.have.own.keys( 'template' , 'blunt' , 'fire' ) ;
+		expect( stats.nestedStats.stats.damages.template.stats.damage.base ).to.be( 0 ) ;
+		expect( statsP.damages.template.damage.base ).to.be( 0 ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.base ).to.be( 10 ) ;
 		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
-		expect( statsP.damages.blunt.damage.actual ).to.be( 10 ) ;
-		expect( statsP.damages.fire.damage.base ).to.be( 1 ) ;
-		expect( statsP.damages.fire.damage.actual ).to.be( 6 ) ;
+		expect( statsP.damages.base ).to.only.have.own.keys( 'blunt' , 'fire' ) ;
+		expect( statsP.damages.base.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.actual ).to.only.have.own.keys( 'blunt' , 'fire' , 'lightning' ) ;
+		expect( statsP.damages.actual.lightning.damage.base ).to.be( 0 ) ;	// it makes no sense to mix 'actual' and 'base', but we test it anyway
+		expect( statsP.damages.actual.lightning.damage.actual ).to.be( 5 ) ;
+		return ;
 
 		statsP.unstack( mods ) ;
 
