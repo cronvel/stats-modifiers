@@ -572,7 +572,7 @@ describe( "Attaching Modifiers Tables to Stats Tables" , () => {
 		expect( statsP.hp.max.actual ).to.be( 22 ) ;
 	} ) ;
 		
-	it( "xxx Updating base value of a StatsTable having a ModifiersTable" , () => {
+	it( "Updating base value of a StatsTable having a ModifiersTable" , () => {
 		var stats = new lib.StatsTable( {
 			strength: 12 ,
 			dexterity: 17 ,
@@ -592,11 +592,6 @@ describe( "Attaching Modifiers Tables to Stats Tables" , () => {
 		
 		stats.stack( mods ) ;
 
-		// --------------- TMP:
-		statsP.strength = 8 ;
-		return ;
-
-		
 		expect( statsP.strength.base ).to.be( 12 ) ;
 		expect( statsP.strength.actual ).to.be( 17 ) ;
 		expect( statsP.dexterity.base ).to.be( 17 ) ;
