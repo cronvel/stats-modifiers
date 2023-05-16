@@ -311,6 +311,7 @@ describe( "Modifiers Table instanciation and cloning tests" , () => {
 		
 		expect( mods.statsModifiers.strength ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
 		expect( modsP.strength ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
+		expect( modsP.strength.plus ).to.be.partially.like( { id: 'staff' , operator: 'plus' , operand: 5 } ) ;
 
 		expect( mods.statsModifiers.dexterity ).to.be.partially.like( {
 			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
@@ -325,7 +326,7 @@ describe( "Modifiers Table instanciation and cloning tests" , () => {
 	it( "ModifiersTable for nested stats creation and basic proxy features" , () => {
 		var mods = new lib.ModifiersTable( 'staff' , {
 			"hp.max": [ '+' , 5 ] ,
-			"damages.0.damage": [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+			"damages.blunt.damage": [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
 		} ) ;
 		
 		var modsP = mods.getProxy() ;
@@ -333,11 +334,11 @@ describe( "Modifiers Table instanciation and cloning tests" , () => {
 		expect( mods.statsModifiers['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
 		expect( modsP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
 
-		expect( mods.statsModifiers['damages.0.damage'] ).to.be.partially.like( {
+		expect( mods.statsModifiers['damages.blunt.damage'] ).to.be.partially.like( {
 			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
 			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
 		} ) ;
-		expect( modsP['damages.0.damage'] ).to.be.partially.like( {
+		expect( modsP['damages.blunt.damage'] ).to.be.partially.like( {
 			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
 			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
 		} ) ;
@@ -386,7 +387,7 @@ describe( "Modifiers Table instanciation and cloning tests" , () => {
 	it( "ModifiersTable clone" , () => {
 		var mods = new lib.ModifiersTable( 'staff' , {
 			"hp.max": [ '+' , 5 ] ,
-			"damages.0.damage": [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+			"damages.blunt.damage": [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
 		} ) ;
 		
 		var modsP = mods.getProxy() ;
@@ -399,11 +400,11 @@ describe( "Modifiers Table instanciation and cloning tests" , () => {
 		expect( modsClone.statsModifiers['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
 		expect( modsCloneP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff' , operator: 'plus' , operand: 5 } } ) ;
 
-		expect( modsClone.statsModifiers['damages.0.damage'] ).to.be.partially.like( {
+		expect( modsClone.statsModifiers['damages.blunt.damage'] ).to.be.partially.like( {
 			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
 			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
 		} ) ;
-		expect( modsCloneP['damages.0.damage'] ).to.be.partially.like( {
+		expect( modsCloneP['damages.blunt.damage'] ).to.be.partially.like( {
 			plus: { id: 'staff' , operator: 'plus' , operand: -2 } ,
 			multiply: { id: 'staff' , operator: 'multiply' , operand: 0.8 }
 		} ) ;
@@ -421,7 +422,7 @@ describe( "Modifiers Table instanciation and cloning tests" , () => {
 		// Regular clone, changing the ID
 		mods = new lib.ModifiersTable( 'staff' , {
 			"hp.max": [ '+' , 5 ] ,
-			"damages.0.damage": [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
+			"damages.blunt.damage": [ [ '-' , 2 ] , [ '*' , 0.8 ] ]
 		} ) ;
 		
 		modsP = mods.getProxy() ;
@@ -434,11 +435,11 @@ describe( "Modifiers Table instanciation and cloning tests" , () => {
 		expect( modsClone.statsModifiers['hp.max'] ).to.be.partially.like( { plus: { id: 'staff_clone_0' , operator: 'plus' , operand: 5 } } ) ;
 		expect( modsCloneP['hp.max'] ).to.be.partially.like( { plus: { id: 'staff_clone_0' , operator: 'plus' , operand: 5 } } ) ;
 
-		expect( modsClone.statsModifiers['damages.0.damage'] ).to.be.partially.like( {
+		expect( modsClone.statsModifiers['damages.blunt.damage'] ).to.be.partially.like( {
 			plus: { id: 'staff_clone_0' , operator: 'plus' , operand: -2 } ,
 			multiply: { id: 'staff_clone_0' , operator: 'multiply' , operand: 0.8 }
 		} ) ;
-		expect( modsCloneP['damages.0.damage'] ).to.be.partially.like( {
+		expect( modsCloneP['damages.blunt.damage'] ).to.be.partially.like( {
 			plus: { id: 'staff_clone_0' , operator: 'plus' , operand: -2 } ,
 			multiply: { id: 'staff_clone_0' , operator: 'multiply' , operand: 0.8 }
 		} ) ;
