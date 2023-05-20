@@ -2549,6 +2549,68 @@ describe( "Operators" , () => {
 		expect( statsP.dexterity.actual ).to.be( 11 ) ;
 	} ) ;
 
+	it( "base (:) operator" , () => {
+		var stats = new lib.StatsTable( { dexterity: 14 } ) ;
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.dexterity.base ).to.be( 14 ) ;
+		expect( statsP.dexterity.actual ).to.be( 14 ) ;
+
+		var mods = new lib.ModifiersTable( 'mediocre-ring' , {
+			dexterity: [ ':' , 8 ]
+		} ) ;
+		
+		var mods2 = new lib.ModifiersTable( 'agility-ring' , {
+			dexterity: [ '+' , 2 ]
+		} ) ;
+		
+		statsP.stack( mods ) ;
+		expect( statsP.dexterity.base ).to.be( 14 ) ;
+		expect( statsP.dexterity.actual ).to.be( 8 ) ;
+
+		// HAS effect!
+		statsP.stack( mods2 ) ;
+		expect( statsP.dexterity.base ).to.be( 14 ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+
+		stats = new lib.StatsTable( { dexterity: 5 } ) ;
+		statsP = stats.getProxy() ;
+		
+		expect( statsP.dexterity.base ).to.be( 5 ) ;
+		expect( statsP.dexterity.actual ).to.be( 5 ) ;
+
+		statsP.stack( mods ) ;
+		expect( statsP.dexterity.base ).to.be( 5 ) ;
+		expect( statsP.dexterity.actual ).to.be( 8 ) ;
+
+		// HAS effect!
+		statsP.stack( mods2 ) ;
+		expect( statsP.dexterity.base ).to.be( 5 ) ;
+		expect( statsP.dexterity.actual ).to.be( 10 ) ;
+
+		// String
+		stats = new lib.StatsTable( { name: "Alice" } ) ;
+		statsP = stats.getProxy() ;
+		mods = new lib.ModifiersTable( 'bobbification-ring' , {
+			name: [ ':' , "Bob" ]
+		} ) ;
+		
+		mods2 = new lib.ModifiersTable( 'anonymous-ring' , {
+			name: [ '_+' , "357" ]
+		} ) ;
+		
+		expect( statsP.name.base ).to.be( "Alice" ) ;
+		expect( statsP.name.actual ).to.be( "Alice" ) ;
+
+		statsP.stack( mods ) ;
+		expect( statsP.name.base ).to.be( "Alice" ) ;
+		expect( statsP.name.actual ).to.be( "Bob" ) ;
+
+		statsP.stack( mods2 ) ;
+		expect( statsP.name.base ).to.be( "Alice" ) ;
+		expect( statsP.name.actual ).to.be( "Bob 357" ) ;
+	} ) ;
+
 	it( "set (=) operator" , () => {
 		var stats = new lib.StatsTable( { dexterity: 14 } ) ;
 		var statsP = stats.getProxy() ;
@@ -2565,13 +2627,11 @@ describe( "Operators" , () => {
 		} ) ;
 		
 		statsP.stack( mods ) ;
-		
 		expect( statsP.dexterity.base ).to.be( 14 ) ;
 		expect( statsP.dexterity.actual ).to.be( 8 ) ;
 
 		// No effect!
 		statsP.stack( mods2 ) ;
-		
 		expect( statsP.dexterity.base ).to.be( 14 ) ;
 		expect( statsP.dexterity.actual ).to.be( 8 ) ;
 
@@ -2582,15 +2642,39 @@ describe( "Operators" , () => {
 		expect( statsP.dexterity.actual ).to.be( 5 ) ;
 
 		statsP.stack( mods ) ;
-		
 		expect( statsP.dexterity.base ).to.be( 5 ) ;
 		expect( statsP.dexterity.actual ).to.be( 8 ) ;
 
 		// No effect!
 		statsP.stack( mods2 ) ;
-		
 		expect( statsP.dexterity.base ).to.be( 5 ) ;
 		expect( statsP.dexterity.actual ).to.be( 8 ) ;
+
+		// String
+		stats = new lib.StatsTable( { name: "Alice" } ) ;
+		statsP = stats.getProxy() ;
+		mods = new lib.ModifiersTable( 'bobbification-ring' , {
+			name: [ '=' , "Bob" ]
+		} ) ;
+		
+		mods2 = new lib.ModifiersTable( 'anonymous-ring' , {
+			name: [ '_+' , "357" ]
+		} ) ;
+		
+		expect( statsP.name.base ).to.be( "Alice" ) ;
+		expect( statsP.name.actual ).to.be( "Alice" ) ;
+
+		statsP.stack( mods ) ;
+		expect( statsP.name.base ).to.be( "Alice" ) ;
+		expect( statsP.name.actual ).to.be( "Bob" ) ;
+
+		statsP.stack( mods2 ) ;
+		expect( statsP.name.base ).to.be( "Alice" ) ;
+		expect( statsP.name.actual ).to.be( "Bob" ) ;
+
+		statsP.unstack( mods ) ;
+		expect( statsP.name.base ).to.be( "Alice" ) ;
+		expect( statsP.name.actual ).to.be( "Alice 357" ) ;
 	} ) ;
 
 	it( "atLeast (>=) operator" , () => {
@@ -2679,50 +2763,6 @@ describe( "Operators" , () => {
 		
 		expect( statsP.dexterity.base ).to.be( 1 ) ;
 		expect( statsP.dexterity.actual ).to.be( 3 ) ;
-	} ) ;
-
-	it( "base (:) operator" , () => {
-		var stats = new lib.StatsTable( { dexterity: 14 } ) ;
-		var statsP = stats.getProxy() ;
-		
-		expect( statsP.dexterity.base ).to.be( 14 ) ;
-		expect( statsP.dexterity.actual ).to.be( 14 ) ;
-
-		var mods = new lib.ModifiersTable( 'mediocre-ring' , {
-			dexterity: [ ':' , 8 ]
-		} ) ;
-		
-		var mods2 = new lib.ModifiersTable( 'agility-ring' , {
-			dexterity: [ '+' , 2 ]
-		} ) ;
-		
-		statsP.stack( mods ) ;
-		
-		expect( statsP.dexterity.base ).to.be( 14 ) ;
-		expect( statsP.dexterity.actual ).to.be( 8 ) ;
-
-		// HAS effect!
-		statsP.stack( mods2 ) ;
-		
-		expect( statsP.dexterity.base ).to.be( 14 ) ;
-		expect( statsP.dexterity.actual ).to.be( 10 ) ;
-
-		stats = new lib.StatsTable( { dexterity: 5 } ) ;
-		statsP = stats.getProxy() ;
-		
-		expect( statsP.dexterity.base ).to.be( 5 ) ;
-		expect( statsP.dexterity.actual ).to.be( 5 ) ;
-
-		statsP.stack( mods ) ;
-		
-		expect( statsP.dexterity.base ).to.be( 5 ) ;
-		expect( statsP.dexterity.actual ).to.be( 8 ) ;
-
-		// HAS effect!
-		statsP.stack( mods2 ) ;
-		
-		expect( statsP.dexterity.base ).to.be( 5 ) ;
-		expect( statsP.dexterity.actual ).to.be( 10 ) ;
 	} ) ;
 
 	it( "percent (%) operator (works with KFG percent numbers)" , () => {
