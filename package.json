@@ -1,6 +1,6 @@
 {
   "name": "stats-modifiers",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "description": "Stats and modifiers lib for gamedev.",
   "main": "lib/stats-modifiers.js",
   "engines": {
