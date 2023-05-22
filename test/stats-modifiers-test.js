@@ -1062,63 +1062,93 @@ describe( "Wild Nested Stats" , () => {
 	} ) ;
 
 	it( "zzz WildNestedStats .fixAttachment() and .setStat() bugs" , () => {
-		var wildNestedStats = new lib.WildNestedStats( {
+		var wildNestedStats , stats , statsP ;
+
+		var testAllExpectations = () => {
+			expect( statsP.damages[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages' ) ;
+			expect( statsP.damages.fire[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire' ) ;
+			expect( statsP.damages.blunt[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.blunt' ) ;
+			expect( statsP.damages.fire.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire.damage' ) ;
+			expect( statsP.damages.base.fire[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire' ) ;
+			expect( statsP.damages.base.fire.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire.damage' ) ;
+			expect( statsP.damages.actual.fire[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire' ) ;
+			expect( statsP.damages.actual.fire.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire.damage' ) ;
+			expect( statsP.damages.template.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.template.damage' ) ;
+
+			expect( statsP.damages ).to.only.have.own.keys( 'template' , 'blunt' , 'fire' ) ;
+			expect( stats.nestedStats.stats.damages.template.stats.damage.base ).to.be( 0 ) ;
+			expect( statsP.damages.template.damage.base ).to.be( 0 ) ;
+			expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.base ).to.be( 10 ) ;
+			expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+			expect( stats.nestedStats.stats.damages.stats.fire.stats.damage.base ).to.be( 4 ) ;
+			expect( statsP.damages.fire.damage.base ).to.be( 4 ) ;
+			expect( statsP.damages.base ).to.only.have.own.keys( 'blunt' , 'fire' ) ;
+			expect( statsP.damages.base.blunt.damage.base ).to.be( 10 ) ;
+			expect( statsP.damages.base.fire.damage.base ).to.be( 4 ) ;
+			expect( statsP.damages.actual ).to.only.have.own.keys( 'blunt' , 'fire' ) ;
+			expect( statsP.damages.actual.blunt.damage.base ).to.be( 10 ) ;	// it makes no sense to mix 'actual' and 'base', but we test it anyway
+			expect( statsP.damages.actual.blunt.damage.actual ).to.be( 10 ) ;
+			expect( statsP.damages.actual.fire.damage.base ).to.be( 4 ) ;	// it makes no sense to mix 'actual' and 'base', but we test it anyway
+			expect( statsP.damages.actual.fire.damage.actual ).to.be( 4 ) ;
+
+			// Check re-attachment for stats
+			expect( stats.nestedStats.stats.damages[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+			expect( stats.nestedStats.stats.damages.pathKey ).to.be( 'damages' ) ;
+			expect( stats.nestedStats.stats.damages.stats.blunt[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+			expect( stats.nestedStats.stats.damages.stats.blunt.pathKey ).to.be( 'damages.blunt' ) ;
+			expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+			expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.pathKey ).to.be( 'damages.blunt.damage' ) ;
+
+			// Check re-attachment for template stats
+			expect( stats.nestedStats.stats.damages.template[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+			expect( stats.nestedStats.stats.damages.template.pathKey ).to.be( 'damages.template' ) ;
+			expect( stats.nestedStats.stats.damages.template.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
+			expect( stats.nestedStats.stats.damages.template.stats.damage.pathKey ).to.be( 'damages.template.damage' ) ;
+		} ;
+
+		wildNestedStats = new lib.WildNestedStats( {
 			_: { area: 1 , damage: 0 } ,
 			blunt: { area: 1 , damage: 10 } ,
 			fire: { area: 2 , damage: 4 }
 		} ) ;
 		
-		var stats = new lib.StatsTable( {
-			damages: new lib.WildNestedStats( {} )
-			//damages: wildNestedStats
-			//damages: wildNestedStats.getProxy()
-		} ) ;
+
+		// Test 1: .setStat() on a wild nested stats
 		
-		var statsP = stats.getProxy() ;
+		stats = new lib.StatsTable( {
+			damages: new lib.WildNestedStats( {} )
+		} ) ;
+		statsP = stats.getProxy() ;
 		stats.nestedStats.setStat( 'damages' , wildNestedStats ) ;
 		//log( "statsP.damages: %[5l50000s5000]I" , statsP.damages ) ;
 		log( "stats.nestedStats: %[10l50000s5000]I" , stats.nestedStats ) ;
-		
-		expect( statsP.damages[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages' ) ;
-		expect( statsP.damages.fire[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire' ) ;
-		expect( statsP.damages.blunt[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.blunt' ) ;
-		expect( statsP.damages.fire.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire.damage' ) ;
-		expect( statsP.damages.base.fire[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire' ) ;
-		expect( statsP.damages.base.fire.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire.damage' ) ;
-		expect( statsP.damages.actual.fire[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire' ) ;
-		expect( statsP.damages.actual.fire.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire.damage' ) ;
-		expect( statsP.damages.template.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.template.damage' ) ;
+		testAllExpectations() ;
 
-		expect( statsP.damages ).to.only.have.own.keys( 'template' , 'blunt' , 'fire' ) ;
-		expect( stats.nestedStats.stats.damages.template.stats.damage.base ).to.be( 0 ) ;
-		expect( statsP.damages.template.damage.base ).to.be( 0 ) ;
-		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.base ).to.be( 10 ) ;
-		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
-		expect( stats.nestedStats.stats.damages.stats.fire.stats.damage.base ).to.be( 4 ) ;
-		expect( statsP.damages.fire.damage.base ).to.be( 4 ) ;
-		expect( statsP.damages.base ).to.only.have.own.keys( 'blunt' , 'fire' ) ;
-		expect( statsP.damages.base.blunt.damage.base ).to.be( 10 ) ;
-		expect( statsP.damages.base.fire.damage.base ).to.be( 4 ) ;
-		expect( statsP.damages.actual ).to.only.have.own.keys( 'blunt' , 'fire' ) ;
-		expect( statsP.damages.actual.blunt.damage.base ).to.be( 10 ) ;	// it makes no sense to mix 'actual' and 'base', but we test it anyway
-		expect( statsP.damages.actual.blunt.damage.actual ).to.be( 10 ) ;
-		expect( statsP.damages.actual.fire.damage.base ).to.be( 4 ) ;	// it makes no sense to mix 'actual' and 'base', but we test it anyway
-		expect( statsP.damages.actual.fire.damage.actual ).to.be( 4 ) ;
 
-		// Check re-attachment for stats
-		expect( stats.nestedStats.stats.damages[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
-		expect( stats.nestedStats.stats.damages.pathKey ).to.be( 'damages' ) ;
-		expect( stats.nestedStats.stats.damages.stats.blunt[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
-		expect( stats.nestedStats.stats.damages.stats.blunt.pathKey ).to.be( 'damages.blunt' ) ;
-		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
-		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.pathKey ).to.be( 'damages.blunt.damage' ) ;
+		// Test 2: create with a wild nested stats proxy
 
-		// Check re-attachment for template stats
-		expect( stats.nestedStats.stats.damages.template[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
-		expect( stats.nestedStats.stats.damages.template.pathKey ).to.be( 'damages.template' ) ;
-		expect( stats.nestedStats.stats.damages.template.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
-		expect( stats.nestedStats.stats.damages.template.stats.damage.pathKey ).to.be( 'damages.template.damage' ) ;
+		stats = new lib.StatsTable( {
+			damages: wildNestedStats.getProxy()
+		} ) ;
+		statsP = stats.getProxy() ;
+		//stats.nestedStats.setStat( 'damages' , wildNestedStats ) ;
+		//log( "statsP.damages: %[5l50000s5000]I" , statsP.damages ) ;
+		log( "stats.nestedStats: %[10l50000s5000]I" , stats.nestedStats ) ;
+		testAllExpectations() ;
+
+
+		// Test 3: create with a wild nested stats proxy, then .setStat()
+
+		stats = new lib.StatsTable( {
+			damages: wildNestedStats.getProxy()
+		} ) ;
+		statsP = stats.getProxy() ;
+		stats.nestedStats.setStat( 'damages' , wildNestedStats ) ;
+		//log( "statsP.damages: %[5l50000s5000]I" , statsP.damages ) ;
+		log( "stats.nestedStats: %[10l50000s5000]I" , stats.nestedStats ) ;
+		testAllExpectations() ;
 	} ) ;
+
 	it( "Nesting WildNestedStats" ) ;
 } ) ;
 
