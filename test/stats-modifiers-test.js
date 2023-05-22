@@ -1061,8 +1061,8 @@ describe( "Wild Nested Stats" , () => {
 		expect( statsP.damages.actual.fire.damage.actual ).to.be( 4 ) ;
 	} ) ;
 
-	it( "zzz WildNestedStats .fixAttachment() and .setStat() bugs" , () => {
-		var wildNestedStats , stats , statsP ;
+	it( "WildNestedStats .fixAttachment() and .setStat() bugs" , () => {
+		var wildNestedStats , wildNestedStats2 , stats , statsP ;
 
 		var testAllExpectations = () => {
 			expect( statsP.damages[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages' ) ;
@@ -1121,7 +1121,7 @@ describe( "Wild Nested Stats" , () => {
 		statsP = stats.getProxy() ;
 		stats.nestedStats.setStat( 'damages' , wildNestedStats ) ;
 		//log( "statsP.damages: %[5l50000s5000]I" , statsP.damages ) ;
-		log( "stats.nestedStats: %[10l50000s5000]I" , stats.nestedStats ) ;
+		//log( "stats.nestedStats: %[10l50000s5000]I" , stats.nestedStats ) ;
 		testAllExpectations() ;
 
 
@@ -1133,19 +1133,34 @@ describe( "Wild Nested Stats" , () => {
 		statsP = stats.getProxy() ;
 		//stats.nestedStats.setStat( 'damages' , wildNestedStats ) ;
 		//log( "statsP.damages: %[5l50000s5000]I" , statsP.damages ) ;
-		log( "stats.nestedStats: %[10l50000s5000]I" , stats.nestedStats ) ;
+		//log( "stats.nestedStats: %[10l50000s5000]I" , stats.nestedStats ) ;
 		testAllExpectations() ;
 
 
 		// Test 3: create with a wild nested stats proxy, then .setStat()
 
+		wildNestedStats = new lib.WildNestedStats( {
+			_: { area: 1 , damage: 0 } ,
+			blunt: { area: 1 , damage: 10 } ,
+			fire: { area: 2 , damage: 4 }
+		} ) ;
+		wildNestedStats2 = new lib.WildNestedStats( {
+			_: { area: 1 , damage: 0 } ,
+			blunt: { area: 1 , damage: 10 } ,
+			fire: { area: 2 , damage: 4 }
+		} ) ;
+		//wildNestedStats = new lib.WildNestedStats( {} ) ;
 		stats = new lib.StatsTable( {
 			damages: wildNestedStats.getProxy()
+			//damages: wildNestedStats.getProxy()[ lib.SYMBOL_UNPROXY ]
+			//damages: wildNestedStats
+			//damages: new lib.WildNestedStats( {} )
 		} ) ;
 		statsP = stats.getProxy() ;
+		//console.error( "\n\n>>>>>>>>>>>>>>>" ) ;
 		stats.nestedStats.setStat( 'damages' , wildNestedStats ) ;
 		//log( "statsP.damages: %[5l50000s5000]I" , statsP.damages ) ;
-		log( "stats.nestedStats: %[10l50000s5000]I" , stats.nestedStats ) ;
+		//log( "stats.nestedStats: %[10l50000s5000]I" , stats.nestedStats ) ;
 		testAllExpectations() ;
 	} ) ;
 
