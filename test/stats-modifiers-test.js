@@ -90,6 +90,9 @@ describe( "Stats Table instanciation and cloning tests" , () => {
 		expect( stats.nestedStats.stats.hp ).to.be.a( lib.NestedStats ) ;
 		expect( stats.nestedStats.stats.hp[ lib.SYMBOL_PARENT ] ).to.be( stats ) ;
 		expect( stats.nestedStats.stats.hp.pathKey ).to.be( 'hp' ) ;
+		expect( statsP.hp ).to.be.a( lib.NestedStats ) ;
+		expect( statsP.hp.constructor ).to.be( lib.NestedStats ) ;
+		expect( statsP.hp.constructor.name ).to.be( 'NestedStats' ) ;
 		expect( statsP.hp ).to.only.have.own.keys( 'max' , 'remaining' ) ;
 		expect( statsP.hp ).not.to.be( stats.nestedStats.stats.hp ) ;
 		expect( statsP.hp ).to.be( statsP.hp ) ;	// <- check that the proxy is cached
@@ -923,6 +926,10 @@ describe( "Wild Nested Stats" , () => {
 		expect( statsP.damages.actual.fire.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.fire.damage' ) ;
 		expect( statsP.damages.template.damage[ lib.SYMBOL_PATH_KEY ] ).to.be( 'damages.template.damage' ) ;
 
+		expect( statsP.damages ).to.be.a( lib.WildNestedStats ) ;
+		expect( statsP.damages.constructor ).to.be( lib.WildNestedStats ) ;
+		expect( statsP.damages.constructor.name ).to.be( 'WildNestedStats' ) ;
+
 		expect( statsP.damages ).to.only.have.own.keys( 'template' , 'blunt' , 'fire' ) ;
 		expect( stats.nestedStats.stats.damages.template.stats.damage.base ).to.be( 0 ) ;
 		expect( statsP.damages.template.damage.base ).to.be( 0 ) ;
@@ -1056,7 +1063,7 @@ describe( "Wild Nested Stats" , () => {
 		expect( statsP.damages.actual.fire.damage.actual ).to.be( 4 ) ;
 	} ) ;
 
-	it( "zzz ModifiersTable activate + nested object syntax for WildNestedStats" , () => {
+	it( "ModifiersTable activate + nested object syntax for WildNestedStats" , () => {
 		var stats = new lib.StatsTable( {
 			damages: new lib.WildNestedStats( {
 				_: { area: 1 , damage: 0 } ,
@@ -1729,6 +1736,12 @@ describe( "Pool Stats" , () => {
 		} ) ;
 		
 		var statsP = stats.getProxy() ;
+		//log( "%[5]Y" , stats.nestedStats ) ;
+		//log( "%[5]Y" , statsP ) ;
+		//console.log( stats ) ;
+		expect( statsP.hp ).to.be.a( lib.Pool ) ;
+		expect( statsP.hp.constructor ).to.be( lib.Pool ) ;
+		expect( statsP.hp.constructor.name ).to.be( 'Pool' ) ;
 		
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 8 ) ;
