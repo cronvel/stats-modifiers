@@ -961,6 +961,43 @@ describe( "Wild Nested Stats" , () => {
 		expect( stats.nestedStats.stats.damages.template.stats.damage.pathKey ).to.be( 'damages.template.damage' ) ;
 	} ) ;
 
+	it( "WildNestedStats cloning historical bug" , () => {
+		var stats = new lib.StatsTable( {
+			damages: new lib.WildNestedStats( {
+				_: { area: 1 , damage: 0 } ,
+				blunt: { area: 1 , damage: 10 } ,
+				fire: { area: 2 , damage: 4 }
+			} )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		var statsClone = stats.clone() ;
+		var statsCloneP = statsClone.getProxy() ;
+		/*
+		log( "source: %[5l50000s5000]I" , stats.nestedStats.stats.damages ) ;
+		log( "source->proxy: %[5l50000s5000]I" , stats.nestedStats.stats.damages.getProxy() ) ;
+		log( "source->clone: %[5l50000s5000]I" , stats.nestedStats.stats.damages.clone() ) ;
+		log( "source->clone->proxy: %[5l50000s5000]I" , statsCloneP.damages ) ;
+		*/
+		expect( statsCloneP.damages.template ).to.be.truthy() ;
+		expect( statsCloneP.damages.template.damage.base ).to.be( 0 ) ;
+		expect( statsCloneP.damages.template.area.base ).to.be( 1 ) ;
+
+		// Check re-attachment for statsClone
+		expect( statsClone.nestedStats.stats.damages[ lib.SYMBOL_PARENT ] ).to.be( statsClone ) ;
+		expect( statsClone.nestedStats.stats.damages.pathKey ).to.be( 'damages' ) ;
+		expect( statsClone.nestedStats.stats.damages.stats.blunt[ lib.SYMBOL_PARENT ] ).to.be( statsClone ) ;
+		expect( statsClone.nestedStats.stats.damages.stats.blunt.pathKey ).to.be( 'damages.blunt' ) ;
+		expect( statsClone.nestedStats.stats.damages.stats.blunt.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( statsClone ) ;
+		expect( statsClone.nestedStats.stats.damages.stats.blunt.stats.damage.pathKey ).to.be( 'damages.blunt.damage' ) ;
+
+		// Check re-attachment for template statsClone
+		expect( statsClone.nestedStats.stats.damages.template[ lib.SYMBOL_PARENT ] ).to.be( statsClone ) ;
+		expect( statsClone.nestedStats.stats.damages.template.pathKey ).to.be( 'damages.template' ) ;
+		expect( statsClone.nestedStats.stats.damages.template.stats.damage[ lib.SYMBOL_PARENT ] ).to.be( statsClone ) ;
+		expect( statsClone.nestedStats.stats.damages.template.stats.damage.pathKey ).to.be( 'damages.template.damage' ) ;
+	} ) ;
+
 	it( "Adding/removing a ModifiersTable to a StatsTable having WildNestedStats" , () => {
 		var stats = new lib.StatsTable( {
 			damages: new lib.WildNestedStats( {
