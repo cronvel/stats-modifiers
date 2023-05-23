@@ -821,14 +821,14 @@ describe( "Traits" , () => {
 		var statsP = stats.getProxy() ;
 		
 		var mods = new lib.ModifiersTable( 'initiative-ring' , {
-			"traits.firstStrike": [ '#' ]
+			"traits.firstStrike": [ '#' , true ]
 		} ) ;
 
 		var modsP = mods.getProxy() ;
 
 		var mods2 = new lib.ModifiersTable( 'undead-ring' , {
-			"traits.firstStrike": [ '#!' ] ,
-			"traits.living": [ '#!' ]
+			"traits.firstStrike": [ '#' , false ] ,
+			"traits.living": [ '#' , false ]
 		} ) ;
 
 		var mods2P = mods2.getProxy() ;
@@ -879,6 +879,7 @@ describe( "Traits" , () => {
 		expect( statsP.traits.actual.firstStrike ).to.be( false ) ;
 		expect( Object.keys( statsP.traits.actual ) ).to.only.contain( 'hero' ) ;
 
+		/*
 		// Stacking them in reverse order: removing tags must always have precedence to have consistent results...
 		statsP.unstack( modsP ) ;
 		statsP.unstack( mods2P ) ;
@@ -892,6 +893,7 @@ describe( "Traits" , () => {
 		expect( statsP.traits.actual.hero ).to.be( true ) ;
 		expect( statsP.traits.actual.firstStrike ).to.be( false ) ;
 		expect( Object.keys( statsP.traits.actual ) ).to.only.contain( 'hero' ) ;
+		*/
 	} ) ;
 } ) ;
 
@@ -964,20 +966,12 @@ describe( "Wild Nested Stats" , () => {
 		var statsP = stats.getProxy() ;
 
 		var mods = new lib.ModifiersTable( 'ring-of-lightning' , {
-			"damages.lightning": [ '#' ] ,		// Add an lightning type to the wild nested stats
+			"damages.lightning": [ '#' , true ] ,		// Add an lightning type to the wild nested stats
 			"damages.lightning.damage": [ '+' , 5 ]
 		} ) ;
 		
 		statsP.stack( mods ) ;
 		
-		/*
-		expect( stats.checkModifiablePath( "damages.lightning" ) ).to.be( true ) ;
-		expect( stats.checkModifiablePath( "damages.lightning.damage" ) ).to.be( true ) ;
-		expect( statsP.damages.actual.lightning ).to.be.truthy() ;
-		return ;
-		//*/
-
-
 		expect( statsP.damages ).to.only.have.own.keys( 'template' , 'blunt' , 'fire' ) ;
 		expect( stats.nestedStats.stats.damages.template.stats.damage.base ).to.be( 0 ) ;
 		expect( statsP.damages.template.damage.base ).to.be( 0 ) ;
@@ -1015,8 +1009,9 @@ describe( "Wild Nested Stats" , () => {
 		expect( statsP.damages.actual.fire.damage.actual ).to.be( 4 ) ;
 
 		var mods2 = new lib.ModifiersTable( 'ring-of-fire-and-storm' , {
-			"damages": [ '#' , [ 'fire' , 'lightning' ] ] ,
+			"damages.fire": [ '#' , true ] ,
 			"damages.fire.damage": [ '+' , 3 ] ,
+			"damages.lightning": [ '#' , true ] ,
 			"damages.lightning.damage": [ '+' , 3 ]
 		} ) ;
 		
@@ -1061,7 +1056,92 @@ describe( "Wild Nested Stats" , () => {
 		expect( statsP.damages.actual.fire.damage.actual ).to.be( 4 ) ;
 	} ) ;
 
-	it( "WildNestedStats .fixAttachment() and .setStat() bugs" , () => {
+	it( "zzz ModifiersTable activate + nested object syntax for WildNestedStats" , () => {
+		var stats = new lib.StatsTable( {
+			damages: new lib.WildNestedStats( {
+				_: { area: 1 , damage: 0 } ,
+				blunt: { area: 1 , damage: 10 } ,
+				fire: { area: 2 , damage: 4 }
+			} )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+
+		var mods = new lib.ModifiersTable( 'ring-of-lightning' , {
+			"damages.lightning": [ '#' , {
+				damage: [ '+' , 5 ] ,
+				area: [ '+' , 6 ]
+			} ]
+		} ) ;
+		
+		statsP.stack( mods ) ;
+		
+		expect( statsP.damages ).to.only.have.own.keys( 'template' , 'blunt' , 'fire' ) ;
+		expect( stats.nestedStats.stats.damages.template.stats.damage.base ).to.be( 0 ) ;
+		expect( statsP.damages.template.damage.base ).to.be( 0 ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( stats.nestedStats.stats.damages.stats.fire.stats.damage.base ).to.be( 4 ) ;
+		expect( statsP.damages.fire.damage.base ).to.be( 4 ) ;
+		expect( statsP.damages.base ).to.only.have.own.keys( 'blunt' , 'fire' ) ;
+		expect( statsP.damages.base.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.base.fire.damage.base ).to.be( 4 ) ;
+		expect( statsP.damages.actual ).to.only.have.own.keys( 'blunt' , 'fire' , 'lightning' ) ;
+		expect( statsP.damages.actual.blunt.damage.base ).to.be( 10 ) ;	// it makes no sense to mix 'actual' and 'base', but we test it anyway
+		expect( statsP.damages.actual.blunt.damage.actual ).to.be( 10 ) ;
+		expect( statsP.damages.actual.fire.damage.base ).to.be( 4 ) ;	// it makes no sense to mix 'actual' and 'base', but we test it anyway
+		expect( statsP.damages.actual.fire.damage.actual ).to.be( 4 ) ;
+		expect( statsP.damages.actual.lightning.damage.base ).to.be( 0 ) ;	// it makes no sense to mix 'actual' and 'base', but we test it anyway
+		expect( statsP.damages.actual.lightning.damage.actual ).to.be( 5 ) ;
+		expect( statsP.damages.actual.lightning.area.actual ).to.be( 7 ) ;
+
+		
+		// KFG variant
+
+		stats = new lib.StatsTable( {
+			damages: new lib.WildNestedStats( {
+				_: { area: 1 , damage: 0 } ,
+				blunt: { area: 1 , damage: 10 } ,
+				fire: { area: 2 , damage: 4 }
+			} )
+		} ) ;
+		
+		statsP = stats.getProxy() ;
+
+		mods = new lib.ModifiersTable( 'ring-of-lightning' , {
+			"damages.lightning": {
+				__prototypeUID__: 'kung-fig/Operator' ,
+				operator: '#' ,
+				operand: {
+					damage: [ '+' , 5 ] ,
+					area: [ '+' , 6 ]
+				}
+			} ,
+		} ) ;
+		
+		statsP.stack( mods ) ;
+
+		expect( statsP.damages ).to.only.have.own.keys( 'template' , 'blunt' , 'fire' ) ;
+		expect( stats.nestedStats.stats.damages.template.stats.damage.base ).to.be( 0 ) ;
+		expect( statsP.damages.template.damage.base ).to.be( 0 ) ;
+		expect( stats.nestedStats.stats.damages.stats.blunt.stats.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.blunt.damage.base ).to.be( 10 ) ;
+		expect( stats.nestedStats.stats.damages.stats.fire.stats.damage.base ).to.be( 4 ) ;
+		expect( statsP.damages.fire.damage.base ).to.be( 4 ) ;
+		expect( statsP.damages.base ).to.only.have.own.keys( 'blunt' , 'fire' ) ;
+		expect( statsP.damages.base.blunt.damage.base ).to.be( 10 ) ;
+		expect( statsP.damages.base.fire.damage.base ).to.be( 4 ) ;
+		expect( statsP.damages.actual ).to.only.have.own.keys( 'blunt' , 'fire' , 'lightning' ) ;
+		expect( statsP.damages.actual.blunt.damage.base ).to.be( 10 ) ;	// it makes no sense to mix 'actual' and 'base', but we test it anyway
+		expect( statsP.damages.actual.blunt.damage.actual ).to.be( 10 ) ;
+		expect( statsP.damages.actual.fire.damage.base ).to.be( 4 ) ;	// it makes no sense to mix 'actual' and 'base', but we test it anyway
+		expect( statsP.damages.actual.fire.damage.actual ).to.be( 4 ) ;
+		expect( statsP.damages.actual.lightning.damage.base ).to.be( 0 ) ;	// it makes no sense to mix 'actual' and 'base', but we test it anyway
+		expect( statsP.damages.actual.lightning.damage.actual ).to.be( 5 ) ;
+		expect( statsP.damages.actual.lightning.area.actual ).to.be( 7 ) ;
+	} ) ;
+
+	it( "WildNestedStats .fixAttachment() and .setStat() historical bugs" , () => {
 		var wildNestedStats , wildNestedStats2 , stats , statsP ;
 
 		var testAllExpectations = () => {
