@@ -1959,6 +1959,130 @@ describe( "Pool Stats" , () => {
 		expect( statsP.hp.used ).to.be( 8 ) ;
 	} ) ;
 
+	it( "Pool with rounding mode" , () => {
+		var stats , statsP ;
+		
+		stats = new lib.StatsTable( { hp: new lib.Pool( { base: 8 } ) } ) ;
+		statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.lose( 1.5 ) ).to.be( 1.5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 6.5 ) ;
+		expect( statsP.hp.lost ).to.be( 1.5 ) ;
+		
+		stats = new lib.StatsTable( { hp: new lib.Pool( { base: 8 , round: true } ) } ) ;
+		statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.lose( 1.5 ) ).to.be( 1.5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.lost ).to.be( 1.5 ) ;
+
+		expect( statsP.hp.lose( 0.2 ) ).to.be( 0.2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 6 ) ;
+		expect( statsP.hp.lost ).to.be( 1.7 ) ;
+		
+		stats = new lib.StatsTable( { hp: new lib.Pool( { base: 8 , round: 'round' } ) } ) ;
+		statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.lose( 1.5 ) ).to.be( 1.5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.lost ).to.be( 1.5 ) ;
+
+		expect( statsP.hp.lose( 0.2 ) ).to.be( 0.2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 6 ) ;
+		expect( statsP.hp.lost ).to.be( 1.7 ) ;
+		
+		stats = new lib.StatsTable( { hp: new lib.Pool( { base: 8 , round: 'ceil' } ) } ) ;
+		statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.lose( 1.5 ) ).to.be( 1.5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.lost ).to.be( 1.5 ) ;
+
+		expect( statsP.hp.lose( 0.2 ) ).to.be( 0.2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.lost ).to.be( 1.7 ) ;
+		
+		stats = new lib.StatsTable( { hp: new lib.Pool( { base: 8 , round: 'floor' } ) } ) ;
+		statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.lose( 1.5 ) ).to.be( 1.5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 6 ) ;
+		expect( statsP.hp.lost ).to.be( 1.5 ) ;
+
+		expect( statsP.hp.lose( 0.2 ) ).to.be( 0.2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 6 ) ;
+		expect( statsP.hp.lost ).to.be( 1.7 ) ;
+	} ) ;
+
+	it( "Pool with negative mode" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 , negative: true } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 0 ) ;
+
+		expect( statsP.hp.lose( 1 ) ).to.be( 1 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.lost ).to.be( 1 ) ;
+
+		expect( statsP.hp.lose( 2 ) ).to.be( 2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.lost ).to.be( 3 ) ;
+
+		expect( statsP.hp.lose( 20 ) ).to.be( 20 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( -15 ) ;
+		expect( statsP.hp.lost ).to.be( 23 ) ;
+
+		expect( statsP.hp.lose( 5 ) ).to.be( 5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( -20 ) ;
+		expect( statsP.hp.lost ).to.be( 28 ) ;
+	} ) ;
+	
+	it( "Pool with overflow mode" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 , overflow: true } )
+		} ) ;
+		
+		var statsP = stats.getProxy() ;
+		
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 0 ) ;
+
+		expect( statsP.hp.add( 1 ) ).to.be( 1 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 9 ) ;
+		expect( statsP.hp.lost ).to.be( -1 ) ;
+
+		expect( statsP.hp.add( 3 ) ).to.be( 3 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 12 ) ;
+		expect( statsP.hp.lost ).to.be( -4 ) ;
+		
+		// Should fix overflow when setting it back to false
+		statsP.hp.overflow = false ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 0 ) ;
+	} ) ;
+	
 	it( "Pool Stats with Modifiers" , () => {
 		var stats = new lib.StatsTable( {
 			hp: new lib.Pool( { base: 8 } )
