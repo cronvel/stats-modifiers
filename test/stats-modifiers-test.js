@@ -2074,7 +2074,66 @@ describe( "Pool Stats" , () => {
 		expect( statsP.hp.lost ).to.be( 0 ) ;
 	} ) ;
 
-	it( "Pool with the actual-overflow/internal-overflow/actual-overuse/internal-overuse mode" ) ;
+	it( "Keeping track to overused lost points internally with the internal-overuse mode" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 , internalOveruse: true } )
+		} ) ;
+
+		var statsP = stats.getProxy() ;
+
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 0 ) ;
+
+		expect( statsP.hp.lose( 1 ) ).to.be( 1 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.lost ).to.be( 1 ) ;
+
+		expect( statsP.hp.lose( 2 ) ).to.be( 2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.lost ).to.be( 3 ) ;
+
+		expect( statsP.hp.lose( 20 ) ).to.be( 20 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.lost ).to.be( 23 ) ;
+
+		expect( statsP.hp.lose( 5 ) ).to.be( 5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.lost ).to.be( 28 ) ;
+
+		// Restoring an overused pool
+		expect( statsP.hp.restore( 15 ) ).to.be( 15 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.used ).to.be( 13 ) ;
+		expect( statsP.hp.restore( 20 ) ).to.be( 13 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+	} ) ;
+
+	it( "Keeping track to overflowed extra points internally with the internal-overflow mode" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 , internalOverflow: true } )
+		} ) ;
+
+		var statsP = stats.getProxy() ;
+
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+
+		expect( statsP.hp.add( 5 ) ).to.be( 5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( -5 ) ;
+	} ) ;
+
+	it( "actual-overflow / actual-overuse modes" ) ;
 
 	it( "Pool Stats with Modifiers" , () => {
 		var stats = new lib.StatsTable( {
