@@ -1803,10 +1803,10 @@ describe( "Pool Stats" , () => {
 		expect( statsP.hp.actual ).to.be( 8 ) ;
 		expect( statsP.hp.used ).to.be( 0 ) ;
 
-		expect( statsP.hp.add( - 50 ) ).to.be( - 8 ) ;
+		expect( statsP.hp.add( - 50 ) ).to.be( - 50 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 0 ) ;
-		expect( statsP.hp.used ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 50 ) ;
 	} ) ;
 
 	it( "Losing points from a Pool" , () => {
@@ -1830,15 +1830,15 @@ describe( "Pool Stats" , () => {
 		expect( statsP.hp.actual ).to.be( 5 ) ;
 		expect( statsP.hp.lost ).to.be( 3 ) ;
 
-		expect( statsP.hp.lose( 20 ) ).to.be( 5 ) ;
+		expect( statsP.hp.lose( 20 ) ).to.be( 20 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 0 ) ;
-		expect( statsP.hp.lost ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 23 ) ;
 
-		expect( statsP.hp.lose( 5 ) ).to.be( 0 ) ;
+		expect( statsP.hp.lose( 5 ) ).to.be( 5 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 0 ) ;
-		expect( statsP.hp.lost ).to.be( 8 ) ;
+		expect( statsP.hp.lost ).to.be( 28 ) ;
 	} ) ;
 
 	it( "Using points from a Pool" , () => {
@@ -1901,6 +1901,38 @@ describe( "Pool Stats" , () => {
 		expect( statsP.hp.used ).to.be( 0 ) ;
 	} ) ;
 
+	it( "Depleting points from a Pool" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 } )
+		} ) ;
+
+		var statsP = stats.getProxy() ;
+
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+
+		expect( statsP.hp.deplete( 1 ) ).to.be( 1 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 7 ) ;
+		expect( statsP.hp.used ).to.be( 1 ) ;
+
+		expect( statsP.hp.deplete( 2 ) ).to.be( 2 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.used ).to.be( 3 ) ;
+
+		expect( statsP.hp.deplete( 20 ) ).to.be( 5 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.used ).to.be( 8 ) ;
+
+		expect( statsP.hp.deplete( 5 ) ).to.be( 0 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.used ).to.be( 8 ) ;
+	} ) ;
+
 	it( "Replenishing the Pool" , () => {
 		var stats = new lib.StatsTable( {
 			hp: new lib.Pool( { base: 8 } )
@@ -1922,12 +1954,12 @@ describe( "Pool Stats" , () => {
 		expect( statsP.hp.actual ).to.be( 8 ) ;
 		expect( statsP.hp.used ).to.be( 0 ) ;
 
-		expect( statsP.hp.lose( 20 ) ).to.be( 8 ) ;
+		expect( statsP.hp.lose( 20 ) ).to.be( 20 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 0 ) ;
-		expect( statsP.hp.used ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 20 ) ;
 
-		expect( statsP.hp.replenish() ).to.be( 8 ) ;
+		expect( statsP.hp.replenish() ).to.be( 20 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 8 ) ;
 		expect( statsP.hp.used ).to.be( 0 ) ;
@@ -2014,9 +2046,9 @@ describe( "Pool Stats" , () => {
 		expect( statsP.hp.lost ).to.be( 1.75 ) ;
 	} ) ;
 
-	it( "Pool with the overuse mode" , () => {
+	it( "Pool with the internal overuse turned off" , () => {
 		var stats = new lib.StatsTable( {
-			hp: new lib.Pool( { base: 8 , overuse: true } )
+			hp: new lib.Pool( { base: 8 , internalOveruse: false } )
 		} ) ;
 
 		var statsP = stats.getProxy() ;
@@ -2035,15 +2067,15 @@ describe( "Pool Stats" , () => {
 		expect( statsP.hp.actual ).to.be( 5 ) ;
 		expect( statsP.hp.lost ).to.be( 3 ) ;
 
-		expect( statsP.hp.lose( 20 ) ).to.be( 20 ) ;
+		expect( statsP.hp.lose( 20 ) ).to.be( 5 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( - 15 ) ;
-		expect( statsP.hp.lost ).to.be( 23 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.lost ).to.be( 8 ) ;
 
-		expect( statsP.hp.lose( 5 ) ).to.be( 5 ) ;
+		expect( statsP.hp.lose( 5 ) ).to.be( 0 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( - 20 ) ;
-		expect( statsP.hp.lost ).to.be( 28 ) ;
+		expect( statsP.hp.actual ).to.be( 0 ) ;
+		expect( statsP.hp.lost ).to.be( 8 ) ;
 	} ) ;
 
 	it( "Pool with overflow mode" , () => {
