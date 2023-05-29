@@ -2167,6 +2167,67 @@ describe( "Pool Stats" , () => {
 
 	it( "actual-overflow / actual-overuse modes" ) ;
 
+	it( "Allocating / pre-gaining points behavior" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 } )
+		} ) ;
+
+		var statsP = stats.getProxy() ;
+
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+		expect( statsP.hp.allocated ).to.be( 0 ) ;
+
+		expect( statsP.hp.allocate( 5 ) ).to.be( true ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+		expect( statsP.hp.allocated ).to.be( 5 ) ;
+
+		expect( statsP.hp.use( 5 ) ).to.be( false ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+		expect( statsP.hp.allocated ).to.be( 5 ) ;
+
+		expect( statsP.hp.use( 2 ) ).to.be( true ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 6 ) ;
+		expect( statsP.hp.used ).to.be( 2 ) ;
+		expect( statsP.hp.allocated ).to.be( 5 ) ;
+
+		statsP.hp.commit() ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 1 ) ;
+		expect( statsP.hp.used ).to.be( 7 ) ;
+		expect( statsP.hp.allocated ).to.be( 0 ) ;
+
+		expect( statsP.hp.preGain( 3 ) ).to.be( 3 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 1 ) ;
+		expect( statsP.hp.used ).to.be( 7 ) ;
+		expect( statsP.hp.allocated ).to.be( -3 ) ;
+
+		expect( statsP.hp.restore( 5 ) ).to.be( 4 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.used ).to.be( 3 ) ;
+		expect( statsP.hp.allocated ).to.be( -3 ) ;
+
+		expect( statsP.hp.restore( 5 ) ).to.be( 0 ) ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 5 ) ;
+		expect( statsP.hp.used ).to.be( 3 ) ;
+		expect( statsP.hp.allocated ).to.be( -3 ) ;
+
+		statsP.hp.commit() ;
+		expect( statsP.hp.base ).to.be( 8 ) ;
+		expect( statsP.hp.actual ).to.be( 8 ) ;
+		expect( statsP.hp.used ).to.be( 0 ) ;
+		expect( statsP.hp.allocated ).to.be( 0 ) ;
+	} ) ;
+
 	it( "Pool Stats with Modifiers" , () => {
 		var stats = new lib.StatsTable( {
 			hp: new lib.Pool( { base: 8 } )
