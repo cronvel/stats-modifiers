@@ -1773,7 +1773,7 @@ describe( "Pool Stats" , () => {
 
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 8 ) ;
-		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.actualMax ).to.be( 8 ) ;
 		expect( statsP.hp.used ).to.be( 0 ) ;
 	} ) ;
 
@@ -2167,67 +2167,6 @@ describe( "Pool Stats" , () => {
 
 	it( "actual-overflow / actual-overuse modes" ) ;
 
-	it( "Allocating / pre-gaining points behavior" , () => {
-		var stats = new lib.StatsTable( {
-			hp: new lib.Pool( { base: 8 } )
-		} ) ;
-
-		var statsP = stats.getProxy() ;
-
-		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( 8 ) ;
-		expect( statsP.hp.used ).to.be( 0 ) ;
-		expect( statsP.hp.allocated ).to.be( 0 ) ;
-
-		expect( statsP.hp.allocate( 5 ) ).to.be( true ) ;
-		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( 8 ) ;
-		expect( statsP.hp.used ).to.be( 0 ) ;
-		expect( statsP.hp.allocated ).to.be( 5 ) ;
-
-		expect( statsP.hp.use( 5 ) ).to.be( false ) ;
-		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( 8 ) ;
-		expect( statsP.hp.used ).to.be( 0 ) ;
-		expect( statsP.hp.allocated ).to.be( 5 ) ;
-
-		expect( statsP.hp.use( 2 ) ).to.be( true ) ;
-		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( 6 ) ;
-		expect( statsP.hp.used ).to.be( 2 ) ;
-		expect( statsP.hp.allocated ).to.be( 5 ) ;
-
-		statsP.hp.commit() ;
-		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( 1 ) ;
-		expect( statsP.hp.used ).to.be( 7 ) ;
-		expect( statsP.hp.allocated ).to.be( 0 ) ;
-
-		expect( statsP.hp.preGain( 3 ) ).to.be( 3 ) ;
-		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( 1 ) ;
-		expect( statsP.hp.used ).to.be( 7 ) ;
-		expect( statsP.hp.allocated ).to.be( -3 ) ;
-
-		expect( statsP.hp.restore( 5 ) ).to.be( 4 ) ;
-		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( 5 ) ;
-		expect( statsP.hp.used ).to.be( 3 ) ;
-		expect( statsP.hp.allocated ).to.be( -3 ) ;
-
-		expect( statsP.hp.restore( 5 ) ).to.be( 0 ) ;
-		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( 5 ) ;
-		expect( statsP.hp.used ).to.be( 3 ) ;
-		expect( statsP.hp.allocated ).to.be( -3 ) ;
-
-		statsP.hp.commit() ;
-		expect( statsP.hp.base ).to.be( 8 ) ;
-		expect( statsP.hp.actual ).to.be( 8 ) ;
-		expect( statsP.hp.used ).to.be( 0 ) ;
-		expect( statsP.hp.allocated ).to.be( 0 ) ;
-	} ) ;
-
 	it( "Pool Stats with Modifiers" , () => {
 		var stats = new lib.StatsTable( {
 			hp: new lib.Pool( { base: 8 } )
@@ -2244,32 +2183,32 @@ describe( "Pool Stats" , () => {
 		expect( statsP.hp.lose( 5 ) ).to.be( 5 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 3 ) ;
-		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.actualMax ).to.be( 8 ) ;
 		expect( statsP.hp.lost ).to.be( 5 ) ;
 
 		statsP.stack( modsP ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 5 ) ;
-		expect( statsP.hp.max ).to.be( 10 ) ;
+		expect( statsP.hp.actualMax ).to.be( 10 ) ;
 		expect( statsP.hp.lost ).to.be( 5 ) ;
 
 		statsP.unstack( modsP ) ;
 		statsP.hp.replenish() ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 8 ) ;
-		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.actualMax ).to.be( 8 ) ;
 		expect( statsP.hp.lost ).to.be( 0 ) ;
 
 		statsP.stack( modsP ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 10 ) ;
-		expect( statsP.hp.max ).to.be( 10 ) ;
+		expect( statsP.hp.actualMax ).to.be( 10 ) ;
 		expect( statsP.hp.lost ).to.be( 0 ) ;
 
 		statsP.hp.lose( 2 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 8 ) ;
-		expect( statsP.hp.max ).to.be( 10 ) ;
+		expect( statsP.hp.actualMax ).to.be( 10 ) ;
 		expect( statsP.hp.lost ).to.be( 2 ) ;
 	} ) ;
 
@@ -2289,32 +2228,32 @@ describe( "Pool Stats" , () => {
 		statsP.hp.lose( 6 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 2 ) ;
-		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.actualMax ).to.be( 8 ) ;
 		expect( statsP.hp.lost ).to.be( 6 ) ;
 
 		statsP.stack( modsP ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 10 ) ;
-		expect( statsP.hp.max ).to.be( 16 ) ;
+		expect( statsP.hp.actualMax ).to.be( 16 ) ;
 		expect( statsP.hp.lost ).to.be( 6 ) ;
 
 		statsP.hp.lose( 1 ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 9 ) ;
-		expect( statsP.hp.max ).to.be( 16 ) ;
+		expect( statsP.hp.actualMax ).to.be( 16 ) ;
 		expect( statsP.hp.lost ).to.be( 7 ) ;
 
 		statsP.unstack( modsP ) ;
 		expect( statsP.hp.base ).to.be( 8 ) ;
 		expect( statsP.hp.actual ).to.be( 1 ) ;
-		expect( statsP.hp.max ).to.be( 8 ) ;
+		expect( statsP.hp.actualMax ).to.be( 8 ) ;
 		expect( statsP.hp.lost ).to.be( 7 ) ;
 	} ) ;
 
 	it( "Pool Stats clone" , () => {
 		var stats , statsClone , statsP , statsCloneP ;
 
-		stats = new lib.StatsTable( { hp: new lib.Pool( { base: 100 , min: 0 , max: 100 } ) } ) ;
+		stats = new lib.StatsTable( { hp: new lib.Pool( { base: 100 } ) } ) ;
 		statsClone = stats.clone() ;
 		expect( statsClone ).not.to.be( stats ) ;
 		expect( statsClone ).to.equal( stats ) ;
@@ -2335,7 +2274,7 @@ describe( "Pool Stats" , () => {
 		expect( stats.nestedStats.stats.hp.getActual() ).to.be( 80 ) ;
 
 		// Historical bugs, when passing a proxy of Pool/HistoryAlignometer/Compound:
-		stats = new lib.StatsTable( { hp: new lib.Pool( { base: 100 , min: 0 , max: 100 } ).getProxy() } ) ;
+		stats = new lib.StatsTable( { hp: new lib.Pool( { base: 100 } ).getProxy() } ) ;
 		statsClone = stats.clone() ;
 		expect( stats.nestedStats.stats.hp.getProxy ).to.be.a( 'function' ) ;
 		expect( statsClone.nestedStats.stats.hp.getProxy ).to.be.a( 'function' ) ;
@@ -2346,7 +2285,7 @@ describe( "Pool Stats" , () => {
 		expect( statsCloneP.hp.base ).to.be( 100 ) ;
 		expect( statsCloneP.hp.actual ).to.be( 100 ) ;
 
-		stats = new lib.StatsTable( { nested: { hp: new lib.Pool( { base: 100 , min: 0 , max: 100 } ).getProxy() } } ) ;
+		stats = new lib.StatsTable( { nested: { hp: new lib.Pool( { base: 100 } ).getProxy() } } ) ;
 		statsClone = stats.clone() ;
 		expect( stats.nestedStats.stats.nested.stats.hp.getProxy ).to.be.a( 'function' ) ;
 		expect( statsClone.nestedStats.stats.nested.stats.hp.getProxy ).to.be.a( 'function' ) ;
@@ -2356,6 +2295,188 @@ describe( "Pool Stats" , () => {
 		expect( statsCloneP.nested.hp ).not.to.be( statsP.nested.hp ) ;
 		expect( statsCloneP.nested.hp.base ).to.be( 100 ) ;
 		expect( statsCloneP.nested.hp.actual ).to.be( 100 ) ;
+	} ) ;
+
+	describe( "Allocation" , () => {
+
+		it( "Allocating / pre-gaining points behavior" , () => {
+			var stats = new lib.StatsTable( {
+				hp: new lib.Pool( { base: 8 } )
+			} ) ;
+
+			var statsP = stats.getProxy() ;
+
+			expect( statsP.hp.base ).to.be( 8 ) ;
+			expect( statsP.hp.actual ).to.be( 8 ) ;
+			expect( statsP.hp.used ).to.be( 0 ) ;
+			expect( statsP.hp.allocated ).to.be( 0 ) ;
+
+			expect( statsP.hp.allocate( 5 ) ).to.be( true ) ;
+			expect( statsP.hp.base ).to.be( 8 ) ;
+			expect( statsP.hp.actual ).to.be( 8 ) ;
+			expect( statsP.hp.used ).to.be( 0 ) ;
+			expect( statsP.hp.allocated ).to.be( 5 ) ;
+
+			expect( statsP.hp.use( 5 ) ).to.be( false ) ;
+			expect( statsP.hp.base ).to.be( 8 ) ;
+			expect( statsP.hp.actual ).to.be( 8 ) ;
+			expect( statsP.hp.used ).to.be( 0 ) ;
+			expect( statsP.hp.allocated ).to.be( 5 ) ;
+
+			expect( statsP.hp.use( 2 ) ).to.be( true ) ;
+			expect( statsP.hp.base ).to.be( 8 ) ;
+			expect( statsP.hp.actual ).to.be( 6 ) ;
+			expect( statsP.hp.used ).to.be( 2 ) ;
+			expect( statsP.hp.allocated ).to.be( 5 ) ;
+
+			statsP.hp.commit() ;
+			expect( statsP.hp.base ).to.be( 8 ) ;
+			expect( statsP.hp.actual ).to.be( 1 ) ;
+			expect( statsP.hp.used ).to.be( 7 ) ;
+			expect( statsP.hp.allocated ).to.be( 0 ) ;
+
+			expect( statsP.hp.preGain( 3 ) ).to.be( 3 ) ;
+			expect( statsP.hp.base ).to.be( 8 ) ;
+			expect( statsP.hp.actual ).to.be( 1 ) ;
+			expect( statsP.hp.used ).to.be( 7 ) ;
+			expect( statsP.hp.allocated ).to.be( -3 ) ;
+
+			expect( statsP.hp.restore( 5 ) ).to.be( 4 ) ;
+			expect( statsP.hp.base ).to.be( 8 ) ;
+			expect( statsP.hp.actual ).to.be( 5 ) ;
+			expect( statsP.hp.used ).to.be( 3 ) ;
+			expect( statsP.hp.allocated ).to.be( -3 ) ;
+
+			expect( statsP.hp.restore( 5 ) ).to.be( 0 ) ;
+			expect( statsP.hp.base ).to.be( 8 ) ;
+			expect( statsP.hp.actual ).to.be( 5 ) ;
+			expect( statsP.hp.used ).to.be( 3 ) ;
+			expect( statsP.hp.allocated ).to.be( -3 ) ;
+
+			statsP.hp.commit() ;
+			expect( statsP.hp.base ).to.be( 8 ) ;
+			expect( statsP.hp.actual ).to.be( 8 ) ;
+			expect( statsP.hp.used ).to.be( 0 ) ;
+			expect( statsP.hp.allocated ).to.be( 0 ) ;
+		} ) ;
+
+		it( "More allocation tests" ) ;
+	} ) ;
+
+	describe( "Reserve" , () => {
+
+		it( "Reserve's balance behavior" , () => {
+			var stats = new lib.StatsTable( {
+				attacks: new lib.Pool( { base: 3 , reserveFactor: 1 } )
+			} ) ;
+
+			var statsP = stats.getProxy() ;
+
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 3 ) ;
+			expect( statsP.attacks.used ).to.be( 0 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 3 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 0 ) ;
+
+			expect( statsP.attacks.use( 3 ) ).to.be( true ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 0 ) ;
+			expect( statsP.attacks.used ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 3 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 0 ) ;
+
+			expect( statsP.attacks.balance() ).to.be( 1.5 ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 1.5 ) ;
+			expect( statsP.attacks.used ).to.be( 1.5 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 1.5 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 1.5 ) ;
+		} ) ;
+
+		it( "When .actualRound is set, .balance() should round the wanted result" , () => {
+			var stats = new lib.StatsTable( {
+				attacks: new lib.Pool( { base: 3 , reserveFactor: 1 , actualRound: 1 } )
+			} ) ;
+
+			var statsP = stats.getProxy() ;
+
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 3 ) ;
+			expect( statsP.attacks.used ).to.be( 0 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 3 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 0 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 6 ) ;
+
+			expect( statsP.attacks.use( 3 ) ).to.be( true ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 0 ) ;
+			expect( statsP.attacks.used ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 3 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 0 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 3 ) ;
+
+			expect( statsP.attacks.balance() ).to.be( 2 ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 2 ) ;
+			expect( statsP.attacks.used ).to.be( 1 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 1 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 2 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 3 ) ;
+
+			expect( statsP.attacks.use( 2 ) ).to.be( true ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 0 ) ;
+			expect( statsP.attacks.used ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 1 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 2 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 1 ) ;
+
+			expect( statsP.attacks.balance() ).to.be( 1 ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 1 ) ;
+			expect( statsP.attacks.used ).to.be( 2 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 0 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 3 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 1 ) ;
+
+			expect( statsP.attacks.use( 1 ) ).to.be( true ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 0 ) ;
+			expect( statsP.attacks.used ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 0 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 3 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 0 ) ;
+
+			expect( statsP.attacks.balance() ).to.be( 0 ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 0 ) ;
+			expect( statsP.attacks.used ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 0 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 3 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 0 ) ;
+		} ) ;
+
+		it( "More reserve tests" )
 	} ) ;
 } ) ;
 
