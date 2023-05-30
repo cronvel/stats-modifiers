@@ -2166,6 +2166,7 @@ describe( "Pool Stats" , () => {
 	} ) ;
 
 	it( "actual-overflow / actual-overuse modes" ) ;
+	it( ".cleanUp()" ) ;
 
 	it( "Pool Stats with Modifiers" , () => {
 		var stats = new lib.StatsTable( {
@@ -2365,7 +2366,7 @@ describe( "Pool Stats" , () => {
 
 	describe( "Reserve" , () => {
 
-		it( "Reserve's balance behavior" , () => {
+		it( "Reserve's .balance() behavior" , () => {
 			var stats = new lib.StatsTable( {
 				attacks: new lib.Pool( { base: 3 , reserveFactor: 1 } )
 			} ) ;
@@ -2466,6 +2467,132 @@ describe( "Pool Stats" , () => {
 			expect( statsP.attacks.actualPoolAndReserve ).to.be( 0 ) ;
 
 			expect( statsP.attacks.balance() ).to.be( 0 ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 0 ) ;
+			expect( statsP.attacks.used ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 0 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 3 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 0 ) ;
+		} ) ;
+
+		it( "Reserve and modifiers" , () => {
+			var stats , statsP , mods , modsP ;
+
+			stats = new lib.StatsTable( {
+				attacks: new lib.Pool( { base: 3 , reserveFactor: 1 , actualRound: 1 } )
+			} ) ;
+			statsP = stats.getProxy() ;
+
+			mods = new lib.ModifiersTable( 'attack-aura' , { attacks: [ '+' , 2 ] } ) ;
+			modsP = mods.getProxy() ;
+
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 3 ) ;
+			expect( statsP.attacks.used ).to.be( 0 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 3 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 0 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 6 ) ;
+
+			statsP.stack( modsP ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 5 ) ;
+			expect( statsP.attacks.actual ).to.be( 5 ) ;
+			expect( statsP.attacks.used ).to.be( 0 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 5 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 5 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 0 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 10 ) ;
+
+			statsP.unstack( modsP ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 3 ) ;
+			expect( statsP.attacks.used ).to.be( 0 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 3 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 0 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 6 ) ;
+
+			expect( statsP.attacks.use( 2 ) ).to.be( true ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 1 ) ;
+			expect( statsP.attacks.used ).to.be( 2 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 3 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 0 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 4 ) ;
+
+			statsP.stack( modsP ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 5 ) ;
+			expect( statsP.attacks.actual ).to.be( 3 ) ;
+			expect( statsP.attacks.used ).to.be( 2 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 5 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 5 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 0 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 8 ) ;
+
+			expect( statsP.attacks.use( 2 ) ).to.be( true ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 5 ) ;
+			expect( statsP.attacks.actual ).to.be( 1 ) ;
+			expect( statsP.attacks.used ).to.be( 4 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 5 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 5 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 0 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 6 ) ;
+
+			expect( statsP.attacks.balance() ).to.be( 2 ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 5 ) ;
+			expect( statsP.attacks.actual ).to.be( 3 ) ;
+			expect( statsP.attacks.used ).to.be( 2 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 5 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 3 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 2 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 6 ) ;
+
+			statsP.unstack( modsP ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 1 ) ;
+			expect( statsP.attacks.used ).to.be( 2 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 1 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 2 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 2 ) ;
+
+			statsP.stack( modsP ) ;
+			expect( statsP.attacks.use( 3 ) ).to.be( true ) ;
+			expect( statsP.attacks.balance() ).to.be( 2 ) ;
+			expect( statsP.attacks.use( 2 ) ).to.be( true ) ;
+			expect( statsP.attacks.balance() ).to.be( 1 ) ;
+			
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 5 ) ;
+			expect( statsP.attacks.actual ).to.be( 1 ) ;
+			expect( statsP.attacks.used ).to.be( 4 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 5 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 0 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 5 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 1 ) ;
+
+			statsP.unstack( modsP ) ;
+			expect( statsP.attacks.base ).to.be( 3 ) ;
+			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actual ).to.be( 0 ) ;
+			expect( statsP.attacks.used ).to.be( 4 ) ;
+			expect( statsP.attacks.actualReserveMax ).to.be( 3 ) ;
+			expect( statsP.attacks.actualReserve ).to.be( 0 ) ;
+			expect( statsP.attacks.reserveUsed ).to.be( 5 ) ;
+			expect( statsP.attacks.actualPoolAndReserve ).to.be( 0 ) ;
+
+			statsP.attacks.cleanUp() ;
 			expect( statsP.attacks.base ).to.be( 3 ) ;
 			expect( statsP.attacks.actualMax ).to.be( 3 ) ;
 			expect( statsP.attacks.actual ).to.be( 0 ) ;
