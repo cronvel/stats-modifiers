@@ -1,6 +1,6 @@
 {
   "name": "stats-modifiers",
-  "version": "0.7.18",
+  "version": "0.7.19",
   "description": "Stats and modifiers lib for gamedev.",
   "main": "lib/stats-modifiers.js",
   "engines": {
@@ -14,7 +14,7 @@
     "tree-kit": "^0.7.4"
   },
   "devDependencies": {
-    "kung-fig-expression": "^0.48.6"
+    "kung-fig-expression": "^0.49.1"
   },
   "scripts": {
     "test": "tea-time -R dot -O"
