@@ -10,8 +10,8 @@
     "test": "test"
   },
   "dependencies": {
-    "array-kit": "^0.2.4",
-    "tree-kit": "^0.8.1"
+    "array-kit": "^0.2.6",
+    "tree-kit": "^0.8.8"
   },
   "devDependencies": {
     "kung-fig-expression": "^0.49.1"
