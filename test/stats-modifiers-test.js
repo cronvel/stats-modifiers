@@ -1777,6 +1777,16 @@ describe( "Pool Stats" , () => {
 		expect( statsP.hp.used ).to.be( 0 ) ;
 	} ) ;
 
+	it( "Pool Stats proxy's enumerable properties" , () => {
+		var stats = new lib.StatsTable( {
+			hp: new lib.Pool( { base: 8 } )
+		} ) ;
+
+		var statsP = stats.getProxy() ;
+		expect( Object.keys( statsP.hp ) ).to.equal( [ 'base' , 'actual' , 'used' , 'allocated' , 'reserve-factor' , 'reserve-used' ] ) ;
+		//log( "Debug: %Y" , statsP ) ;
+	} ) ;
+
 	it( "Adding points to a Pool" , () => {
 		var stats = new lib.StatsTable( {
 			hp: new lib.Pool( { base: 8 } )
